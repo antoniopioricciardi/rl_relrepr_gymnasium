@@ -1,0 +1,58 @@
+python main_ddqn.py --track --seed 42 --wandb-project-name ddqn_test --exp-name test_1  --total-timesteps 700000 --buffer-size 50000
+
+
+python ddqn_pongenv_stateinfo.py \
+    --env-id PongEnv \
+    --track \
+    --wandb-project-name PongEnvSpeedInfo_DDQN \
+    --exp-name PongEnv \
+    --total-timesteps 1000000 \
+    --buffer-size 50000 \
+    --capture-video \
+    --seed 1 \
+    --learning-starts 1000 \
+    --random_ball_speed \
+    --use_state_info \
+    --no_frame_stack
+
+    --deterministic_env \
+
+
+xvfb-run -a python ddqn_pongenv_stateinfo.py --env-id PongEnv --track --seed 42 --wandb-project-name PongEnvVelocityInfo_DDQN --exp-name PongEnv-StateinfoNostack --total-timesteps 1000000 --buffer-size 50000 --capture-video --learning-starts 1000 --use_state_info --no_frame_stack
+
+
+
+
+multiple runs (xvfb-run -a  <- needed to run on a headless server):
+xvfb-run -a python -m cleanrl_utils.benchmark \
+    --env-ids Pong-v5 BeamRider-v5 Breakout-v5 \
+    --command "poetry run python cleanrl/ppo_atari_envpool.py --track" \
+    --num-seeds 3 \
+    --workers 1
+
+xvfb-run -a python -m sequential_runs --env-ids PongEnv \
+--command "python ddqn_pongenv_stateinfo.py --track --wandb-project-name PongEnvVelocityInfo_DDQN --exp-name PongEnv-StateinfoNostack --total-timesteps 1000000 --buffer-size 50000 --capture-video --learning-starts 1000 --use_state_info --no_frame_stack" \
+--num-seeds 3
+
+
+xvfb-run -a python -m sequential_runs --env-ids PongEnv \
+--command "python ddqn_pongenv_stateinfo.py --track --wandb-project-name PongEnvVelocityInfo_DDQN --exp-name PongEnv-Stateinfo --total-timesteps 1000000 --buffer-size 50000 --capture-video --learning-starts 1000 --no_frame_stack --use_state_info" \
+--num-seeds 1
+
+
+
+python ddqn_pongenv_stateinfo.py --env-id PongEnv --track --wandb-project-name PongEnvSpeedInfo_DDQN --exp-name PongEnv-RandomSpeed --total-timesteps 2000 --buffer-size 500 --capture-video --learning-starts 100 --no_frame_stack
+
+
+
+
+conda create --name rl_learning_parameters python=3.9.0
+
+RESUMING A RUN:
+
+WANDB_RUN_ID=15bghwej WANDB_RESUME=must python ppo_pongenv_pixels.py     --env-id PongEnv     --total-timesteps 10000000     --capture-video     --exp-name PongEnvStatic     --track     --wandb-project-name PongEnv     --seed 42     --num-envs 16
+
+
+TESTING:
+
+python test.py --exp-name PongEnvStatic
