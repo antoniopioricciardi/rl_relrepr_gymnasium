@@ -107,12 +107,30 @@ class MetersGroup(object):
         self._csv_writer.writerow(data)
         self._csv_file.flush()
 
+    # def _format(self, key, value, ty):
+    #     if ty == 'int':
+    #         value = int(value)
+    #         return f'{key}: {value}'
+    #     elif ty == 'float':
+    #         return f'{key}: {value:.04f}'
+    #     elif ty == 'time':
+    #         value = str(datetime.timedelta(seconds=int(value)))
+    #         return f'{key}: {value}'
+    #     else:
+    #         raise f'invalid format type: {ty}'
+        
     def _format(self, key, value, ty):
         if ty == 'int':
             value = int(value)
             return f'{key}: {value}'
         elif ty == 'float':
-            return f'{key}: {value:.04f}'
+            if isinstance(value, np.ndarray):
+                # Convert numpy array to a list of formatted strings
+                formatted_values = [f'{val:.04f}' for val in value]
+                return f'{key}: {", ".join(formatted_values)}'
+            else:
+                return f'{key}: {value:.04f}'
+            # return f'{key}: {value:.04f}'
         elif ty == 'time':
             value = str(datetime.timedelta(seconds=int(value)))
             return f'{key}: {value}'
