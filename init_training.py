@@ -90,7 +90,7 @@ def init_stuff_ppo(args, envs, eval_envs, device, wandb, writer, logger, log_pat
     CHECKPOINT_FREQUENCY = 50
 
     trainer = PPOTrainer_vec(
-        total_timesteps=args.total_timesteps, num_steps=args.num_steps, num_eval_eps=args.num_eval_eps,
+        seed=args.seed, total_timesteps=args.total_timesteps, num_steps=args.num_steps, num_eval_eps=args.num_eval_eps,
         num_minibatches=args.num_minibatches, minibatch_size=args.minibatch_size, update_epochs=args.update_epochs,
         envs=envs, eval_envs=eval_envs, encoder=encoder, policy=policy, agent=agent,
         use_relative=args.use_relative, pretrained=args.pretrained or args.use_resnet, optimizer=optimizer, checkpoint_frequency=CHECKPOINT_FREQUENCY,

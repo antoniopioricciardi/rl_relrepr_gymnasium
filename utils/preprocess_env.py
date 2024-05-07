@@ -176,9 +176,8 @@ class RescaleObservation(
             low=env.observation_space.low / value,
             high=env.observation_space.high / value,
             shape=env.observation_space.shape,
-            dtype=env.observation_space.dtype,
+            dtype=np.float32,
         )
-
         # gym.utils.RecordConstructorArgs.__init__(self, shape=shape)
         TransformObservation.__init__(
             self,

@@ -31,13 +31,14 @@ from utils.evaluation import evaluate_vec_env
 
 
 class PPOTrainer_vec:
-    def __init__(self, total_timesteps, num_steps, num_eval_eps, num_minibatches, minibatch_size, update_epochs,
+    def __init__(self, seed, total_timesteps, num_steps, num_eval_eps, num_minibatches, minibatch_size, update_epochs,
                  envs, eval_envs, encoder, policy, agent, use_relative, pretrained,
                  optimizer, checkpoint_frequency,
                  learning_rate, gamma, norm_adv, gae_lambda, clip_coef, ent_coef, vf_coef, clip_vloss, max_grad_norm, target_kl,
                  anneal_lr, 
                  track, wandb, writer, logger, log_path, csv_file_path, eval_csv_file_path, device,
                  num_updates=0):
+        self.seed = seed
         self.total_timesteps = total_timesteps
         self.num_steps = num_steps
         self.num_eval_eps = num_eval_eps
@@ -101,7 +102,7 @@ class PPOTrainer_vec:
         episode_n = 0
         # elapsed_time = start_time
         steps_per_second = 0
-        next_obs, _ = self.envs.reset(seed=0)
+        next_obs, _ = self.envs.reset(seed=self.seed)
         next_obs = torch.Tensor(next_obs).to(self.device)  
         next_done = torch.zeros(self.num_envs).to(self.device)
         # if self.num_updates > 0:
@@ -175,7 +176,7 @@ class PPOTrainer_vec:
                 """ END OF EVALUATION """
 
                 steps_per_second = int(global_step / (time.time() - start_time))
-                global_step += 1 * self.num_envs
+                global_step += self.num_envs
                 obs[step] = next_obs
                 dones[step] = next_done
                 # ALGO LOGIC: action logic
@@ -184,15 +185,14 @@ class PPOTrainer_vec:
                     values[step] = value.flatten()
                 actions[step] = action
                 logprobs[step] = logprob
-
+                
                 # TRY NOT TO MODIFY: execute the game and log data.
-                
-                next_obs, reward, terminated, truncated, infos = self.envs.step(action.cpu().numpy())
-                done = np.logical_or(terminated, truncated)
+                next_obs, reward, terminations, truncations, infos = self.envs.step(action.cpu().numpy())
+                next_done = np.logical_or(terminations, truncations)
                 rewards[step] = torch.tensor(reward).to(self.device).view(-1)
-                next_obs, next_done = torch.Tensor(next_obs).to(self.device), torch.Tensor(done).to(self.device)
+                next_obs, next_done = torch.Tensor(next_obs).to(self.device), torch.Tensor(next_done).to(self.device)
 
-                
+
                 if next_done[0]:
                     episode_n += 1
                     """ LOG DATA TO CSV """
@@ -308,10 +308,8 @@ class PPOTrainer_vec:
                     nn.utils.clip_grad_norm_(self.agent.parameters(), self.max_grad_norm)
                     self.optimizer.step()
 
-
-                if self.target_kl is not None:
-                    if approx_kl > self.target_kl:
-                        break
+                if self.target_kl is not None and approx_kl > self.target_kl:
+                    break
 
             y_pred, y_true = b_values.cpu().numpy(), b_returns.cpu().numpy()
             var_y = np.var(y_true)
