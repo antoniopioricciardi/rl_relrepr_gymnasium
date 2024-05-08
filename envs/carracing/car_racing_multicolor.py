@@ -613,7 +613,7 @@ class CarRacing(gym.Env, EzPickle):
             self.render()
         self.step_cnt += 1
         if self.step_cnt == 1000:
-            done = True
+            terminated = True
         return self.state, step_reward, terminated, truncated, {}
 
     def render(self):
