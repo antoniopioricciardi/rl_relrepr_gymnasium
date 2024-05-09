@@ -82,7 +82,10 @@ def init_stuff_ppo(args, envs, eval_envs, device, wandb, writer, logger, log_pat
     else:
         policy = Policy(envs.single_action_space.n).to(device)
 
-    agent = Agent(encoder, policy).to(device)
+    if args.use_resnet:
+        agent = AgentResNet(encoder, policy).to(device)
+    else:
+        agent = Agent(encoder, policy).to(device)
     optimizer = optim.Adam(agent.parameters(), lr=args.learning_rate, eps=1e-5)
 
     CHECKPOINT_FREQUENCY = 50
