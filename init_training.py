@@ -78,7 +78,7 @@ def init_stuff_ppo(args, envs, eval_envs, device, wandb, writer, logger, log_pat
     previous_anchors = []
     
     if args.use_resnet:
-        policy = PolicyResNet(envs.single_action_space.n, use_fc=False, encoder_out_dim=3136, repr_dim=3136).to(device)
+        policy = PolicyResNet(envs.single_action_space.n, use_fc=True, encoder_out_dim=encoder.out_dim, repr_dim=3136).to(device)
     else:
         policy = Policy(envs.single_action_space.n).to(device)
 
@@ -86,6 +86,7 @@ def init_stuff_ppo(args, envs, eval_envs, device, wandb, writer, logger, log_pat
         agent = AgentResNet(encoder, policy).to(device)
     else:
         agent = Agent(encoder, policy).to(device)
+
     optimizer = optim.Adam(agent.parameters(), lr=args.learning_rate, eps=1e-5)
 
     CHECKPOINT_FREQUENCY = 50

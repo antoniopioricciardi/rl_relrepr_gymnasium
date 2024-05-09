@@ -174,7 +174,6 @@ class PolicyResNet(nn.Module):
     def get_action_and_value(self, x, action=None):
         # x = self.fc(x)
         # x = self.ln(x)
-        #RuntimeError: Given normalized_shape=[3136], expected input with shape [*, 3136], but got input of size[5, 61952]
         x = self.network_linear(x)
         logits = self.actor(x)
         probs = Categorical(logits=logits)
