@@ -22,9 +22,10 @@ def layer_init(layer, std=np.sqrt(2), bias_const=0.0):
 
 
 class FeatureExtractorResNet(nn.Module):
-    def __init__(self, use_relative=False, obs_anchors=None, obs_anchors_filename=None, anchors_mean=None, anchors_std=None):
+    def __init__(self, use_relative=False, obs_anchors=None, obs_anchors_filename=None, anchors_alpha=0.99, device='cpu'):
         super().__init__()
         self.use_relative = use_relative
+        self.anchors_alpha = anchors_alpha
 
         if self.use_relative:
             # obs_anchors_filename is used to recover the obs_anchors when loading the model
@@ -47,7 +48,7 @@ class FeatureExtractorResNet(nn.Module):
 
 
         # resnet part
-        self.network = resnet18(pretrained=True)
+        self.network = resnet18(pretrained=True).to(device)
         
         # this transform should be unused
         self.transform = transforms.Compose([
