@@ -24,6 +24,7 @@ def layer_init(layer, std=np.sqrt(2), bias_const=0.0):
 class FeatureExtractorResNet(nn.Module):
     def __init__(self, use_relative=False, obs_anchors=None, obs_anchors_filename=None, anchors_mean=None, anchors_std=None):
         super().__init__()
+
         self.use_relative = use_relative
 
         if self.use_relative:
@@ -34,17 +35,6 @@ class FeatureExtractorResNet(nn.Module):
                 projection_fn=relative.cosine_proj,
                 abs_transforms=[Centering(), StandardScaling()],
             )
-
-            # obs_anchors_filename is used to recover the obs_anchors when loading the model
-            self.register_buffer("obs_anchors_filename", obs_anchors_filename)
-            # self.register_buffer("obs_anchors", obs_anchors)
-            self.obs_anchors = obs_anchors
-            # anchors = None
-            self.projector = RelativeProjector(
-                projection_fn=relative.cosine_proj,
-                abs_transforms=[Centering(), StandardScaling()],
-            )
-
 
         # resnet part
         self.network = resnet18(pretrained=True)
@@ -140,6 +130,7 @@ class FeatureExtractorResNet(nn.Module):
                 # hidden = hidden @ self.anchors.T  # relative representations
         else:
             hidden = self.forward_conv(obs)
+        # obs = self.model(self.transform(obs.to(torch.float32)) / 255.0 - 0.5)
         return hidden
 
 
