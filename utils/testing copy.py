@@ -1,12 +1,14 @@
-
+import gym
 import torch
 import pandas as pd
 import numpy as np
 # from natural_rl_environment.natural_env import NaturalEnvWrapper
 from envs.carracing.car_racing import CarRacing
+# from utils.alignment import LatentTranslation, IdentityTranslator, AffineTranslator, LSTSQTranslator, LSTSQOrthoTranslator, SVDTranslator
+# from latentis import transforms
 from utils.env_initializer import instantiate_env, init_env
 from pytorch_lightning import seed_everything
-from utils.evaluation import evaluate_vec_env
+
 # TODO: MOVE THEM TO A COMMON FILE
 
 from utils.preprocess_env import PreprocessFrameRGB
@@ -18,57 +20,93 @@ from stable_baselines3.common.atari_wrappers import (  # isort:skip
     NoopResetEnv,
 )
 
-# def make_env_atari(env, seed, idx, capture_video, run_name):
-#     def thunk(env=env):
-#         # env = gym.make(env_id)
-#         # env = CarRacing(continuous=False, background='red')
-#         env = gym.wrappers.RecordEpisodeStatistics(env)
-#         if capture_video:
-#             if idx == 0:
-#                 env = gym.wrappers.RecordVideo(env, f"videos/{run_name}")
-#         # env = NoopResetEnv(env, noop_max=30)
-#         # env = MaxAndSkipEnv(env, skip=4)
-#         # env = EpisodicLifeEnv(env)
-#         # if "FIRE" in env.unwrapped.get_action_meanings():
-#         #     env = FireResetEnv(env)
-#         # env = ClipRewardEnv(env)
-#         # env = gym.wrappers.ResizeObservation(env, (84, 84))
-#         env = PreprocessFrameRGB((84, 84, 3), env) # (3, 84, 84)
-#         # env = gym.wrappers.GrayScaleObservation(env)
-#         # env = gym.wrappers.FrameStack(env, 4) #(4, 3, 84, 84)
-#         env.seed(seed)
-#         env.action_space.seed(seed)
-#         env.observation_space.seed(seed)
-#         return env
+def make_env_atari(env, seed, idx, capture_video, run_name):
+    def thunk(env=env):
+        # env = gym.make(env_id)
+        # env = CarRacing(continuous=False, background='red')
+        env = gym.wrappers.RecordEpisodeStatistics(env)
+        if capture_video:
+            if idx == 0:
+                env = gym.wrappers.RecordVideo(env, f"videos/{run_name}")
+        # env = NoopResetEnv(env, noop_max=30)
+        # env = MaxAndSkipEnv(env, skip=4)
+        # env = EpisodicLifeEnv(env)
+        # if "FIRE" in env.unwrapped.get_action_meanings():
+        #     env = FireResetEnv(env)
+        # env = ClipRewardEnv(env)
+        # env = gym.wrappers.ResizeObservation(env, (84, 84))
+        env = PreprocessFrameRGB((84, 84, 3), env) # (3, 84, 84)
+        # env = gym.wrappers.GrayScaleObservation(env)
+        # env = gym.wrappers.FrameStack(env, 4) #(4, 3, 84, 84)
+        env.seed(seed)
+        env.action_space.seed(seed)
+        env.observation_space.seed(seed)
+        return env
 
-#     return thunk
+    return thunk
 
 
-# def make_env_carracing(env, seed, idx, capture_video, run_name):
-#     def thunk(env=env):
-#         # env = gym.make(env_id)
-#         # env = CarRacing(continuous=False, background='red')
-#         env = gym.wrappers.RecordEpisodeStatistics(env)
-#         if capture_video:
-#             if idx == 0:
-#                 env = gym.wrappers.RecordVideo(env, f"videos/{run_name}")
-#         env = PreprocessFrameRGB((84, 84, 3), env) # (3, 84, 84)
-#         env.seed(seed)
-#         env.action_space.seed(seed)
-#         env.observation_space.seed(seed)
-#         return env
+def make_env_carracing(env, seed, idx, capture_video, run_name):
+    def thunk(env=env):
+        # env = gym.make(env_id)
+        # env = CarRacing(continuous=False, background='red')
+        env = gym.wrappers.RecordEpisodeStatistics(env)
+        if capture_video:
+            if idx == 0:
+                env = gym.wrappers.RecordVideo(env, f"videos/{run_name}")
+        env = PreprocessFrameRGB((84, 84, 3), env) # (3, 84, 84)
+        env.seed(seed)
+        env.action_space.seed(seed)
+        env.observation_space.seed(seed)
+        return env
     
-#     return thunk
+    return thunk
 
 
 
 def test_rel_repr_vec(env, agent, policy_algo, limit_episode_length=-1, device='cpu'):
-    eval_rewards, eval_lengths, eval_avg_reward =evaluate_vec_env(
-        agent=agent, num_envs=1, env=env, global_step=0, device=device, episode_n=0, writer=None, logger=None, algorithm=policy_algo, episode_length_limit=limit_episode_length
-        )
-    print(f'episode done, score: {eval_avg_reward} - Episode Length: {eval_lengths} steps' )
+    envs = env
 
-    return eval_avg_reward, eval_lengths
+    # env.seed(cust_seed)
+    obs, _ = envs.reset()
+    score = 0
+    max_ep_score = 0
+    # run 1000 steps
+    i = 0
+    done_testing = False
+    while not done_testing:
+        i += 1
+        obs = torch.as_tensor(obs, device=device)
+        with torch.no_grad():
+            if policy_algo == "ppo":
+                action, logprob, _, value = agent.get_action_and_value_deterministic(obs)
+            elif policy_algo == "ddqn":
+                action = agent(obs).argmax(dim=1, keepdim=True)[0]
+            # next_obs, reward, done, info = envs.step(action.cpu().numpy())
+            next_obs, reward, terminated, truncated, info = envs.step(action.cpu().numpy())#.cpu().numpy())
+            done = np.logical_or(terminated, truncated)
+        score += reward[0]
+        if score > max_ep_score:
+            max_ep_score = score
+        obs = next_obs
+
+        # if episodic_life:    
+        for it_idx, item in enumerate(info):
+            if "episode" in item.keys():
+                # print(score)
+                score = item["episode"]["r"]
+                done_testing = True
+                break
+        
+        if limit_episode_length > 0:
+            if i > limit_episode_length:
+                done_testing = True
+                break
+    
+    print(f'episode done, score: {score} - Episode Length: {i} steps' )
+
+    return score, max_ep_score, i
+
 
 
 def stitching_test_quantitative(

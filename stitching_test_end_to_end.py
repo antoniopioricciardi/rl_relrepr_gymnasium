@@ -6,7 +6,6 @@ from pathlib import Path
 import numpy as np
 import argparse
 
-import gym
 import matplotlib.pyplot as plt
 import torch
 import torch.nn.functional as F
@@ -326,79 +325,79 @@ if single_test:
 if single_test:
     test_rel_repr_vec(envs, agent, policy_algo=model_algo_2, limit_episode_length=4000, device=device)
     # test_rel_repr(envs, agent)
-# else:
-#     from utils.testing import stitching_test_relative, stitching_test_alignment
+else:
+    from utils.testing import stitching_test_relative, stitching_test_alignment
 
-#     if stitching_md == "relative":
-#         use_relative = True
-#         results = stitching_test_relative(
-#             env_id,
-#             env_info,
-#             encoder_algo=model_algo_1,
-#             policy_algo=model_algo_2,
-#             encoder_model_type=model_activation_1,
-#             policy_model_type=model_activation_2,
-#             is_relative=use_relative,
-#             is_pretrained=False,
-#             swap_anchors=False,
-#             anchors_path=None,
-#             anchors_alpha=model_alpha_1,
-#             render_mode="rgb_array",
-#             device=device,
-#             env_seeds_totest=env_seeds_totest,
-#         )
-#     elif stitching_md == "absolute":
-#         use_relative = False
-#         results = stitching_test_relative(
-#             env_id,
-#             env_info,
-#             encoder_algo=model_algo_1,
-#             policy_algo=model_algo_2,
-#             encoder_model_type=model_activation_1,
-#             policy_model_type=model_activation_2,
-#             is_relative=use_relative,
-#             is_pretrained=False,
-#             swap_anchors=False,
-#             anchors_path=None,
-#             anchors_alpha=model_alpha_1,
-#             render_mode="rgb_array",
-#             device=device,
-#             env_seeds_totest=env_seeds_totest,
-#         )
-#     elif stitching_md == "translate":
-#         use_relative = False
-#         results = stitching_test_alignment(
-#             env_id,
-#             env_info,
-#             anchoring_method,
-#             encoder_algo=model_algo_1,
-#             policy_algo=model_algo_2,
-#             encoder_model_type=model_activation_1,
-#             policy_model_type=model_activation_2,
-#             is_relative=use_relative,
-#             is_pretrained=False,
-#             swap_anchors=False,
-#             anchors_path=None,
-#             anchors_alpha=model_alpha_1,
-#             render_mode="rgb_array",
-#             device=device,
-#             env_seeds_totest=env_seeds_totest,
-#         )
+    if stitching_md == "relative":
+        use_relative = True
+        results = stitching_test_relative(
+            env_id,
+            env_info,
+            encoder_algo=model_algo_1,
+            policy_algo=model_algo_2,
+            encoder_model_type=model_activation_1,
+            policy_model_type=model_activation_2,
+            is_relative=use_relative,
+            is_pretrained=False,
+            swap_anchors=False,
+            anchors_path=None,
+            anchors_alpha=model_alpha_1,
+            render_mode="rgb_array",
+            device=device,
+            env_seeds_totest=env_seeds_totest,
+        )
+    elif stitching_md == "absolute":
+        use_relative = False
+        results = stitching_test_relative(
+            env_id,
+            env_info,
+            encoder_algo=model_algo_1,
+            policy_algo=model_algo_2,
+            encoder_model_type=model_activation_1,
+            policy_model_type=model_activation_2,
+            is_relative=use_relative,
+            is_pretrained=False,
+            swap_anchors=False,
+            anchors_path=None,
+            anchors_alpha=model_alpha_1,
+            render_mode="rgb_array",
+            device=device,
+            env_seeds_totest=env_seeds_totest,
+        )
+    elif stitching_md == "translate":
+        use_relative = False
+        results = stitching_test_alignment(
+            env_id,
+            env_info,
+            anchoring_method,
+            encoder_algo=model_algo_1,
+            policy_algo=model_algo_2,
+            encoder_model_type=model_activation_1,
+            policy_model_type=model_activation_2,
+            is_relative=use_relative,
+            is_pretrained=False,
+            swap_anchors=False,
+            anchors_path=None,
+            anchors_alpha=model_alpha_1,
+            render_mode="rgb_array",
+            device=device,
+            env_seeds_totest=env_seeds_totest,
+        )
 
-#     # is_relative = "relative" if use_relative else "absolute"
+    # is_relative = "relative" if use_relative else "absolute"
 
-#     # check if folder exists, if not create it, recursively
-#     if not os.path.exists(f"experiments/stitching_tests/{env_id}/{env_info}/{stitching_md}"):
-#         os.makedirs(f"experiments/stitching_tests/{env_id}/{env_info}/{stitching_md}")
+    # check if folder exists, if not create it, recursively
+    if not os.path.exists(f"experiments/stitching_tests/{env_id}/{env_info}/{stitching_md}"):
+        os.makedirs(f"experiments/stitching_tests/{env_id}/{env_info}/{stitching_md}")
     
-#     stitch_filename = f"experiments/stitching_tests/{env_id}/{env_info}/{stitching_md}/"
-#     if stitching_md == "translate":
-#         stitch_filename += f"{anchoring_method}/"
-#         if not os.path.exists(stitch_filename):
-#             os.makedirs(stitch_filename)
-#     stitch_filename += f"{model_activation_2}_stitching_results_{model_algo_2}.csv"
+    stitch_filename = f"experiments/stitching_tests/{env_id}/{env_info}/{stitching_md}/"
+    if stitching_md == "translate":
+        stitch_filename += f"{anchoring_method}/"
+        if not os.path.exists(stitch_filename):
+            os.makedirs(stitch_filename)
+    stitch_filename += f"{model_activation_2}_stitching_results_{model_algo_2}.csv"
 
 
-#     # # save results to csv
-#     results.to_csv(stitch_filename, index=False)
-#     print(f"Saved stitching results to {stitch_filename}")
+    # # save results to csv
+    results.to_csv(stitch_filename, index=False)
+    print(f"Saved stitching results to {stitch_filename}")

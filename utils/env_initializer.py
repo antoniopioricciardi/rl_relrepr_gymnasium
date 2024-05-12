@@ -1,5 +1,6 @@
 import gymnasium as gym
 from utils.preprocess_env import PreprocessFrameRGB, RepeatAction, RescaleObservation, ReshapeObservation
+
 from stable_baselines3.common.atari_wrappers import (  # isort:skip
     ClipRewardEnv,
     EpisodicLifeEnv,
@@ -7,6 +8,7 @@ from stable_baselines3.common.atari_wrappers import (  # isort:skip
     MaxAndSkipEnv,
     NoopResetEnv,
 )
+
 
 def make_env_carracing(env, seed=0, stack=0, no_op=0, action_repeat=0, max_frames=False, episodic_life=False, clip_reward=False, idx=0, capture_video=False, run_name=''):
     def thunk(env=env):
@@ -158,11 +160,11 @@ def init_carracing_env(car_mode="standard", background_color="green", image_path
         from envs.carracing.car_racing_multicolor import CarRacing
     else:
         from envs.carracing.car_racing import CarRacing
-    env = CarRacing(continuous=False, background=background_color, image_path=image_path, zoom=zoom, render_mode=render_md)
+    env = CarRacing(continuous=False, background=background_color, zoom=zoom, render_mode=render_md)
     nv = gym.vector.SyncVectorEnv([ 
         make_env_atari(
         env, seed=cust_seed, rgb=True, stack=4, no_op=0, action_repeat=0,
-        max_frames=False, episodic_life=False, clip_reward=True, check_fire=False, idx=i, capture_video=False, run_name='test'
+        max_frames=False, episodic_life=False, clip_reward=False, check_fire=False, idx=i, capture_video=False, run_name='test'
         )
         for i in range(1)
         ])

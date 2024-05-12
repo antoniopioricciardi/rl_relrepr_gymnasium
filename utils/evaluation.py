@@ -53,7 +53,7 @@ def evaluate_vec_env_ddqn(agent, num_envs, env, global_step, device, episode_n, 
 
 
 
-def evaluate_vec_env(agent, num_envs, env, global_step, device, episode_n, writer=None, logger=None, algorithm='ppo'):
+def evaluate_vec_env(agent, num_envs, env, global_step, device, episode_n, writer=None, logger=None, algorithm='ppo', episode_length_limit=-1):
     if (not isinstance(env, gym.vector.AsyncVectorEnv)) and (not isinstance(env, gym.vector.SyncVectorEnv)): 
         raise ValueError("envs must be an instance of AsyncVectorEnv or SyncVectorEnv")
     eval_dones = np.zeros(num_envs)
@@ -96,6 +96,10 @@ def evaluate_vec_env(agent, num_envs, env, global_step, device, episode_n, write
             if not dds[info_idx]:
                 eval_rewards[info_idx] = info["episode"]["r"]
                 dds[info_idx] = 1
+        # check for the rare case an agent is stuck in an infinite loop
+        if episode_length_limit > 0:
+            dds[eval_lengths >= episode_length_limit] = 1
+        # if all envs are done, break the loop
         if np.all(dds):
             not_d = False
 

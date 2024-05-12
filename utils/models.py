@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 
-# from rl_agents.ppo.ppo_resnet_fc import FeatureExtractorResNet, PolicyResNet, AgentResNet
 
 def _build_path(env_id, env_info, model_color, algo, is_relative, model_type, anchors_alpha, seed=None, name="encoder"):
     path = f"models/{env_id}/{env_info}/{model_color}/{algo}/" # _{model_color}/
@@ -92,6 +91,7 @@ def load_encoder_from_path(encoder_path, FeatureExtractor: nn.Module, is_relativ
     encoder_params = torch.load(encoder_path, map_location="cuda:0" if torch.cuda.is_available() else "cpu")
     
     obs_anchors = None
+    anchors_filename = None
     if is_relative:
         # obs_anchors = encoder_params["obs_anchors"]
 
@@ -100,7 +100,7 @@ def load_encoder_from_path(encoder_path, FeatureExtractor: nn.Module, is_relativ
         # obs_anchors = torch.tensor(obs_anchors).to(device)
 
 
-    encoder = FeatureExtractor(use_relative=is_relative, pretrained=is_pretrained, obs_anchors=obs_anchors, anchors_filename=anchors_filename, anchors_alpha=anchors_alpha)
+    encoder = FeatureExtractor(use_relative=is_relative, pretrained=is_pretrained, obs_anchors=obs_anchors, obs_anchors_filename=anchors_filename, anchors_alpha=anchors_alpha)
     
     # print(encoder_params.keys())
     encoder.load_state_dict(encoder_params, strict=False)

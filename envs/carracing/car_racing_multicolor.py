@@ -231,8 +231,8 @@ class CarRacing(gym.Env, EzPickle):
         global ZOOM
         ZOOM = zoom
         self.step_cnt = 0
-        self.background = background
-        self.background_list = ["green", "red", "blue"], #"violet", "pink", "yellow"]
+        self.background = None
+        self.background_list = ["green", "red", "blue"] #"violet", "pink", "yellow"]
         self.background_list_len = len(self.background_list)
 
         self.continuous = continuous
@@ -542,6 +542,7 @@ class CarRacing(gym.Env, EzPickle):
 
         # sample a background colour from the list
         self.background = self.background_list[self.np_random.integers(self.background_list_len)]
+        self._init_colors()
 
         if self.domain_randomize:
             randomize = True
