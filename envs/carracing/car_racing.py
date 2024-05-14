@@ -233,10 +233,14 @@ class CarRacing(gym.Env, EzPickle):
         self.step_cnt = 0
         self.background = background
 
+        self.background_list = ["green", "red", "blue"] #"violet", "pink", "yellow"]
+        self.background_colors_list = [[102, 204, 102], [204, 102, 102], [102, 102, 204]] #[204, 102, 204], [230, 102, 230], [230, 230, 102]
+        self.grass_color_list = [[102, 230, 102], [230, 102, 102], [102, 102, 230]] #[204, 102, 204], [230, 102, 230], [255, 255, 102]
+        self.background_list_len = len(self.background_colors_list)
+
         self.continuous = continuous
         self.domain_randomize = domain_randomize
         self.lap_complete_percent = lap_complete_percent
-        self._init_colors()
 
         self.contactListener_keepref = FrictionDetector(self, self.lap_complete_percent)
         self.world = Box2D.b2World((0, 0), contactListener=self.contactListener_keepref)
@@ -312,6 +316,10 @@ class CarRacing(gym.Env, EzPickle):
             if self.background == "yellow":
                 self.bg_color = np.array([230, 230, 102])
                 self.grass_color = np.array([255, 255, 102])
+            if self.background == "multicolor":
+                idx = self.np_random.integers(self.background_list_len)
+                self.bg_color = self.background_colors_list[idx]
+                self.grass_color = self.grass_color_list[idx]
 
     def _reinit_colors(self, randomize):
         assert (
@@ -538,6 +546,7 @@ class CarRacing(gym.Env, EzPickle):
         self.road_poly = []
         self.step_cnt = 0
 
+        self._init_colors()
         if self.domain_randomize:
             randomize = True
             if isinstance(options, dict):
@@ -698,7 +707,7 @@ class CarRacing(gym.Env, EzPickle):
         #     self.surf, field, self.bg_color, zoom, translation, angle, clip=False
         # )
 
-        if self.background in ["green", "red", "blue", "violet", "pink", "yellow"]:
+        if self.background in ["green", "red", "blue", "violet", "pink", "yellow", "multicolor"]:
             self._draw_colored_polygon(
                 self.surf, field, self.bg_color, zoom, translation, angle, clip=False
             )
