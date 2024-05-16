@@ -53,7 +53,7 @@ def evaluate_vec_env_ddqn(agent, num_envs, env, global_step, device, episode_n, 
 
 
 
-def evaluate_vec_env(agent, num_envs, env, global_step, device, episode_n, writer=None, logger=None, algorithm='ppo', episode_length_limit=-1):
+def evaluate_vec_env(agent, num_envs, env, global_step, device, episode_n, writer=None, logger=None, algorithm='ppo', episode_length_limit=-1, seed=0):
     if (not isinstance(env, gym.vector.AsyncVectorEnv)) and (not isinstance(env, gym.vector.SyncVectorEnv)): 
         raise ValueError("envs must be an instance of AsyncVectorEnv or SyncVectorEnv")
     eval_dones = np.zeros(num_envs)
@@ -61,7 +61,7 @@ def evaluate_vec_env(agent, num_envs, env, global_step, device, episode_n, write
     eval_lengths = np.zeros(num_envs)
     dds = np.zeros(num_envs)
     # perform evaluation
-    e_obs, _ = env.reset()
+    e_obs, _ = env.reset(seed=seed)
     e_obs = torch.Tensor(e_obs).to(device)
 
     # ALGO LOGIC: action logic

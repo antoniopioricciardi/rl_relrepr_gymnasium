@@ -62,25 +62,30 @@ from stable_baselines3.common.atari_wrappers import (  # isort:skip
 
 
 
-def test_rel_repr_vec(env, agent, policy_algo, limit_episode_length=-1, device='cpu'):
-    eval_rewards, eval_lengths, eval_avg_reward =evaluate_vec_env(
-        agent=agent, num_envs=1, env=env, global_step=0, device=device, episode_n=0, writer=None, logger=None, algorithm=policy_algo, episode_length_limit=limit_episode_length
-        )
-    print(f'episode done, score: {eval_avg_reward} - Episode Length: {eval_lengths} steps' )
+def test_rel_repr_vec(env, agent, policy_algo, limit_episode_length=-1, device='cpu', seed=0, num_envs=1):
+    eval_rewards, eval_lengths, eval_avg_reward = evaluate_vec_env(
+        agent=agent, num_envs=num_envs, env=env, global_step=0, device=device, episode_n=0, writer=None, logger=None, algorithm=policy_algo, episode_length_limit=limit_episode_length,
+        seed=seed)
+    print(f'episode done, score: {eval_rewards}, avg: {eval_avg_reward} - Episode Length: {eval_lengths} steps' )
 
     return eval_avg_reward, eval_lengths
 
 
 def stitching_test_quantitative(
         enc_env_id, playing_env_id, env_info='rgb', playon: str = 'policy',
-        backgrounds: list[str] = None, policy_backgrounds: list[str] = None,
+        background: str = None, encoder_backgrounds: list[str] = None, policy_backgrounds: list[str] = None,
         env_seeds: list[int] = [0, 1, 2, 3, 4], #encoder_dir: str = None, policy_dir: str = None,
         encoder_seeds: list[int] = [0, 1, 2, 3, 4], policy_seeds: list[int] = [0, 1, 2, 3, 4],
         encoder_anchors: str = None, controller_anchors: str = None,
         encoder_algo="ppo", policy_algo="ppo", encoder_activation_func="relu", policy_activation_func="relu", anchors_alpha=0,
         zoom=2.7, stitching_mode='absolute', anchoring_method=None, render_mode="rgb_array", device='cpu' 
         ):
-    assert backgrounds is not None, "backgrounds must be provided"
+    """
+    backgrounds: Non mandatory background color to test the encoder on. If not provided, encoder_backgrounds is used as env background
+    encoder_backgrounds: list of background colors to test the encoder on. Envs background are chosen from this list
+    policy_backgrounds: list of background colors to test the policy on. Envs background are chosen from this list
+    """
+    assert encoder_backgrounds is not None, "encoder_backgrounds must be provided"
     assert policy_backgrounds is not None, "policy_backgrounds to test must be provided"
     # assert encoder_dir is not None, "encoder_dir must be provided"
     # assert policy_dir is not None, "policy_dir must be provided"
@@ -107,10 +112,15 @@ def stitching_test_quantitative(
     # create a pandas dataframe to store the results
     df = pd.DataFrame(columns=["env_seed", "encoder_background", "policy_background",
                                "encoder_seed", "policy_seed", "encoder_env", "policy_env",
-                               "score", "max_score_reached", "episode_length", "algorithm", "clustering_time"])
+                               "score", "episode_length", "algorithm", "clustering_time"])
     
     relative = (stitching_mode=='relative')
-    for enc_bg in backgrounds:
+
+    use_enc_bg = False
+    if background is None:
+        use_enc_bg = True
+
+    for enc_bg in encoder_backgrounds:
         for pol_bg in policy_backgrounds:
             for enc_seed in encoder_seeds:
                 for pol_seed in policy_seeds:
@@ -236,17 +246,19 @@ def stitching_test_quantitative(
                     agent = Agent(encoder1, policy2, translation=translation).to(device)
 
                     for i in env_seeds:
+                        if use_enc_bg:
+                            background = enc_bg
                         models_initialized = False
                         cust_seed = i
                         print('----------------------------------')
-                        print(f"Testing on {enc_bg} background with {enc_bg} encoder (seed {enc_seed}) and {pol_bg} policy (seed {pol_seed}). Environment seed {cust_seed}")
+                        print(f"Testing on {background} background with {enc_bg} encoder (seed {enc_seed}) and {pol_bg} policy (seed {pol_seed}). Environment seed {cust_seed}")
                         
                         limit_episode_length = -1
                         if playing_env_id.startswith("Breakout"):
                             limit_episode_length = 4000      
-                        env_controller = init_env(playing_env_id if playon=='policy' else enc_env_id, env_info, background_color=enc_bg, image_path='', zoom=zoom, cust_seed=cust_seed, render_md=render_mode)                        
+                        env_controller = init_env(playing_env_id if playon=='policy' else enc_env_id, env_info, background_color=background, image_path='', zoom=zoom, cust_seed=cust_seed, render_md=render_mode)                        
                         
-                        score, max_ep_score, ep_length = test_rel_repr_vec(env_controller, agent, policy_algo, limit_episode_length, device=device)#, cust_seed=1)
+                        score, ep_length = test_rel_repr_vec(env_controller, agent, policy_algo, limit_episode_length, device=device)#, cust_seed=1)
 
                         # score, max_ep_score, ep_length = test_rel_repr_vec(env_controller, agent, policy_algo, limit_episode_length, device=device)#, cust_seed=1)
                         print(f"Episode finished: {score} points, {ep_length} steps")
@@ -255,7 +267,7 @@ def stitching_test_quantitative(
                         df = df.append({"env_seed": i, "encoder_background": enc_bg, "policy_background": pol_bg,
                                         "encoder_seed": enc_seed, "policy_seed": pol_seed,
                                         "encoder_env": enc_env_id, "policy_env": playing_env_id,
-                                        "score": score, "max_score_reached": max_ep_score, "episode_length": ep_length,
+                                        "score": score, "episode_length": ep_length,
                                         "algorithm": "ppo", "clustering_time": clustering_time}, ignore_index=True)
     # print a recap of the results, along with the max score and max episode length, average score and average episode length over all seeds
     print(df)

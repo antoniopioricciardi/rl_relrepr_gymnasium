@@ -140,7 +140,7 @@ def instantiate_env(env_id, num_envs=1, env_variation=None, env_seed=0, num_stac
 
 """ FOR STITCHING TESTS """
 
-def init_carracing_env(car_mode="standard", background_color="green", image_path=None, zoom=2.7, cust_seed=0, render_md="rgb_array"):
+def init_carracing_env(car_mode="standard", background_color="green", image_path=None, zoom=2.7, cust_seed=0, render_md="rgb_array", num_envs=1):
     if car_mode == "slow":
         from envs.carracing.car_racing_slow import CarRacing
     # elif car_mode == "no_noop":
@@ -156,8 +156,8 @@ def init_carracing_env(car_mode="standard", background_color="green", image_path
     elif car_mode == "camera_far":
         zoom=1
         from envs.carracing.car_racing_camera_far import CarRacing
-    elif car_mode == "multicolor":
-        from envs.carracing.car_racing_multicolor import CarRacing
+    # elif car_mode == "multicolor":
+    #     from envs.carracing.car_racing_multicolor import CarRacing
     else:
         from envs.carracing.car_racing import CarRacing
     env = CarRacing(continuous=False, background=background_color, zoom=zoom, render_mode=render_md)
@@ -166,22 +166,22 @@ def init_carracing_env(car_mode="standard", background_color="green", image_path
         env, seed=cust_seed, rgb=True, stack=4, no_op=0, action_repeat=0,
         max_frames=False, episodic_life=False, clip_reward=False, check_fire=False, idx=i, capture_video=False, run_name='test'
         )
-        for i in range(1)
+        for i in range(num_envs)
         ])
     return nv
 
 
-def init_env(env_id, env_info, background_color="green", image_path=None, zoom=2.7, cust_seed=0, render_md="human"):
+def init_env(env_id, env_info, background_color="green", image_path=None, zoom=2.7, cust_seed=0, render_md="human", num_envs=1):
     if env_id.startswith("CarRacing-v2"):
         # separate car mode from env_id
         car_mode = env_id.split('-')[-1]
-        nv = init_carracing_env(car_mode=car_mode, background_color=background_color, image_path=image_path, zoom=zoom, cust_seed=cust_seed, render_md=render_md)
+        nv = init_carracing_env(car_mode=car_mode, background_color=background_color, image_path=image_path, zoom=zoom, cust_seed=cust_seed, render_md=render_md, num_envs=num_envs)
     elif env_id.startswith("Wolfenstein"):
         lvl = env_id.split('-')[-1]
         from wolfenstein_rl.wolfenstein_env import Wolfenstein
         use_rgb = True if env_info == "rgb" else False
         env = Wolfenstein(level=lvl, render_mode='human').env
-        nv = gym.vector.SyncVectorEnv([ 
+        nv = gym.vector.AsyncVectorEnv([ 
             make_env_atari(
             env, seed=cust_seed, rgb=use_rgb, stack=4, no_op=0, action_repeat=0,
             max_frames=False, episodic_life=False, clip_reward=False, check_fire=False, idx=i, capture_video=False, run_name='test'

@@ -12,12 +12,6 @@ import torch.nn.functional as F
 import pandas as pd
 from utils.testing import test_rel_repr_vec
 
-from utils.preprocess_env import (
-    make_custom_env,
-    make_custom_env_no_stack,
-    # make_env,
-)
-
 # from ppo_naturalenv_discrete_rgb_nostack_relrepr_end_to_end import make_env
 
 from utils.relative import init_anchors, init_anchors_from_obs, get_obs_anchors
@@ -68,49 +62,49 @@ def parse_args():
 
 """ CARRACING """
 """ abs/transl/relative (green blue)"""
-# python stitching_test_end_to_end.py --single-test True --stitching-mode absolute --env-id CarRacing-v2 --env-seed 1 --background-color green --encoder-dir models/CarRacing-v2/rgb/green/ppo/absolute/relu/seed_1 --policy-dir models/CarRacing-v2/rgb/green/ppo/absolute/relu/seed_1
-# python stitching_test_end_to_end.py --single-test True --stitching-mode translate --env-id CarRacing-v2 --env-seed 1 --background-color green --encoder-dir models/CarRacing-v2/rgb/green/ppo/absolute/relu/seed_1 --policy-dir models/CarRacing-v2/rgb/blue/ppo/absolute/relu/seed_2 --anchors-file1 data/anchors/CarRacing-v2/rgb_ppo_transitions_green_obs.pkl --anchors-file2 data/anchors/CarRacing-v2/rgb_ppo_transitions_blue_obs.pkl --anchors-alpha None --anchors-method fps --render-mode human
-# python stitching_test_end_to_end.py --single-test True --stitching-mode relative --env-id CarRacing-v2 --env-seed 1 --background-color green --encoder-dir models/CarRacing-v2/rgb/green/ppo/relative/relu/alpha_0_999/seed_1 --policy-dir models/CarRacing-v2/rgb/green/ppo/relative/relu/alpha_0_999/seed_2 --anchors-alpha None --anchors-method fps --render-mode human
+# python stitching_test.py --single-test True --stitching-mode absolute --env-id CarRacing-v2 --env-seed 1 --background-color green --encoder-dir models/CarRacing-v2/rgb/green/ppo/absolute/relu/seed_1 --policy-dir models/CarRacing-v2/rgb/green/ppo/absolute/relu/seed_1
+# python stitching_test.py --single-test True --stitching-mode translate --env-id CarRacing-v2 --env-seed 1 --background-color green --encoder-dir models/CarRacing-v2/rgb/green/ppo/absolute/relu/seed_1 --policy-dir models/CarRacing-v2/rgb/blue/ppo/absolute/relu/seed_2 --anchors-file1 data/anchors/CarRacing-v2/rgb_ppo_transitions_green_obs.pkl --anchors-file2 data/anchors/CarRacing-v2/rgb_ppo_transitions_blue_obs.pkl --anchors-alpha None --anchors-method fps --render-mode human
+# python stitching_test.py --single-test True --stitching-mode relative --env-id CarRacing-v2 --env-seed 1 --background-color green --encoder-dir models/CarRacing-v2/rgb/green/ppo/relative/relu/alpha_0_999/seed_1 --policy-dir models/CarRacing-v2/rgb/green/ppo/relative/relu/alpha_0_999/seed_2 --anchors-alpha None --anchors-method fps --render-mode human
 """ multicolor """
-# python stitching_test_end_to_end.py --single-test True --stitching-mode absolute --env-id CarRacing-v2 --env-seed 1 --background-color multicolor --encoder-dir models/CarRacing-v2/rgb/multicolor/ppo/absolute/relu/seed_1 --policy-dir models/CarRacing-v2/rgb/multicolor/ppo/absolute/relu/seed_1
-# python stitching_test_end_to_end.py --single-test True --stitching-mode translate --env-id CarRacing-v2 --env-seed 1 --background-color multicolor --encoder-dir models/CarRacing-v2/rgb/multicolor/ppo/absolute/relu/seed_1 --policy-dir models/CarRacing-v2/rgb/blue/ppo/absolute/relu/seed_2 --anchors-file1 data/anchors/CarRacing-v2/rgb_ppo_transitions_multicolor_obs.pkl --anchors-file2 data/anchors/CarRacing-v2/rgb_ppo_transitions_blue_obs.pkl --anchors-alpha None --anchors-method fps --render-mode human
-# python stitching_test_end_to_end.py --single-test True --stitching-mode relative --env-id CarRacing-v2 --env-seed 1 --background-color multicolor --encoder-dir models/CarRacing-v2/rgb/multicolor/ppo/relative/relu/alpha_0_999/seed_1 --policy-dir models/CarRacing-v2/rgb/multicolor/ppo/relative/relu/alpha_0_999/seed_2 --anchors-alpha None --anchors-method fps --render-mode human
+# python stitching_test.py --single-test True --stitching-mode absolute --env-id CarRacing-v2 --env-seed 1 --background-color multicolor --encoder-dir models/CarRacing-v2/rgb/multicolor/ppo/absolute/relu/seed_1 --policy-dir models/CarRacing-v2/rgb/multicolor/ppo/absolute/relu/seed_1
+# python stitching_test.py --single-test True --stitching-mode translate --env-id CarRacing-v2 --env-seed 1 --background-color multicolor --encoder-dir models/CarRacing-v2/rgb/multicolor/ppo/absolute/relu/seed_1 --policy-dir models/CarRacing-v2/rgb/blue/ppo/absolute/relu/seed_2 --anchors-file1 data/anchors/CarRacing-v2/rgb_ppo_transitions_multicolor_obs.pkl --anchors-file2 data/anchors/CarRacing-v2/rgb_ppo_transitions_blue_obs.pkl --anchors-alpha None --anchors-method fps --render-mode human
+# python stitching_test.py --single-test True --stitching-mode relative --env-id CarRacing-v2 --env-seed 1 --background-color multicolor --encoder-dir models/CarRacing-v2/rgb/multicolor/ppo/relative/relu/alpha_0_999/seed_1 --policy-dir models/CarRacing-v2/rgb/multicolor/ppo/relative/relu/alpha_0_999/seed_2 --anchors-alpha None --anchors-method fps --render-mode human
 """ no_noop_4as """
-# python stitching_test_end_to_end.py --single-test True --stitching-mode translate --env-id CarRacing-v2-no_noop_4as --env-seed 0 --background-color red --encoder-dir models/CarRacing-v2/rgb/red/ppo/absolute/relu/seed_41 --policy-dir models/CarRacing-v2-no_noop_4as/rgb/green/ppo/absolute/relu/seed_0 --anchors-file1 data/anchors/CarRacing-v2/rgb_ppo_transitions_red_obs.pkl --anchors-file2 data/anchors/CarRacing-v2/rgb_ppo_transitions_green_obs.pkl --anchors-alpha None --anchors-method fps --render-mode human
+# python stitching_test.py --single-test True --stitching-mode translate --env-id CarRacing-v2-no_noop_4as --env-seed 0 --background-color red --encoder-dir models/CarRacing-v2/rgb/red/ppo/absolute/relu/seed_41 --policy-dir models/CarRacing-v2-no_noop_4as/rgb/green/ppo/absolute/relu/seed_0 --anchors-file1 data/anchors/CarRacing-v2/rgb_ppo_transitions_red_obs.pkl --anchors-file2 data/anchors/CarRacing-v2/rgb_ppo_transitions_green_obs.pkl --anchors-alpha None --anchors-method fps --render-mode human
 """ scrambled """
-# python stitching_test_end_to_end.py --single-test True --stitching-mode translate --env-id CarRacing-v2-scrambled --env-seed 0 --background-color red --encoder-dir models/CarRacing-v2/rgb/red/ppo/absolute/relu/seed_41 --policy-dir models/CarRacing-v2-scrambled/rgb/green/ppo/absolute/relu/seed_0 --anchors-file1 data/anchors/CarRacing-v2/rgb_ppo_transitions_red_obs.pkl --anchors-file2 data/anchors/CarRacing-v2/rgb_ppo_transitions_green_obs.pkl --anchors-alpha None --anchors-method fps --render-mode human
+# python stitching_test.py --single-test True --stitching-mode translate --env-id CarRacing-v2-scrambled --env-seed 0 --background-color red --encoder-dir models/CarRacing-v2/rgb/red/ppo/absolute/relu/seed_41 --policy-dir models/CarRacing-v2-scrambled/rgb/green/ppo/absolute/relu/seed_0 --anchors-file1 data/anchors/CarRacing-v2/rgb_ppo_transitions_red_obs.pkl --anchors-file2 data/anchors/CarRacing-v2/rgb_ppo_transitions_green_obs.pkl --anchors-alpha None --anchors-method fps --render-mode human
 """ onlyleft """
-# python stitching_test_end_to_end.py --single-test True --stitching-mode translate --env-id CarRacing-v2-onlyleft --env-seed 0 --background-color red --encoder-dir models/CarRacing-v2/rgb/red/ppo/absolute/relu/seed_41 --policy-dir models/CarRacing-v2-onlyleft/rgb/green/ppo/absolute/relu/seed_0 --anchors-file1 data/anchors/CarRacing-v2/rgb_ppo_transitions_red_obs.pkl --anchors-file2 data/anchors/CarRacing-v2/rgb_ppo_transitions_green_obs.pkl --anchors-alpha None --anchors-method fps --render-mode human
+# python stitching_test.py --single-test True --stitching-mode translate --env-id CarRacing-v2-onlyleft --env-seed 0 --background-color red --encoder-dir models/CarRacing-v2/rgb/red/ppo/absolute/relu/seed_41 --policy-dir models/CarRacing-v2-onlyleft/rgb/green/ppo/absolute/relu/seed_0 --anchors-file1 data/anchors/CarRacing-v2/rgb_ppo_transitions_red_obs.pkl --anchors-file2 data/anchors/CarRacing-v2/rgb_ppo_transitions_green_obs.pkl --anchors-alpha None --anchors-method fps --render-mode human
 """ slow """
-# python stitching_test_end_to_end.py --single-test True --stitching-mode absolute --env-id CarRacing-v2-slow --env-seed 1 --background-color green --encoder-dir models/CarRacing-v2-slow/rgb/green/ppo/absolute/relu/seed_1 --policy-dir models/CarRacing-v2-slow/rgb/green/ppo/absolute/relu/seed_1
+# python stitching_test.py --single-test True --stitching-mode absolute --env-id CarRacing-v2-slow --env-seed 1 --background-color green --encoder-dir models/CarRacing-v2-slow/rgb/green/ppo/absolute/relu/seed_1 --policy-dir models/CarRacing-v2-slow/rgb/green/ppo/absolute/relu/seed_1
 """ slow: abs/transl/relative """
-# python stitching_test_end_to_end.py --single-test True --stitching-mode absolute --env-id CarRacing-v2-slow --env-seed 4 --background-color green --encoder-dir models/CarRacing-v2-slow/rgb/green/ppo/absolute/relu/seed_1 --policy-dir models/CarRacing-v2-slow/rgb/green/ppo/absolute/relu/seed_1 --anchors-file1 data/anchors/CarRacing-v2/rgb_ppo_transitions_green_obs.pkl --anchors-file2 data/anchors/CarRacing-v2/rgb_ppo_transitions_green_obs.pkl --anchors-alpha None --anchors-method fps --render-mode human
-# python stitching_test_end_to_end.py --single-test True --stitching-mode translate --env-id CarRacing-v2-slow --env-seed 4 --background-color green --encoder-dir models/CarRacing-v2/rgb/green/ppo/absolute/relu/seed_1 --policy-dir models/CarRacing-v2-slow/rgb/green/ppo/absolute/relu/seed_1 --anchors-file1 data/anchors/CarRacing-v2/rgb_ppo_transitions_green_obs.pkl --anchors-file2 data/anchors/CarRacing-v2/rgb_ppo_transitions_green_obs.pkl --anchors-alpha None --anchors-method fps --render-mode human
-# python stitching_test_end_to_end.py --single-test True --stitching-mode relative --env-id CarRacing-v2-slow --env-seed 4 --background-color green --encoder-dir models/CarRacing-v2-slow/rgb/green/ppo/relative/relu/alpha_0_999/seed_1 --policy-dir models/CarRacing-v2-slow/rgb/green/ppo/relative/relu/alpha_0_999/seed_1 --anchors-alpha None --anchors-method fps --render-mode human
+# python stitching_test.py --single-test True --stitching-mode absolute --env-id CarRacing-v2-slow --env-seed 4 --background-color green --encoder-dir models/CarRacing-v2-slow/rgb/green/ppo/absolute/relu/seed_1 --policy-dir models/CarRacing-v2-slow/rgb/green/ppo/absolute/relu/seed_1 --anchors-file1 data/anchors/CarRacing-v2/rgb_ppo_transitions_green_obs.pkl --anchors-file2 data/anchors/CarRacing-v2/rgb_ppo_transitions_green_obs.pkl --anchors-alpha None --anchors-method fps --render-mode human
+# python stitching_test.py --single-test True --stitching-mode translate --env-id CarRacing-v2-slow --env-seed 4 --background-color green --encoder-dir models/CarRacing-v2/rgb/green/ppo/absolute/relu/seed_1 --policy-dir models/CarRacing-v2-slow/rgb/green/ppo/absolute/relu/seed_1 --anchors-file1 data/anchors/CarRacing-v2/rgb_ppo_transitions_green_obs.pkl --anchors-file2 data/anchors/CarRacing-v2/rgb_ppo_transitions_green_obs.pkl --anchors-alpha None --anchors-method fps --render-mode human
+# python stitching_test.py --single-test True --stitching-mode relative --env-id CarRacing-v2-slow --env-seed 4 --background-color green --encoder-dir models/CarRacing-v2-slow/rgb/green/ppo/relative/relu/alpha_0_999/seed_1 --policy-dir models/CarRacing-v2-slow/rgb/green/ppo/relative/relu/alpha_0_999/seed_1 --anchors-alpha None --anchors-method fps --render-mode human
 """ camera far"""
-# python stitching_test_end_to_end.py --single-test True --stitching-mode absolute --env-id CarRacing-v2-camera_far --env-seed 1 --background-color green --encoder-dir models/CarRacing-v2-camera_far/rgb/green/ppo/absolute/relu/seed_1 --policy-dir models/CarRacing-v2-camera_far/rgb/green/ppo/absolute/relu/seed_1           
-# python stitching_test_end_to_end.py --single-test True --stitching-mode translate --env-id CarRacing-v2-camera_far --env-seed 1 --background-color green --encoder-dir models/CarRacing-v2-camera_far/rgb/green/ppo/absolute/relu/seed_1 --policy-dir models/CarRacing-v2/rgb/green/ppo/absolute/relu/seed_1 --anchors-file1 data/anchors/CarRacing-v2-camera_far/rgb_ppo_transitions_green_obs.pkl --anchors-file2 data/anchors/CarRacing-v2/rgb_ppo_transitions_green_obs.pkl --anchors-alpha None --anchors-method fps --render-mode human
+# python stitching_test.py --single-test True --stitching-mode absolute --env-id CarRacing-v2-camera_far --env-seed 1 --background-color green --encoder-dir models/CarRacing-v2-camera_far/rgb/green/ppo/absolute/relu/seed_1 --policy-dir models/CarRacing-v2-camera_far/rgb/green/ppo/absolute/relu/seed_1           
+# python stitching_test.py --single-test True --stitching-mode translate --env-id CarRacing-v2-camera_far --env-seed 1 --background-color green --encoder-dir models/CarRacing-v2-camera_far/rgb/green/ppo/absolute/relu/seed_1 --policy-dir models/CarRacing-v2/rgb/green/ppo/absolute/relu/seed_1 --anchors-file1 data/anchors/CarRacing-v2-camera_far/rgb_ppo_transitions_green_obs.pkl --anchors-file2 data/anchors/CarRacing-v2/rgb_ppo_transitions_green_obs.pkl --anchors-alpha None --anchors-method fps --render-mode human
 """ camera_far (policy no_noop_4as) """
-# python stitching_test_end_to_end.py --single-test True --stitching-mode translate --env-id CarRacing-v2-no_noop_4as --env-seed 1 --background-color green --encoder-dir models/CarRacing-v2-camera_far/rgb/green/ppo/absolute/relu/seed_1 --policy-dir models/CarRacing-v2-no_noop_4as/rgb/green/ppo/absolute/relu/seed_1 --anchors-file1 data/anchors/CarRacing-v2-camera_far/rgb_ppo_transitions_green_obs.pkl --anchors-file2 data/anchors/CarRacing-v2/rgb_ppo_transitions_green_obs.pkl --anchors-alpha None --anchors-method fps --zoom 2.7 --render-mode human
+# python stitching_test.py --single-test True --stitching-mode translate --env-id CarRacing-v2-no_noop_4as --env-seed 1 --background-color green --encoder-dir models/CarRacing-v2-camera_far/rgb/green/ppo/absolute/relu/seed_1 --policy-dir models/CarRacing-v2-no_noop_4as/rgb/green/ppo/absolute/relu/seed_1 --anchors-file1 data/anchors/CarRacing-v2-camera_far/rgb_ppo_transitions_green_obs.pkl --anchors-file2 data/anchors/CarRacing-v2/rgb_ppo_transitions_green_obs.pkl --anchors-alpha None --anchors-method fps --zoom 2.7 --render-mode human
 
 
 """ ATARI Breakout """
 """ abs/transl """
-# python stitching_test_end_to_end.py --single-test True --stitching-mode absolute --env-id BreakoutNoFrameskip-v4 --env-seed 1 --background-color plain --encoder-dir models/BreakoutNoFrameskip-v4/rgb/plain/ppo/absolute/relu/seed_1 --policy-dir models/BreakoutNoFrameskip-v4/rgb/plain/ppo/absolute/relu/seed_1
-# python stitching_test_end_to_end.py --single-test True --stitching-mode translate --env-id BreakoutNoFrameskip-v4 --env-seed 1 --background-color plain --encoder-dir models/BreakoutNoFrameskip-v4/rgb/plain/ppo/absolute/relu/seed_1 --policy-dir models/BreakoutNoFrameskip-v4/rgb/plain/ppo/absolute/relu/seed_1 --anchors-file1 data/anchors/BreakoutNoFrameskip-v4/rgb_ppo_transitions_plain_obs.pkl --anchors-file2 data/anchors/BreakoutNoFrameskip-v4/rgb_ppo_transitions_plain_obs.pkl --anchors-alpha None --anchors-method fps --render-mode human
+# python stitching_test.py --single-test True --stitching-mode absolute --env-id BreakoutNoFrameskip-v4 --env-seed 1 --background-color plain --encoder-dir models/BreakoutNoFrameskip-v4/rgb/plain/ppo/absolute/relu/seed_1 --policy-dir models/BreakoutNoFrameskip-v4/rgb/plain/ppo/absolute/relu/seed_1
+# python stitching_test.py --single-test True --stitching-mode translate --env-id BreakoutNoFrameskip-v4 --env-seed 1 --background-color plain --encoder-dir models/BreakoutNoFrameskip-v4/rgb/plain/ppo/absolute/relu/seed_1 --policy-dir models/BreakoutNoFrameskip-v4/rgb/plain/ppo/absolute/relu/seed_1 --anchors-file1 data/anchors/BreakoutNoFrameskip-v4/rgb_ppo_transitions_plain_obs.pkl --anchors-file2 data/anchors/BreakoutNoFrameskip-v4/rgb_ppo_transitions_plain_obs.pkl --anchors-alpha None --anchors-method fps --render-mode human
 """ different cols """
-# python stitching_test_end_to_end.py --single-test True --stitching-mode translate --env-id BreakoutNoFrameskip-v4 --env-seed 1 --background-color green --encoder-dir models/BreakoutNoFrameskip-v4/rgb/green/ppo/absolute/relu/seed_0 --policy-dir models/BreakoutNoFrameskip-v4/rgb/plain/ppo/absolute/relu/seed_1 --anchors-file1 data/anchors/BreakoutNoFrameskip-v4/rgb_ppo_transitions_green_obs.pkl --anchors-file2 data/anchors/BreakoutNoFrameskip-v4/rgb_ppo_transitions_plain_obs.pkl --anchors-alpha None --anchors-method fps --render-mode human
+# python stitching_test.py --single-test True --stitching-mode translate --env-id BreakoutNoFrameskip-v4 --env-seed 1 --background-color green --encoder-dir models/BreakoutNoFrameskip-v4/rgb/green/ppo/absolute/relu/seed_0 --policy-dir models/BreakoutNoFrameskip-v4/rgb/plain/ppo/absolute/relu/seed_1 --anchors-file1 data/anchors/BreakoutNoFrameskip-v4/rgb_ppo_transitions_green_obs.pkl --anchors-file2 data/anchors/BreakoutNoFrameskip-v4/rgb_ppo_transitions_plain_obs.pkl --anchors-alpha None --anchors-method fps --render-mode human
 
 """ ATARI boxing """
 """ abs/transl """
-# python stitching_test_end_to_end.py --single-test True --stitching-mode absolute --env-id BoxingNoFrameskip-v4 --env-seed 1 --background-color plain --encoder-dir models/BoxingNoFrameskip-v4/rgb/plain/ppo/absolute/relu/seed_1 --policy-dir models/BoxingNoFrameskip-v4/rgb/plain/ppo/absolute/relu/seed_1
-# python stitching_test_end_to_end.py --single-test True --stitching-mode translate --env-id BoxingNoFrameskip-v4 --env-seed 1 --background-color plain --encoder-dir models/BoxingNoFrameskip-v4/rgb/plain/ppo/absolute/relu/seed_1 --policy-dir models/BoxingNoFrameskip-v4/rgb/plain/ppo/absolute/relu/seed_2 --anchors-file1 data/anchors/BoxingNoFrameskip-v4/rgb_ppo_transitions_plain_obs.pkl --anchors-file2 data/anchors/BoxingNoFrameskip-v4/rgb_ppo_transitions_plain_obs.pkl --anchors-alpha None --anchors-method fps --render-mode human
+# python stitching_test.py --single-test True --stitching-mode absolute --env-id BoxingNoFrameskip-v4 --env-seed 1 --background-color plain --encoder-dir models/BoxingNoFrameskip-v4/rgb/plain/ppo/absolute/relu/seed_1 --policy-dir models/BoxingNoFrameskip-v4/rgb/plain/ppo/absolute/relu/seed_1
+# python stitching_test.py --single-test True --stitching-mode translate --env-id BoxingNoFrameskip-v4 --env-seed 1 --background-color plain --encoder-dir models/BoxingNoFrameskip-v4/rgb/plain/ppo/absolute/relu/seed_1 --policy-dir models/BoxingNoFrameskip-v4/rgb/plain/ppo/absolute/relu/seed_2 --anchors-file1 data/anchors/BoxingNoFrameskip-v4/rgb_ppo_transitions_plain_obs.pkl --anchors-file2 data/anchors/BoxingNoFrameskip-v4/rgb_ppo_transitions_plain_obs.pkl --anchors-alpha None --anchors-method fps --render-mode human
 """ transl different cols """
-# python stitching_test_end_to_end.py --single-test True --stitching-mode translate --env-id BoxingNoFrameskip-v4 --env-seed 1 --background-color green --encoder-dir models/BoxingNoFrameskip-v4/rgb/green/ppo/absolute/relu/seed_0 --policy-dir models/BoxingNoFrameskip-v4/rgb/plain/ppo/absolute/relu/seed_1 --anchors-file1 data/anchors/BoxingNoFrameskip-v4/rgb_ppo_transitions_green_obs.pkl --anchors-file2 data/anchors/BoxingNoFrameskip-v4/rgb_ppo_transitions_plain_obs.pkl --anchors-alpha None --anchors-method fps --render-mode human
+# python stitching_test.py --single-test True --stitching-mode translate --env-id BoxingNoFrameskip-v4 --env-seed 1 --background-color green --encoder-dir models/BoxingNoFrameskip-v4/rgb/green/ppo/absolute/relu/seed_0 --policy-dir models/BoxingNoFrameskip-v4/rgb/plain/ppo/absolute/relu/seed_1 --anchors-file1 data/anchors/BoxingNoFrameskip-v4/rgb_ppo_transitions_green_obs.pkl --anchors-file2 data/anchors/BoxingNoFrameskip-v4/rgb_ppo_transitions_plain_obs.pkl --anchors-alpha None --anchors-method fps --render-mode human
 
 """ ATARI pong """
 """ abs/transl """
-# python stitching_test_end_to_end.py --single-test True --stitching-mode absolute --env-id PongNoFrameskip-v4 --env-seed 1 --background-color plain --encoder-dir models/PongNoFrameskip-v4/rgb/plain/ppo/absolute/relu/seed_1 --policy-dir models/PongNoFrameskip-v4/rgb/plain/ppo/absolute/relu/seed_1
+# python stitching_test.py --single-test True --stitching-mode absolute --env-id PongNoFrameskip-v4 --env-seed 1 --background-color plain --encoder-dir models/PongNoFrameskip-v4/rgb/plain/ppo/absolute/relu/seed_1 --policy-dir models/PongNoFrameskip-v4/rgb/plain/ppo/absolute/relu/seed_1
 
 
 args = parse_args()
@@ -169,7 +163,7 @@ image_path = "data/track_bg_images/0.jpg"
 
 # imgsource = "plain" # "color" "plain"
 render_md = args.render_mode
-
+num_envs = 1
 if single_test:
     # env_pathname = f"{env_id}"
     # env_pathname2 = f"{env_id2}"
@@ -182,7 +176,7 @@ if single_test:
         encoder_instance, policy_instance, agent_instance = get_algo_instance_bw(
             model_algo_1, model_algo_2
         )
-    envs = init_env(env_id, env_info, background_color=args.background_color, image_path=image_path, zoom=args.zoom, cust_seed=args.env_seed, render_md=render_md)
+    envs = init_env(env_id, env_info, background_color=args.background_color, image_path=image_path, zoom=args.zoom, cust_seed=args.env_seed, render_md=render_md, num_envs=num_envs)
 
     path1_enc = os.path.join(args.encoder_dir, "encoder.pt")
     # path1_pol = os.path.join(args.encoder_dir, "policy.pt")
@@ -327,7 +321,7 @@ if single_test:
     # env_type = "tanh_rgb_nostack"
 
 if single_test:
-    test_rel_repr_vec(envs, agent, policy_algo=model_algo_2, limit_episode_length=4000, device=device)
+    test_rel_repr_vec(envs, agent, policy_algo=model_algo_2, limit_episode_length=4000, device=device, seed=args.env_seed, num_envs=num_envs)
     # test_rel_repr(envs, agent)
 else:
     from utils.testing import stitching_test_relative, stitching_test_alignment
