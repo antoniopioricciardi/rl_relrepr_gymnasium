@@ -179,6 +179,8 @@ if args.stitching_mode == "relative":
     stitch_filename += f"a_{args.anchors_alpha}/"
 if not os.path.exists(stitch_filename):
     os.makedirs(stitch_filename)
+if args.background is not None:
+    stitch_filename += f"{args.background}-bg_"
 stitch_filename += f"{args.encoder_env_id}_{args.encoder_activation_func}_stitching_results_{args.policy_algo}.csv"
 print(stitch_filename)
 
