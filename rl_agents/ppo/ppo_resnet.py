@@ -22,10 +22,9 @@ def layer_init(layer, std=np.sqrt(2), bias_const=0.0):
 
 
 class FeatureExtractorResNet(nn.Module):
-    def __init__(self, use_relative=False, obs_anchors=None, obs_anchors_filename=None, anchors_alpha=0.99, device='cpu'):
+    def __init__(self, use_relative=False, obs_anchors=None, obs_anchors_filename=None, device='cpu'):
         super().__init__()
         self.use_relative = use_relative
-        self.anchors_alpha = anchors_alpha
 
         if self.use_relative:
             # obs_anchors_filename is used to recover the obs_anchors when loading the model
@@ -145,7 +144,7 @@ class FeatureExtractorResNet(nn.Module):
 
 
 class PolicyResNet(nn.Module):
-    def __init__(self, num_actions, use_fc = False, encoder_out_dim: int = 3136, repr_dim: int = 3136) -> None:
+    def __init__(self, num_actions, use_fc = True, encoder_out_dim: int = 3136, repr_dim: int = 3136) -> None:
         super().__init__()
         self.encoder_out_dim = encoder_out_dim # 15488
         self.repr_dim = repr_dim # 3136

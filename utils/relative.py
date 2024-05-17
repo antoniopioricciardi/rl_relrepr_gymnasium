@@ -115,3 +115,19 @@ def get_obs_anchors_totensor(anchors_path, anchors_indices_path='anchor_indices_
     anchor_indices = [int(item.strip()) for item in anchor_indices]
     anchor_obs = anchor_obs[anchor_indices, :]
     return anchor_obs
+
+
+
+def svd_align_state(x: torch.Tensor, y: torch.Tensor, k) -> torch.Tensor:
+    assert x.size(1) == y.size(
+        1
+    ), f"Dimension mismatch between {x.size(1)} and {y.size(1)}. Forgot some padding/truncation transforms?"
+
+    #  Compute the translation vector that aligns A to B using SVD.
+    u, sigma, vt = torch.svd((y.T @ x).T)
+    translation_matrix = u @ vt.T
+
+    translation_matrix = torch.as_tensor(translation_matrix, dtype=x.dtype, device=x.device)
+    u, sigma, vt = torch.svd((translation_matrix))
+    translation_matrix = u[:, :k] @ torch.diag(sigma[:k]) @ vt[:, :k].T
+    return dict(matrix=translation_matrix, sigma=sigma)

@@ -115,9 +115,14 @@ def load_encoder_from_path(encoder_path, FeatureExtractor: nn.Module, is_relativ
     return encoder
 
 
-def load_policy_from_path(policy_path, action_space, Policy: nn.Module, policy_eval=True, device="cpu"):
+def load_policy_from_path(policy_path, action_space, Policy: nn.Module, policy_eval=True, encoder_out_dim=None, repr_dim=None, device="cpu"):
     policy_params = torch.load(policy_path, map_location="cuda:0" if torch.cuda.is_available() else "cpu")
-    policy = Policy(num_actions=action_space).to(device)
+
+    if encoder_out_dim is None:
+        policy = Policy(num_actions=action_space).to(device)
+    else:
+        # we are using resnet model
+        policy = Policy(num_actions=action_space, encoder_out_dim=encoder_out_dim, repr_dim=repr_dim).to(device)
     # print shape of last layer of policy
     policy.load_state_dict(policy_params) 
 
@@ -129,7 +134,7 @@ def load_policy_from_path(policy_path, action_space, Policy: nn.Module, policy_e
     return policy
 
 
-def get_algo_instance(encoder_algo, policy_algo):
+def get_algo_instance(encoder_algo, policy_algo, use_resnet):
     if encoder_algo.startswith("ppo"):
         if encoder_algo.endswith("nostack"):
             from rl_agents.ppo.ppo_end_to_end_relu import FeatureExtractor
@@ -148,8 +153,12 @@ def get_algo_instance(encoder_algo, policy_algo):
         if policy_algo.endswith("nostack"):
             from rl_agents.ppo.ppo_end_to_end_relu import Policy
         else:
-            from rl_agents.ppo.ppo_end_to_end_relu_stack_align import Policy
-        policy_instance = Policy
+            if use_resnet:
+                from rl_agents.ppo.ppo_resnet import PolicyResNet
+                policy_instance = PolicyResNet
+            else:
+                from rl_agents.ppo.ppo_end_to_end_relu_stack_align import Policy
+                policy_instance = Policy
 
     elif policy_algo.startswith("ddqn"):
         if policy_algo.endswith("nostack"):
@@ -164,8 +173,12 @@ def get_algo_instance(encoder_algo, policy_algo):
         if policy_algo.endswith("nostack"):
             from rl_agents.ppo.ppo_end_to_end_relu import Agent
         else:
-            from rl_agents.ppo.ppo_end_to_end_relu_stack_align import Agent
-        agent_instance = Agent
+            if use_resnet:
+                from rl_agents.ppo.ppo_resnet import AgentResNet
+                agent_instance = AgentResNet
+            else:
+                from rl_agents.ppo.ppo_end_to_end_relu_stack_align import Agent
+                agent_instance = Agent
     elif policy_algo.startswith("ddqn"):
         if policy_algo.endswith("nostack"):
             from rl_agents.ddqn.ddqn_end_to_end import AgentDDQN

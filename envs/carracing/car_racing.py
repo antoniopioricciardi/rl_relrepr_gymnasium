@@ -317,7 +317,8 @@ class CarRacing(gym.Env, EzPickle):
                 self.bg_color = np.array([230, 230, 102])
                 self.grass_color = np.array([255, 255, 102])
             if self.background == "multicolor":
-                idx = self.np_random.integers(self.background_list_len)
+                idx = np.random.randint(self.background_list_len)
+                print(idx)
                 self.bg_color = self.background_colors_list[idx]
                 self.grass_color = self.grass_color_list[idx]
 
