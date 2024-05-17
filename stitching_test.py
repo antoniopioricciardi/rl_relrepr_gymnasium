@@ -200,8 +200,7 @@ else:
         path1_enc, encoder_instance, is_relative=relative, is_pretrained=False, anchors_alpha=None, encoder_eval=True, device=device
         )   
 if args.use_resnet:
-    print(policy_instance)
-    policy2 = load_policy_from_path(path2_pol, envs.single_action_space.n, policy_instance, encoder_out_dim=encoder1.out_dim, repr_dim=3136, device=device)
+    policy2 = load_policy_from_path(path2_pol, envs.single_action_space.n, policy_instance, policy_eval=True, encoder_out_dim=encoder1.out_dim, repr_dim=3136, device=device)
 else:
     encoder2, policy2, agent2 = load_model_from_path(
         path2_enc, path2_pol, envs.single_action_space.n,
