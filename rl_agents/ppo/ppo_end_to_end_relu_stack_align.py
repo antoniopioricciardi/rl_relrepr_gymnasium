@@ -82,6 +82,9 @@ class FeatureExtractor(nn.Module):
         self.anchors = self.anchors_alpha * self.anchors + (1 - self.anchors_alpha) * new_anchors # keep % of the old anchors # 0.99 and 0.999
 
     def set_anchors(self):
+        # check self.obs_anchors device
+        print(f"Obs anchors device: {self.obs_anchors.device}")
+        exit(1)
         anchors = self.network(self.obs_anchors)
         self.register_buffer("anchors", anchors)
 

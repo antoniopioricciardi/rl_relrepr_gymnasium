@@ -83,13 +83,7 @@ def get_obs_anchors(anchors_path):#, anchors_indices_path='anchor_indices_ppo313
     print('Converting obs to torch tensor')
     # convert the (4000, 3, 84, 84) numpy array to a torch tensor
     obs_set = torch.tensor(np.array(obs_set), dtype=torch.float32)
-    # check on which device obs_set is
-    print('obs_set device:', obs_set.device)
-    # move obs_set to the device
     obs_set = obs_set.to('cuda' if torch.cuda.is_available() else 'cpu')
-    # check on which device obs_set is
-    print('obs_set device:', obs_set.device)
-    exit(2)
 
     print('Done converting obs to torch tensor\n#####\n')
     return obs_set
