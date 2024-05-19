@@ -39,37 +39,14 @@ from train_ppo import PPOTrainer_vec
 from pytorch_lightning import seed_everything
 from utils.argparser import *
 
-# def make_env(env, seed, idx, capture_video, run_name):
-#     def thunk(env=env):
-#         # env = gym.make(env_id)
-#         # env = CarRacing(continuous=False, background='red')
-#         env = gym.wrappers.RecordEpisodeStatistics(env)
-#         if capture_video:
-#             if idx == 0:
-#                 env = gym.wrappers.RecordVideo(env, f"videos/{run_name}")
-#         # env = NoopResetEnv(env, noop_max=30)
-#         # env = MaxAndSkipEnv(env, skip=4)
-#         # env = EpisodicLifeEnv(env)
-#         # if "FIRE" in env.unwrapped.get_action_meanings():
-#         #     env = FireResetEnv(env)
-#         # env = ClipRewardEnv(env)
-#         # env = gym.wrappers.ResizeObservation(env, (84, 84))
-#         # env = RepeatAction(env, repeat=3)
-#         env = PreprocessFrameRGB((84, 84, 3), env) # (3, 84, 84)
-#         # env = gym.wrappers.GrayScaleObservation(env)
-#         env = gym.wrappers.FrameStack(env, 3) #(3, 3, 84, 84)
-#         env.seed(seed)
-#         env.action_space.seed(seed)
-#         env.observation_space.seed(seed)
-#         return env
-
-#     return thunk
-
 # python ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name "$car_mode"_"$background"_rgb --env-id CarRacing-custom --seed 1 --num-envs 16 --background $background --car-mode $car_mode --stack-n 4 --total-timesteps 5000000
-
+""" CARRACING """
+""" standard green: abs, rel """
 # python ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name standard_green_rgb --env-id CarRacing-custom --seed 1 --num-envs 16 --background green --car-mode standard --stack-n 4 --total-timesteps 5000000
-# python ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name standard_green_rgb --env-id CarRacing-custom --seed 1 --num-envs 16 --background green --car-mode multicolor --stack-n 4 --total-timesteps 5000000
+# python ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name standard_green_rgb --env-id CarRacing-custom --seed 1 --num-envs 16 --background green --car-mode standard --stack-n 4 --total-timesteps 5000000
 
+""" standard red: abs, rel """
+# python ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name standard_green_rgb --env-id CarRacing-custom --seed 1 --num-envs 16 --background multicolor --car-mode standard --stack-n 4 --total-timesteps 5000000
 seed_everything(42)
 
 def parse_env_specific_args(parser):
@@ -161,8 +138,6 @@ if __name__ == "__main__":
         from envs.carracing.car_racing_heavy import CarRacing
     elif args.car_mode == "camera_far":
         from envs.carracing.car_racing_camera_far import CarRacing
-    elif args.car_mode == "multicolor":
-        from envs.carracing.car_racing_multicolor import CarRacing
         # python ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name green_rgb --env-id CarRacing-custom --seed 0 --num-envs 16 --background green --stack-n 4 --total-timesteps 5000000 --car-mode no_noop
     env = CarRacing(continuous=False, background=args.background)# , image_path=args.image_path)
     eval_env = CarRacing(continuous=False, background=args.background)#, image_path=args.image_path)
