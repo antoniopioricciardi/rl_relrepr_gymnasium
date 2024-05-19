@@ -60,7 +60,7 @@ def init_stuff_ppo(args, envs, eval_envs, device, wandb, writer, logger, log_pat
         encoder = FeatureExtractor(use_relative=args.use_relative, pretrained=args.pretrained, obs_anchors=obs_set, anchors_alpha=args.anchors_alpha).to(device)
 
     # check if encoder is on right device
-    print(f"Encoder device: {encoder.device}")
+    print(f"Encoder device: {encoder.network[0].weight.device}")
     if args.use_relative:
         encoder.set_anchors()
 
