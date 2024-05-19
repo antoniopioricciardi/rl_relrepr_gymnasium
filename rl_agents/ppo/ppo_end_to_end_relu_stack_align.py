@@ -46,6 +46,7 @@ class FeatureExtractor(nn.Module):
                 projection_fn=relative.cosine_proj,
                 abs_transforms=[Centering(), StandardScaling()],
             )
+            # self.set_anchors()
 
     def _compute_relative_representation(self, hidden):
         return self.projector(x=hidden, anchors=self.anchors)#.vectors
