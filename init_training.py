@@ -52,7 +52,7 @@ def init_stuff_ppo(args, envs, eval_envs, device, wandb, writer, logger, log_pat
         anchor_indices = [int(item.strip()) for item in anchor_indices]
         obs_set = obs_set[anchor_indices, :]
     
-
+    print(f"obs_set device: {obs_set.device}")
     if args.use_resnet:
         from rl_agents.ppo.ppo_resnet import FeatureExtractorResNet, PolicyResNet, AgentResNet
         encoder = FeatureExtractorResNet(use_relative=args.use_relative, obs_anchors=obs_set, obs_anchors_filename=args.anchors_path).to(device)
