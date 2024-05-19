@@ -57,7 +57,7 @@ def init_stuff_ppo(args, envs, eval_envs, device, wandb, writer, logger, log_pat
         from rl_agents.ppo.ppo_resnet import FeatureExtractorResNet, PolicyResNet, AgentResNet
         encoder = FeatureExtractorResNet(use_relative=args.use_relative, obs_anchors=obs_set, obs_anchors_filename=args.anchors_path).to(device)
     else:
-        encoder = FeatureExtractor(use_relative=args.use_relative, pretrained=args.pretrained, obs_anchors=obs_set, obs_anchors_filename=args.anchors_path, anchors_alpha=args.anchors_alpha).to(device)
+        encoder = FeatureExtractor(use_relative=args.use_relative, pretrained=args.pretrained, obs_anchors=obs_set, anchors_alpha=args.anchors_alpha).to(device)
 
     # if we are using a pretrained encoder, load its params into our encoder
     if args.pretrained:

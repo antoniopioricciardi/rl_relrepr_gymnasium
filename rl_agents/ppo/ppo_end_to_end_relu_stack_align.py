@@ -19,7 +19,7 @@ def layer_init(layer, std=np.sqrt(2), bias_const=0.0):
     return layer
 
 class FeatureExtractor(nn.Module):
-    def __init__(self, use_relative=False, pretrained=False, obs_anchors=None, obs_anchors_filename=None, anchors_alpha=0.99, device='cpu'):#, anchors_std=None):
+    def __init__(self, use_relative=False, pretrained=False, obs_anchors=None, anchors_alpha=0.99, device='cpu'):#, anchors_std=None):
         super().__init__()
         self.use_relative = use_relative
         self.pretrained = pretrained
@@ -38,7 +38,7 @@ class FeatureExtractor(nn.Module):
 
         if self.use_relative:
             # obs_anchors_filename is used to recover the obs_anchors when loading the model
-            self.register_buffer("obs_anchors_filename", obs_anchors_filename)
+            # self.register_buffer("obs_anchors_filename", obs_anchors_filename)
             # self.register_buffer("obs_anchors", obs_anchors)
             self.obs_anchors = obs_anchors
             # anchors = None
