@@ -41,6 +41,7 @@ class FeatureExtractor(nn.Module):
             # self.register_buffer("obs_anchors_filename", obs_anchors_filename)
             # self.register_buffer("obs_anchors", obs_anchors)
             self.obs_anchors = obs_anchors
+            self.obs_anchors.to(device)
             # anchors = None
             self.projector = RelativeProjector(
                 projection_fn=relative.cosine_proj,
