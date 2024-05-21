@@ -237,6 +237,7 @@ class CarRacing(gym.Env, EzPickle):
         self.background_colors_list = [[102, 204, 102], [204, 102, 102], [102, 102, 204]] #[204, 102, 204], [230, 102, 230], [230, 230, 102]
         self.grass_color_list = [[102, 230, 102], [230, 102, 102], [102, 102, 230]] #[204, 102, 204], [230, 102, 230], [255, 255, 102]
         self.background_list_len = len(self.background_colors_list)
+        self.background_idx = 0
 
         self.continuous = continuous
         self.domain_randomize = domain_randomize
@@ -317,9 +318,9 @@ class CarRacing(gym.Env, EzPickle):
                 self.bg_color = np.array([230, 230, 102])
                 self.grass_color = np.array([255, 255, 102])
             if self.background == "multicolor":
-                idx = self.np_random.integers(self.background_list_len)
-                self.bg_color = self.background_colors_list[idx]
-                self.grass_color = self.grass_color_list[idx]
+                self.bg_color = self.background_colors_list[self.background_idx]
+                self.grass_color = self.grass_color_list[self.background_idx]
+                self.background_idx = (self.background_idx + 1) % self.background_list_len
 
     def _reinit_colors(self, randomize):
         assert (
