@@ -138,6 +138,7 @@ if __name__ == "__main__":
     #     from envs.carracing.car_racing_heavy import CarRacing
     elif args.car_mode == "camera_far":
         # from envs.carracing.car_racing_camera_far import CarRacing
+        from envs.carracing.car_racing import CarRacing
         zoom=1
         # python ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name green_rgb --env-id CarRacing-custom --seed 0 --num-envs 16 --background green --stack-n 4 --total-timesteps 5000000 --car-mode no_noop
     env = CarRacing(continuous=False, background=args.background, zoom=zoom)# , image_path=args.image_path)
