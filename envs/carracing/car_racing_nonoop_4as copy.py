@@ -200,7 +200,7 @@ class CarRacing(gym.Env, EzPickle):
         continuous: bool = True,
         background: str = "green",
         image_path: Optional[str] = None,
-        zoom = 2.7
+        zoom: float = ZOOM
     ):
         EzPickle.__init__(
             self,
@@ -250,7 +250,7 @@ class CarRacing(gym.Env, EzPickle):
                 np.array([+1, +1, +1]).astype(np.float32),
             )  # steer, gas, brake
         else:
-            self.action_space = spaces.Discrete(5)
+            self.action_space = spaces.Discrete(4)
             # do nothing, left, right, gas, brake
 
         self.observation_space = spaces.Box(
@@ -598,10 +598,9 @@ class CarRacing(gym.Env, EzPickle):
                         f"you passed the invalid action `{action}`. "
                         f"The supported action_space is `{self.action_space}`"
                     )
-                self.car.steer(-0.6 * (action == 1) + 0.6 * (action == 2))
-                self.car.gas(0.2 * (action == 3))
-                self.car.brake(0.8 * (action == 4))
-                self.car.brake(0.8 * (action == 0))
+                self.car.steer(-0.6 * (action == 0) + 0.6 * (action == 1))
+                self.car.gas(0.2 * (action == 2))
+                self.car.brake(0.8 * (action == 3))
 
         self.car.step(1.0 / FPS)
         self.world.Step(1.0 / FPS, 6 * 30, 2 * 30)

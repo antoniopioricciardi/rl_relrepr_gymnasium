@@ -1,33 +1,34 @@
 __credits__ = ["Andrea PIERRÉ"]
-# edits needed to modify the env
-import glob
+
 import math
-import os
 from typing import Optional, Union
 
-import gym
 import numpy as np
-from gym import spaces
-# from gym.envs.box2d.car_dynamics import Car
-from car_dynamics import Car
-from gym.error import DependencyNotInstalled, InvalidAction
-from gym.utils import EzPickle
+
+import gymnasium as gym
+from gymnasium import spaces
+from gymnasium.envs.box2d.car_dynamics import Car
+from gymnasium.error import DependencyNotInstalled, InvalidAction
+from gymnasium.utils import EzPickle
+
 
 try:
     import Box2D
     from Box2D.b2 import contactListener, fixtureDef, polygonShape
-except ImportError:
-    raise DependencyNotInstalled("box2D is not installed, run `pip install gym[box2d]`")
+except ImportError as e:
+    raise DependencyNotInstalled(
+        'Box2D is not installed, run `pip install "gymnasium[box2d]"`'
+    ) from e
 
 try:
     # As pygame is necessary for using the environment (reset and step) even without a render mode
     #   therefore, pygame is a necessary import for the environment.
     import pygame
     from pygame import gfxdraw
-except ImportError:
+except ImportError as e:
     raise DependencyNotInstalled(
-        "pygame is not installed, run `pip install gym[box2d]`"
-    )
+        'pygame is not installed, run `pip install "gymnasium[box2d]"`'
+    ) from e
 
 
 STATE_W = 96  # less than Atari 160x192
@@ -106,7 +107,7 @@ class FrictionDetector(contactListener):
 
 class CarRacing(gym.Env, EzPickle):
     """
-    ### Description
+    ## Description
     The easiest control task to learn from pixels - a top-down
     racing environment. The generated track is random every episode.
 
@@ -114,71 +115,88 @@ class CarRacing(gym.Env, EzPickle):
     state RGB buffer. From left to right: true speed, four ABS sensors,
     steering wheel position, and gyroscope.
     To play yourself (it's rather fast for humans), type:
-    ```
-    python gym/envs/box2d/car_racing.py
+    ```shell
+    python gymnasium/envs/box2d/car_racing.py
     ```
     Remember: it's a powerful rear-wheel drive car - don't press the accelerator
     and turn at the same time.
 
-    ### Action Space
-    If continuous:
-        There are 3 actions: steering (-1 is full left, +1 is full right), gas, and breaking.
-    If discrete:
-        There are 5 actions: do nothing, steer left, steer right, gas, brake.
+    ## Action Space
+    If continuous there are 3 actions :
+    - 0: steering, -1 is full left, +1 is full right
+    - 1: gas
+    - 2: breaking
 
-    ### Observation Space
-    State consists of 96x96 pixels.
+    If discrete there are 5 actions:
+    - 0: do nothing
+    - 1: steer left
+    - 2: steer right
+    - 3: gas
+    - 4: brake
 
-    ### Rewards
-    The reward is -0.1 every frame and +1000/N for every track tile visited,
-    where N is the total number of tiles visited in the track. For example,
-    if you have finished in 732 frames, your reward is
-    1000 - 0.1*732 = 926.8 points.
+    ## Observation Space
 
-    ### Starting State
+    A top-down 96x96 RGB image of the car and race track.
+
+    ## Rewards
+    The reward is -0.1 every frame and +1000/N for every track tile visited, where N is the total number of tiles
+     visited in the track. For example, if you have finished in 732 frames, your reward is 1000 - 0.1*732 = 926.8 points.
+
+    ## Starting State
     The car starts at rest in the center of the road.
 
-    ### Episode Termination
-    The episode finishes when all of the tiles are visited. The car can also go
-    outside of the playfield - that is, far off the track, in which case it will
-    receive -100 reward and die.
+    ## Episode Termination
+    The episode finishes when all the tiles are visited. The car can also go outside the playfield -
+     that is, far off the track, in which case it will receive -100 reward and die.
 
-    ### Arguments
-    `lap_complete_percent` dictates the percentage of tiles that must be visited by
-    the agent before a lap is considered complete.
+    ## Arguments
 
-    Passing `domain_randomize=True` enables the domain randomized variant of the environment.
-    In this scenario, the background and track colours are different on every reset.
+    ```python
+    >>> import gymnasium as gym
+    >>> env = gym.make("CarRacing-v2", render_mode="rgb_array", lap_complete_percent=0.95, domain_randomize=False, continuous=False)
+    >>> env
+    <TimeLimit<OrderEnforcing<PassiveEnvChecker<CarRacing<CarRacing-v2>>>>>
 
-    Passing `continuous=False` converts the environment to use discrete action space.
-    The discrete action space has 5 actions: [do nothing, left, right, gas, brake].
+    ```
 
-    ### Reset Arguments
+    * `lap_complete_percent=0.95` dictates the percentage of tiles that must be visited by
+     the agent before a lap is considered complete.
+
+    * `domain_randomize=False` enables the domain randomized variant of the environment.
+     In this scenario, the background and track colours are different on every reset.
+
+    * `continuous=True` converts the environment to use discrete action space.
+     The discrete action space has 5 actions: [do nothing, left, right, gas, brake].
+
+    ## Reset Arguments
+
     Passing the option `options["randomize"] = True` will change the current colour of the environment on demand.
     Correspondingly, passing the option `options["randomize"] = False` will not change the current colour of the environment.
     `domain_randomize` must be `True` on init for this argument to work.
-    Example usage:
-    ```py
-        env = gym.make("CarRacing-v1", domain_randomize=True)
 
-        # normal reset, this changes the colour scheme by default
-        env.reset()
+    ```python
+    >>> import gymnasium as gym
+    >>> env = gym.make("CarRacing-v2", domain_randomize=True)
 
-        # reset with colour scheme change
-        env.reset(options={"randomize": True})
+    # normal reset, this changes the colour scheme by default
+    >>> obs, _ = env.reset()
 
-        # reset with no colour scheme change
-        env.reset(options={"randomize": False})
+    # reset with colour scheme change
+    >>> randomize_obs, _ = env.reset(options={"randomize": True})
+
+    # reset with no colour scheme change
+    >>> non_random_obs, _ = env.reset(options={"randomize": False})
+
     ```
 
-    ### Version History
+    ## Version History
     - v1: Change track completion logic and add domain randomization (0.24.0)
     - v0: Original version
 
-    ### References
+    ## References
     - Chris Campbell (2014), http://www.iforce2d.net/b2dtut/top-down-car.
 
-    ### Credits
+    ## Credits
     Created by Oleg Klimov
     """
 
@@ -199,8 +217,7 @@ class CarRacing(gym.Env, EzPickle):
         domain_randomize: bool = False,
         continuous: bool = True,
         background: str = "green",
-        image_path: Optional[str] = None,
-        zoom: float = ZOOM
+        zoom: float = ZOOM,
     ):
         EzPickle.__init__(
             self,
@@ -215,14 +232,16 @@ class CarRacing(gym.Env, EzPickle):
         ZOOM = zoom
         self.step_cnt = 0
         self.background = background
-        self.image_path = image_path
-        print(self.image_path)
-        if self.background == 'image' or self.background == 'video':
-            assert self.image_path is not None, "You set background=image. Please provide an image or a video path"
+
+        self.background_list = ["green", "red", "blue"] #"violet", "pink", "yellow"]
+        self.background_colors_list = [[102, 204, 102], [204, 102, 102], [102, 102, 204]] #[204, 102, 204], [230, 102, 230], [230, 230, 102]
+        self.grass_color_list = [[102, 230, 102], [230, 102, 102], [102, 102, 230]] #[204, 102, 204], [230, 102, 230], [255, 255, 102]
+        self.background_list_len = len(self.background_colors_list)
+        self.background_idx = 0
+
         self.continuous = continuous
         self.domain_randomize = domain_randomize
         self.lap_complete_percent = lap_complete_percent
-        self._init_colors()
 
         self.contactListener_keepref = FrictionDetector(self, self.lap_complete_percent)
         self.world = Box2D.b2World((0, 0), contactListener=self.contactListener_keepref)
@@ -258,41 +277,6 @@ class CarRacing(gym.Env, EzPickle):
         )
 
         self.render_mode = render_mode
-        if self.background == "image":
-            # load image using pygame
-            self.background_img = pygame.image.load(self.image_path)
-            self.background_img_rect = self.background_img.get_rect()
-            # flip the image vertically
-            self.background_img = pygame.transform.flip(self.background_img, False, True)
-        if self.background == "video":
-            import glob
-            print(f'############\n{self.image_path}\n############')
-            self.images_list = []
-            video_path = self.image_path[:-4]
-
-            # Define the path to the folder containing the JPG files
-            folder_path = video_path + "/*.jpg"
-
-            # Use glob to get a list of file paths that match the pattern
-            file_paths = glob.glob(folder_path)
-            num_files = len(file_paths)
-            # files are ordered by name. So 1.jpg, 2.jpg, 3.jpg, ... 10.jpg, 11.jpg etc. instead of 1.jpg, 10.jpg, 11.jpg, 2.jpg, 3.jpg etc.
-            for i in range(num_files):
-                filename = os.path.join(video_path, str(i) + ".jpg")
-                img = pygame.image.load(filename)
-                img = pygame.transform.flip(img, False, True)
-                # stretch the image to fit the screen, without getting it too big
-                img = pygame.transform.scale(img, (WINDOW_W, WINDOW_H))
-                self.images_list.append(img) #pygame.transform.scale(img, (WINDOW_W, WINDOW_H)))
-            self.video_frame_idx = 0
-            self.background_img = self.images_list[self.video_frame_idx]
-            self.fps_idx = 0
-
-    def _increase_image_idx(self):
-        self.video_frame_idx += 1
-        if self.video_frame_idx >= len(self.images_list):
-            self.video_frame_idx = 0
-        self.background_img = self.images_list[self.video_frame_idx]
 
     def _destroy(self):
         if not self.road:
@@ -333,6 +317,10 @@ class CarRacing(gym.Env, EzPickle):
             if self.background == "yellow":
                 self.bg_color = np.array([230, 230, 102])
                 self.grass_color = np.array([255, 255, 102])
+            if self.background == "multicolor":
+                self.bg_color = self.background_colors_list[self.background_idx]
+                self.grass_color = self.grass_color_list[self.background_idx]
+                self.background_idx = (self.background_idx + 1) % self.background_list_len
 
     def _reinit_colors(self, randomize):
         assert (
@@ -559,6 +547,7 @@ class CarRacing(gym.Env, EzPickle):
         self.road_poly = []
         self.step_cnt = 0
 
+        self._init_colors()
         if self.domain_randomize:
             randomize = True
             if isinstance(options, dict):
@@ -578,12 +567,9 @@ class CarRacing(gym.Env, EzPickle):
                 )
         self.car = Car(self.world, *self.track[0][1:4])
 
-        self.fps_idx = 0
-        self.video_frame_idx = 0
-
         if self.render_mode == "human":
             self.render()
-        return self.step(None)[0]  # , {}
+        return self.step(None)[0], {}
 
     def step(self, action: Union[np.ndarray, int]):
         assert self.car is not None
@@ -611,7 +597,6 @@ class CarRacing(gym.Env, EzPickle):
         step_reward = 0
         terminated = False
         truncated = False
-        done = False
         if action is not None:  # First step without action, called from reset()
             self.reward -= 0.1
             # We actually don't want to count fuel spent, we want car to be faster.
@@ -624,29 +609,28 @@ class CarRacing(gym.Env, EzPickle):
                 # This should not be treated as a failure
                 # but like a timeout
                 truncated = True
-                done = True
             x, y = self.car.hull.position
             if abs(x) > PLAYFIELD or abs(y) > PLAYFIELD:
                 terminated = True
-                done = True
                 step_reward = -100
 
         if self.render_mode == "human":
             self.render()
+            
         self.step_cnt += 1
         if self.step_cnt == 1000:
-            done = True
-            
-        # return self.state, step_reward, terminated, truncated, {}
-        return self.state, step_reward, done, {}
+            terminated = True
+        return self.state, step_reward, terminated, truncated, {}
 
     def render(self):
         if self.render_mode is None:
+            assert self.spec is not None
             gym.logger.warn(
                 "You are calling render method without specifying any render mode. "
                 "You can specify the render_mode at initialization, "
-                f'e.g. gym("{self.spec.id}", render_mode="rgb_array")'
+                f'e.g. gym.make("{self.spec.id}", render_mode="rgb_array")'
             )
+            return
         else:
             return self._render(self.render_mode)
 
@@ -685,7 +669,6 @@ class CarRacing(gym.Env, EzPickle):
             mode not in ["state_pixels_list", "state_pixels"],
         )
 
-        self.car.draw(self.surf, zoom, trans, angle, mode != "state_pixels")
         self.surf = pygame.transform.flip(self.surf, False, True)
 
         # showing stats
@@ -704,27 +687,12 @@ class CarRacing(gym.Env, EzPickle):
             self.screen.fill(0)
             self.screen.blit(self.surf, (0, 0))
             pygame.display.flip()
-
-        if mode == "rgb_array":
+        elif mode == "rgb_array":
             return self._create_image_array(self.surf, (VIDEO_W, VIDEO_H))
         elif mode == "state_pixels":
             return self._create_image_array(self.surf, (STATE_W, STATE_H))
         else:
             return self.isopen
-
-    def load_image(self, path, colorkey=None, scale=1):
-        image = pygame.image.load(path)
-        size = image.get_size()
-        size = (size[0] * scale, size[1] * scale)
-        # scale takes a Surface and the size it should be scaled to.
-        image = pygame.transform.scale(image, size)
-
-        image = image.convert()
-        if colorkey is not None:
-            if colorkey == -1:
-                colorkey = image.get_at((0, 0))
-            image.set_colorkey(colorkey, pygame.RLEACCEL)
-        return image, image.get_rect()
 
     def _render_road(self, zoom, translation, angle):
         bounds = PLAYFIELD
@@ -736,46 +704,31 @@ class CarRacing(gym.Env, EzPickle):
         ]
 
         # draw background
-        if self.background == "black":
-            pass
-        if self.background in ["green", "red", "blue", "violet", "pink", "yellow"]:
+        # self._draw_colored_polygon(
+        #     self.surf, field, self.bg_color, zoom, translation, angle, clip=False
+        # )
+
+        if self.background in ["green", "red", "blue", "violet", "pink", "yellow", "multicolor"]:
             self._draw_colored_polygon(
                 self.surf, field, self.bg_color, zoom, translation, angle, clip=False
             )
 
-        if self.background == "image":
-            # draw background image
-            self.background_img_rect.center = (bounds, bounds)
-            self.surf.blit(self.background_img, self.background_img_rect)
-        
-        if self.background == "video":
-            self.background_img_rect = self.background_img.get_rect()
-            # self.background_img_rect.center = (bounds, bounds)
-            self.surf.blit(self.background_img, self.background_img_rect)
-            # slow down video
-            # if self.fps_idx % 10 == 0:
-                # this changes the background image, too
-            self._increase_image_idx()
-            #     self.fps_idx = 0
-            # self.fps_idx += 1
-
         # draw grass patches
-        if not (self.background == "image" or self.background == "video"):
-            grass = []
-            for x in range(-20, 20, 2):
-                for y in range(-20, 20, 2):
-                    grass.append(
-                        [
-                            (GRASS_DIM * x + GRASS_DIM, GRASS_DIM * y + 0),
-                            (GRASS_DIM * x + 0, GRASS_DIM * y + 0),
-                            (GRASS_DIM * x + 0, GRASS_DIM * y + GRASS_DIM),
-                            (GRASS_DIM * x + GRASS_DIM, GRASS_DIM * y + GRASS_DIM),
-                        ]
-                    )
-            for poly in grass:
-                self._draw_colored_polygon(
-                    self.surf, poly, self.grass_color, zoom, translation, angle
+        grass = []
+        for x in range(-20, 20, 2):
+            for y in range(-20, 20, 2):
+                grass.append(
+                    [
+                        (GRASS_DIM * x + GRASS_DIM, GRASS_DIM * y + 0),
+                        (GRASS_DIM * x + 0, GRASS_DIM * y + 0),
+                        (GRASS_DIM * x + 0, GRASS_DIM * y + GRASS_DIM),
+                        (GRASS_DIM * x + GRASS_DIM, GRASS_DIM * y + GRASS_DIM),
+                    ]
                 )
+        for poly in grass:
+            self._draw_colored_polygon(
+                self.surf, poly, self.grass_color, zoom, translation, angle
+            )
 
         # draw road
         for poly, color in self.road_poly:
@@ -812,6 +765,7 @@ class CarRacing(gym.Env, EzPickle):
             np.square(self.car.hull.linearVelocity[0])
             + np.square(self.car.hull.linearVelocity[1])
         )
+
         # simple wrapper to render if the indicator value is above a threshold
         def render_if_min(value, points, color):
             if abs(value) > 1e-4:
@@ -879,27 +833,10 @@ class CarRacing(gym.Env, EzPickle):
 
     def close(self):
         if self.screen is not None:
-            if pygame.display is not None:
-                pygame.display.quit()
-                self.isopen = False
-                pygame.quit()
+            pygame.display.quit()
+            self.isopen = False
+            pygame.quit()
 
-    def change_background_color(self, color):
-        # assert that the color is a tuple of length 3 and contains only integers up to 255
-        assert len(color) == 3 and all([isinstance(c, int) and c <= 255 for c in color]), \
-            "Color must be a tuple of length 3 containing integers up to 255"
-        self.bg_color = color
-        self.grass_color = color
-        # get the index of the maximum value in the color tuple.
-        # This might produce unexpected behaviour if two or more values are equal
-        max_color_idx = np.argmax(color)
-        max_color = color[max_color_idx] + 26
-        # cap it to 255
-        if max_color > 255:
-            max_color = 255
-        grass_color = np.array(color)
-        grass_color[max_color_idx] = max_color
-        self.grass_color = grass_color
 
 if __name__ == "__main__":
     a = np.array([0.0, 0.0, 0.0])
