@@ -151,8 +151,8 @@ def init_carracing_env(car_mode="standard", background_color="green", image_path
         from envs.carracing.car_racing_scrambled import CarRacing
     elif car_mode == "noleft":
         from envs.carracing.car_racing_noleft import CarRacing
-    elif car_mode == "heavy":
-        from envs.carracing.car_racing_heavy import CarRacing
+    # elif car_mode == "heavy":
+    #     from envs.carracing.car_racing_heavy import CarRacing
     elif car_mode == "camera_far":
         zoom=1
         from envs.carracing.car_racing_camera_far import CarRacing

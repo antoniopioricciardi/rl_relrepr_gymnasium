@@ -9,7 +9,7 @@ import gym
 import numpy as np
 from gym import spaces
 # from gym.envs.box2d.car_dynamics import Car
-from car_dynamics import Car
+from envs.carracing.car_dynamics import Car
 from gym.error import DependencyNotInstalled, InvalidAction
 from gym.utils import EzPickle
 

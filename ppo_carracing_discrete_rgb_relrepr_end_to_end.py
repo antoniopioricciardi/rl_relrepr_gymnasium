@@ -118,7 +118,7 @@ if __name__ == "__main__":
     
     car_modes = ["standard", "slow", "no_noop", "no_noop_4as", "scrambled", "noleft", "heavy", "camera_far", "multicolor"]
     assert args.car_mode in car_modes, f"car mode must be one of {car_modes}"
-
+    zoom = 2.7
     if args.car_mode == "standard":
         from envs.carracing.car_racing import CarRacing
     # elif args.car_mode == "fast":
@@ -134,13 +134,14 @@ if __name__ == "__main__":
         from envs.carracing.car_racing_scrambled import CarRacing
     elif args.car_mode == "noleft":
         from envs.carracing.car_racing_noleft import CarRacing
-    elif args.car_mode == "heavy":
-        from envs.carracing.car_racing_heavy import CarRacing
+    # elif args.car_mode == "heavy":
+    #     from envs.carracing.car_racing_heavy import CarRacing
     elif args.car_mode == "camera_far":
-        from envs.carracing.car_racing_camera_far import CarRacing
+        # from envs.carracing.car_racing_camera_far import CarRacing
+        zoom=1
         # python ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name green_rgb --env-id CarRacing-custom --seed 0 --num-envs 16 --background green --stack-n 4 --total-timesteps 5000000 --car-mode no_noop
-    env = CarRacing(continuous=False, background=args.background)# , image_path=args.image_path)
-    eval_env = CarRacing(continuous=False, background=args.background)#, image_path=args.image_path)
+    env = CarRacing(continuous=False, background=args.background, zoom=zoom)# , image_path=args.image_path)
+    eval_env = CarRacing(continuous=False, background=args.background, zoom=zoom)#, image_path=args.image_path)
     num_eval_envs = 5
 
     # env setup
