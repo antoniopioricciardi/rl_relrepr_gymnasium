@@ -187,6 +187,27 @@ class RescaleObservation(
         )
 
 
+class FilterFromDict(gym.ObservationWrapper):
+    from typing import List
+    # Minigrid: Dict('direction': Discrete(4), 'image': Box(0, 255, (7, 7, 3), uint8), 'mission': MissionSpace(<function EmptyEnv._gen_mission at 0x12dfeb4c0>, None))
+    """
+    Filter the observation from the dict to return only values for the specified key
+    """
+    def __init__(self, env=None, key:str='image'):
+        super(FilterFromDict, self).__init__(env)
+        self.env = env
+        self.key = key
+        self.observation_space = env.observation_space.spaces[self.key]
+        print(self.observation_space)
+
+        TransformObservation.__init__(
+            self,
+            env=env,
+            func=lambda obs: obs[self.key],
+            observation_space=self.observation_space,
+        )
+
+
 
 
 
@@ -198,322 +219,322 @@ class RescaleObservation(
 
 
 
-class RepeatAction(gym.Wrapper):
-    """
-    Repeat the same action a certain number of times.
-    Often, in a game, a couple of sequential frames do not differ that much from each other, so repeat the chosen action.
-    """
+# class RepeatAction(gym.Wrapper):
+#     """
+#     Repeat the same action a certain number of times.
+#     Often, in a game, a couple of sequential frames do not differ that much from each other, so repeat the chosen action.
+#     """
 
-    def __init__(self, env=None, repeat=4, clip_rewards=False, fire_first=False):
-        """
-        :param env:
-        :param repeat:
-        :param fire_first: If the rl_agent need to start the game by pressing "fire" button
-        """
-        # fire_first: in certain envs the rl_agent have to fire to start the env, as in pong
-        # the rl_agent can figure it out alone sometimes
-        super(RepeatAction, self).__init__(env)
-        self.env = env
-        self.repeat = repeat
-        self.clip_rewards = clip_rewards
-        self.shape = env.observation_space.low.shape
-        self.fire_first = fire_first
+#     def __init__(self, env=None, repeat=4, clip_rewards=False, fire_first=False):
+#         """
+#         :param env:
+#         :param repeat:
+#         :param fire_first: If the rl_agent need to start the game by pressing "fire" button
+#         """
+#         # fire_first: in certain envs the rl_agent have to fire to start the env, as in pong
+#         # the rl_agent can figure it out alone sometimes
+#         super(RepeatAction, self).__init__(env)
+#         self.env = env
+#         self.repeat = repeat
+#         self.clip_rewards = clip_rewards
+#         self.shape = env.observation_space.low.shape
+#         self.fire_first = fire_first
 
-    def step(self, action):
-        total_reward = 0.0
-        done = False
-        for i in range(self.repeat):
-            obs, reward, done, info = self.env.step(action)
-            if self.clip_rewards:
-                # clip the reward in -1, 1, then take first element (we need the scalar, not an array)
-                reward = np.sign(reward) # np.clip(np.array([reward]), -1, 1)[0]
+#     def step(self, action):
+#         total_reward = 0.0
+#         done = False
+#         for i in range(self.repeat):
+#             obs, reward, done, info = self.env.step(action)
+#             if self.clip_rewards:
+#                 # clip the reward in -1, 1, then take first element (we need the scalar, not an array)
+#                 reward = np.sign(reward) # np.clip(np.array([reward]), -1, 1)[0]
 
-            total_reward += reward
-            if done:
-                break
-        return obs, total_reward, done, info
+#             total_reward += reward
+#             if done:
+#                 break
+#         return obs, total_reward, done, info
 
-    def reset(self):
-        obs = self.env.reset()
-        if self.fire_first:
-            # get_action_meanings returns a list of strings (['NOOP', 'FIRE', 'RIGHT', 'LEFT', 'RIGHTFIRE', 'LEFTFIRE'])
-            fire_act_idx = self.env.unwrapped.get_action_meanings().index("FIRE")
-            obs, _, _, _ = self.env.step(fire_act_idx)
-        return obs
-
-
-# https://github.com/openai/baselines/blob/master/baselines/common/atari_wrappers.py
+#     def reset(self):
+#         obs = self.env.reset()
+#         if self.fire_first:
+#             # get_action_meanings returns a list of strings (['NOOP', 'FIRE', 'RIGHT', 'LEFT', 'RIGHTFIRE', 'LEFTFIRE'])
+#             fire_act_idx = self.env.unwrapped.get_action_meanings().index("FIRE")
+#             obs, _, _, _ = self.env.step(fire_act_idx)
+#         return obs
 
 
-class EpisodicLifeEnv(gym.Wrapper):
-    def __init__(self, env):
-        """Make end-of-life == end-of-episode, but only reset on true game over.
-        Done by DeepMind for the DQN and co. since it helps value estimation.
-        """
-        gym.Wrapper.__init__(self, env)
-        self.lives = 0
-        self.was_real_done = True
-
-    def step(self, action):
-        obs, reward, done, info = self.env.step(action)
-        self.was_real_done = done
-        # check current lives, make loss of life terminal,
-        # then update lives to handle bonus lives
-        lives = self.env.unwrapped.ale.lives()
-        if lives < self.lives and lives > 0:
-            # for Qbert sometimes we stay in lives == 0 condition for a few frames
-            # so it's important to keep lives > 0, so that we only reset once
-            # the environment advertises done.
-            done = True
-        self.lives = lives
-        return obs, reward, done, info
-
-    def reset(self):
-        """Reset only when lives are exhausted.
-        This way all states are still reachable even though lives are episodic,
-        and the learner need not know about any of this behind-the-scenes.
-        """
-        if self.was_real_done:
-            obs = self.env.reset()
-        else:
-            # no-op step to advance from terminal/lost life state
-            obs, _, _, _ = self.env.step(0)
-        self.lives = self.env.unwrapped.ale.lives()
-        return obs
+# # https://github.com/openai/baselines/blob/master/baselines/common/atari_wrappers.py
 
 
-class PreprocessFrame(gym.ObservationWrapper):
-    """
-    Reduce frame size and convert to grayscale with values in range [0, 1]
-    """
+# class EpisodicLifeEnv(gym.Wrapper):
+#     def __init__(self, env):
+#         """Make end-of-life == end-of-episode, but only reset on true game over.
+#         Done by DeepMind for the DQN and co. since it helps value estimation.
+#         """
+#         gym.Wrapper.__init__(self, env)
+#         self.lives = 0
+#         self.was_real_done = True
 
-    def __init__(self, shape, env=None):
-        super(PreprocessFrame, self).__init__(env)
-        self.env = env
-        # pytorch expects channel firsts
-        self.shape = (shape[2], shape[0], shape[1])
-        # normalize values in 0, 1 and in grayscale
-        self.observation_space = gym.spaces.Box(
-            low=0.0, high=1.0, shape=self.shape, dtype=np.float32
-        )
+#     def step(self, action):
+#         obs, reward, done, info = self.env.step(action)
+#         self.was_real_done = done
+#         # check current lives, make loss of life terminal,
+#         # then update lives to handle bonus lives
+#         lives = self.env.unwrapped.ale.lives()
+#         if lives < self.lives and lives > 0:
+#             # for Qbert sometimes we stay in lives == 0 condition for a few frames
+#             # so it's important to keep lives > 0, so that we only reset once
+#             # the environment advertises done.
+#             done = True
+#         self.lives = lives
+#         return obs, reward, done, info
 
-    def observation(self, observation):
-        new_frame = cv2.cvtColor(observation, cv2.COLOR_RGB2GRAY)
-        # self.shape[1:] because it is 42x42 (w, h) (shape[0] indicates the num_channels)
-        resized_screen = cv2.resize(
-            new_frame, self.shape[1:], interpolation=cv2.INTER_AREA
-        )
-        # uint8 because we have obs as ints for 0 to 255 (might not be needed), since we're converting to float
-        new_obs = np.array(resized_screen, dtype=np.uint8).reshape(self.shape)
-        new_obs = new_obs / 255.0
-        return new_obs
-
-class PreprocessFrameRGB(gym.ObservationWrapper):
-    """
-    Reduce frame size and convert to grayscale with values in range [0, 1]
-    """
-
-    def __init__(self, shape, env=None):
-        super(PreprocessFrameRGB, self).__init__(env)
-        self.env = env
-        # pytorch expects channel firsts
-        self.shape = (shape[2], shape[0], shape[1])
-        # normalize values in 0, 1 and in grayscale
-        self.observation_space = gym.spaces.Box(
-            low=env.observation_space.low[0, 0, 0], high=env.observation_space.high[255, 255, 255], shape=self.shape, dtype=np.float32
-            # low=0.0, high=1.0, shape=self.shape, dtype=np.float32
-        )
-
-    def observation(self, observation):
-        # new_frame = cv2.cvtColor(observation, cv2.COLOR_RGB2GRAY)
-        # self.shape[1:] because it is 42x42 (w, h) (shape[0] indicates the num_channels)
-        # print(observation)
-        resized_screen = cv2.resize(
-            observation, self.shape[1:], interpolation=cv2.INTER_AREA
-        )
-        # uint8 because we have obs as ints for 0 to 255 (might not be needed), since we're converting to float
-        new_obs = np.array(resized_screen, dtype=np.uint8).transpose((2, 0, 1))
-        new_obs = new_obs# / 255.0
-        return new_obs
+#     def reset(self):
+#         """Reset only when lives are exhausted.
+#         This way all states are still reachable even though lives are episodic,
+#         and the learner need not know about any of this behind-the-scenes.
+#         """
+#         if self.was_real_done:
+#             obs = self.env.reset()
+#         else:
+#             # no-op step to advance from terminal/lost life state
+#             obs, _, _, _ = self.env.step(0)
+#         self.lives = self.env.unwrapped.ale.lives()
+#         return obs
 
 
-class NormalizeFrames(gym.ObservationWrapper):
-    """
-    Normalize frames to be in range [0, 1]
-    """
+# class PreprocessFrame(gym.ObservationWrapper):
+#     """
+#     Reduce frame size and convert to grayscale with values in range [0, 1]
+#     """
 
-    def __init__(self, env=None):
-        super(NormalizeFrames, self).__init__(env)
-        self.env = env
-        self.observation_space = gym.spaces.Box(
-            low=0.0, high=1.0, shape=env.observation_space.shape, dtype=np.float32
-        )
+#     def __init__(self, shape, env=None):
+#         super(PreprocessFrame, self).__init__(env)
+#         self.env = env
+#         # pytorch expects channel firsts
+#         self.shape = (shape[2], shape[0], shape[1])
+#         # normalize values in 0, 1 and in grayscale
+#         self.observation_space = gym.spaces.Box(
+#             low=0.0, high=1.0, shape=self.shape, dtype=np.float32
+#         )
 
-    def observation(self, observation):
-        return np.array(observation).astype(np.float32) / 255.0
+#     def observation(self, observation):
+#         new_frame = cv2.cvtColor(observation, cv2.COLOR_RGB2GRAY)
+#         # self.shape[1:] because it is 42x42 (w, h) (shape[0] indicates the num_channels)
+#         resized_screen = cv2.resize(
+#             new_frame, self.shape[1:], interpolation=cv2.INTER_AREA
+#         )
+#         # uint8 because we have obs as ints for 0 to 255 (might not be needed), since we're converting to float
+#         new_obs = np.array(resized_screen, dtype=np.uint8).reshape(self.shape)
+#         new_obs = new_obs / 255.0
+#         return new_obs
+
+# class PreprocessFrameRGB(gym.ObservationWrapper):
+#     """
+#     Reduce frame size and convert to grayscale with values in range [0, 1]
+#     """
+
+#     def __init__(self, shape, env=None):
+#         super(PreprocessFrameRGB, self).__init__(env)
+#         self.env = env
+#         # pytorch expects channel firsts
+#         self.shape = (shape[2], shape[0], shape[1])
+#         # normalize values in 0, 1 and in grayscale
+#         self.observation_space = gym.spaces.Box(
+#             low=env.observation_space.low[0, 0, 0], high=env.observation_space.high[255, 255, 255], shape=self.shape, dtype=np.float32
+#             # low=0.0, high=1.0, shape=self.shape, dtype=np.float32
+#         )
+
+#     def observation(self, observation):
+#         # new_frame = cv2.cvtColor(observation, cv2.COLOR_RGB2GRAY)
+#         # self.shape[1:] because it is 42x42 (w, h) (shape[0] indicates the num_channels)
+#         # print(observation)
+#         resized_screen = cv2.resize(
+#             observation, self.shape[1:], interpolation=cv2.INTER_AREA
+#         )
+#         # uint8 because we have obs as ints for 0 to 255 (might not be needed), since we're converting to float
+#         new_obs = np.array(resized_screen, dtype=np.uint8).transpose((2, 0, 1))
+#         new_obs = new_obs# / 255.0
+#         return new_obs
+
+
+# class NormalizeFrames(gym.ObservationWrapper):
+#     """
+#     Normalize frames to be in range [0, 1]
+#     """
+
+#     def __init__(self, env=None):
+#         super(NormalizeFrames, self).__init__(env)
+#         self.env = env
+#         self.observation_space = gym.spaces.Box(
+#             low=0.0, high=1.0, shape=env.observation_space.shape, dtype=np.float32
+#         )
+
+#     def observation(self, observation):
+#         return np.array(observation).astype(np.float32) / 255.0
     
-class FilterFromDict(gym.ObservationWrapper):
-    from typing import List
-    # Minigrid: Dict('direction': Discrete(4), 'image': Box(0, 255, (7, 7, 3), uint8), 'mission': MissionSpace(<function EmptyEnv._gen_mission at 0x12dfeb4c0>, None))
-    """
-    Filter the observation from the dict to only return values for the specified key
-    """
-    def __init__(self, env=None, key:str=None):
-        super(FilterFromDict, self).__init__(env)
-        self.env = env
-        if key is None:
-            print('keys is None, trying to use \'image\' as default')
-            key = 'image'
-        self.key = key
-        self.observation_space = env.observation_space.spaces[self.key]
-        print(self.observation_space)
+# class FilterFromDict(gym.ObservationWrapper):
+#     from typing import List
+#     # Minigrid: Dict('direction': Discrete(4), 'image': Box(0, 255, (7, 7, 3), uint8), 'mission': MissionSpace(<function EmptyEnv._gen_mission at 0x12dfeb4c0>, None))
+#     """
+#     Filter the observation from the dict to only return values for the specified key
+#     """
+#     def __init__(self, env=None, key:str=None):
+#         super(FilterFromDict, self).__init__(env)
+#         self.env = env
+#         if key is None:
+#             print('keys is None, trying to use \'image\' as default')
+#             key = 'image'
+#         self.key = key
+#         self.observation_space = env.observation_space.spaces[self.key]
+#         print(self.observation_space)
 
-    def observation(self, observation):
-        return observation[0][self.key]
+#     def observation(self, observation):
+#         return observation[0][self.key]
 
-class StackFrames(gym.ObservationWrapper):
-    """
-    Stack a number of frames to give some directional hints to the rl_agent (e.g. in pong, using a single frame,
-    we would not be able to tell the direction the ball is going).
-    """
+# class StackFrames(gym.ObservationWrapper):
+#     """
+#     Stack a number of frames to give some directional hints to the rl_agent (e.g. in pong, using a single frame,
+#     we would not be able to tell the direction the ball is going).
+#     """
 
-    def __init__(self, env, repeat):
-        super(StackFrames, self).__init__(env)
-        self.repeat = repeat
-        # (repeat, w, h)
-        self.observation_space = gym.spaces.Box(
-            env.observation_space.low.repeat(repeat, axis=0),
-            env.observation_space.high.repeat(repeat, axis=0),
-            dtype=np.float32,
-        )
-        self.stack = collections.deque(maxlen=repeat)
+#     def __init__(self, env, repeat):
+#         super(StackFrames, self).__init__(env)
+#         self.repeat = repeat
+#         # (repeat, w, h)
+#         self.observation_space = gym.spaces.Box(
+#             env.observation_space.low.repeat(repeat, axis=0),
+#             env.observation_space.high.repeat(repeat, axis=0),
+#             dtype=np.float32,
+#         )
+#         self.stack = collections.deque(maxlen=repeat)
 
-    def reset(self):
-        self.stack.clear()
-        obs = self.env.reset()
-        for i in range(self.repeat):
-            self.stack.append(obs)
-        return np.array(self.stack).reshape(self.observation_space.low.shape)
+#     def reset(self):
+#         self.stack.clear()
+#         obs = self.env.reset()
+#         for i in range(self.repeat):
+#             self.stack.append(obs)
+#         return np.array(self.stack).reshape(self.observation_space.low.shape)
 
-    def observation(self, observation):
-        self.stack.append(observation)
-        return np.array(self.stack).reshape(self.observation_space.low.shape)
-
-
-def make_custom_env(
-    env, shape=(84, 84, 1), repeat=4, clip_rewards=False, fire_first=False
-):
-    env = RepeatAction(env, repeat, fire_first, clip_rewards)
-    env = PreprocessFrame(shape, env)
-    env = StackFrames(env, repeat)
-    return env
+#     def observation(self, observation):
+#         self.stack.append(observation)
+#         return np.array(self.stack).reshape(self.observation_space.low.shape)
 
 
-class MaxStepsWrapper(gym.Wrapper):
-    def __init__(self, env, max_steps):
-        super(MaxStepsWrapper, self).__init__(env)
-        self.max_steps = max_steps
-        self.step_count = 0
-
-    def step(self, action):
-        obs, reward, done, info = self.env.step(action)
-        self.step_count += 1
-        if self.step_count >= self.max_steps:
-            done = True
-        return obs, reward, done, info
-
-    def reset(self):
-        self.step_count = 0
-        return self.env.reset()
+# def make_custom_env(
+#     env, shape=(84, 84, 1), repeat=4, clip_rewards=False, fire_first=False
+# ):
+#     env = RepeatAction(env, repeat, fire_first, clip_rewards)
+#     env = PreprocessFrame(shape, env)
+#     env = StackFrames(env, repeat)
+#     return env
 
 
-def make_env(
-    env,
-    shape=(84, 84, 1),
-    repeat=4,
-    clip_rewards=False,
-    fire_first=False,
-    episodic_life=False,
-    render_mode="rgb_array",
-    deterministic_env=False,
-    seed=0,
-    max_steps=0,
-):
-    # env = gym.make(env_name, render_mode)
-    env = RepeatAction(env, repeat, clip_rewards, fire_first)
-    if episodic_life:
-        env = EpisodicLifeEnv(env)
-    if shape[2] == 3:
-        env = PreprocessFrameRGB(shape, env)
-    else:
-        env = PreprocessFrame(shape, env)
-    if repeat > 1:
-        env = StackFrames(env, repeat)
-    if max_steps > 0:
-        env = MaxStepsWrapper(env, max_steps)
-    if deterministic_env:
-        env.set_deterministic(seed)
-    env.seed(seed)
-    env.action_space.seed(seed)
-    env.observation_space.seed(seed)
-    return env
+# class MaxStepsWrapper(gym.Wrapper):
+#     def __init__(self, env, max_steps):
+#         super(MaxStepsWrapper, self).__init__(env)
+#         self.max_steps = max_steps
+#         self.step_count = 0
+
+#     def step(self, action):
+#         obs, reward, done, info = self.env.step(action)
+#         self.step_count += 1
+#         if self.step_count >= self.max_steps:
+#             done = True
+#         return obs, reward, done, info
+
+#     def reset(self):
+#         self.step_count = 0
+#         return self.env.reset()
 
 
-def make_custom_env_no_stack(
-    env, shape=(84, 84, 1), repeat=4, clip_rewards=False, fire_first=False
-):
-    env = RepeatAction(env, repeat, clip_rewards, fire_first)
-    env = PreprocessFrame(shape, env)
-    return env
+# def make_env(
+#     env,
+#     shape=(84, 84, 1),
+#     repeat=4,
+#     clip_rewards=False,
+#     fire_first=False,
+#     episodic_life=False,
+#     render_mode="rgb_array",
+#     deterministic_env=False,
+#     seed=0,
+#     max_steps=0,
+# ):
+#     # env = gym.make(env_name, render_mode)
+#     env = RepeatAction(env, repeat, clip_rewards, fire_first)
+#     if episodic_life:
+#         env = EpisodicLifeEnv(env)
+#     if shape[2] == 3:
+#         env = PreprocessFrameRGB(shape, env)
+#     else:
+#         env = PreprocessFrame(shape, env)
+#     if repeat > 1:
+#         env = StackFrames(env, repeat)
+#     if max_steps > 0:
+#         env = MaxStepsWrapper(env, max_steps)
+#     if deterministic_env:
+#         env.set_deterministic(seed)
+#     env.seed(seed)
+#     env.action_space.seed(seed)
+#     env.observation_space.seed(seed)
+#     return env
 
-    # def make_env_clearRL(env, seed, idx, capture_video, run_name):
-    #     # def thunk():
-    #         # env = make_custom_env(env, shape=(84, 84, 1), repeat=4, clip_rewards=False, fire_first=False)
-    #     # env = make_env(env, shape=(84, 84, 1), repeat=4, clip_rewards=False, fire_first=False)
-    #     env = gym.wrappers.RecordEpisodeStatistics(env)
-    #     if capture_video:
-    #         if idx == 0:
-    #             env = gym.wrappers.RecordVideo(env, f"videos/{run_name}")
-    #     # env = NoopResetEnv(env, noop_max=30)
-    #     # env = MaxAndSkipEnv(env, skip=4)
-    #     # env = EpisodicLifeEnv(env)
-    #     # if "FIRE" in env.unwrapped.get_action_meanings():
-    #     #     env = FireResetEnv(env)
-    #     # env = ClipRewardEnv(env)
-    #     if args.deterministic_env:
-    #         env.set_deterministic(seed)
-    #     env.seed(seed)
-    #     env.action_space.seed(seed)
-    #     env.observation_space.seed(seed)
-    # return env
 
-    return env  # thunk
+# def make_custom_env_no_stack(
+#     env, shape=(84, 84, 1), repeat=4, clip_rewards=False, fire_first=False
+# ):
+#     env = RepeatAction(env, repeat, clip_rewards, fire_first)
+#     env = PreprocessFrame(shape, env)
+#     return env
+
+#     # def make_env_clearRL(env, seed, idx, capture_video, run_name):
+#     #     # def thunk():
+#     #         # env = make_custom_env(env, shape=(84, 84, 1), repeat=4, clip_rewards=False, fire_first=False)
+#     #     # env = make_env(env, shape=(84, 84, 1), repeat=4, clip_rewards=False, fire_first=False)
+#     #     env = gym.wrappers.RecordEpisodeStatistics(env)
+#     #     if capture_video:
+#     #         if idx == 0:
+#     #             env = gym.wrappers.RecordVideo(env, f"videos/{run_name}")
+#     #     # env = NoopResetEnv(env, noop_max=30)
+#     #     # env = MaxAndSkipEnv(env, skip=4)
+#     #     # env = EpisodicLifeEnv(env)
+#     #     # if "FIRE" in env.unwrapped.get_action_meanings():
+#     #     #     env = FireResetEnv(env)
+#     #     # env = ClipRewardEnv(env)
+#     #     if args.deterministic_env:
+#     #         env.set_deterministic(seed)
+#     #     env.seed(seed)
+#     #     env.action_space.seed(seed)
+#     #     env.observation_space.seed(seed)
+#     # return env
+
+#     return env  # thunk
 
 
-def make_env_cleanrl(env, seed, idx, capture_video, run_name):
-    def thunk(env=env):
-        # env = gym.make(env_id)
-        # env = CarRacing(continuous=False, background='red')
-        env = gym.wrappers.RecordEpisodeStatistics(env)
-        if capture_video:
-            if idx == 0:
-                env = gym.wrappers.RecordVideo(env, f"videos/{run_name}")
-        # env = NoopResetEnv(env, noop_max=30)
-        # env = MaxAndSkipEnv(env, skip=4)
-        # env = EpisodicLifeEnv(env)
-        # if "FIRE" in env.unwrapped.get_action_meanings():
-        #     env = FireResetEnv(env)
-        # env = ClipRewardEnv(env)
-        # env = gym.wrappers.ResizeObservation(env, (84, 84))
-        env = PreprocessFrameRGB((84, 84, 3), env) # (3, 84, 84)
-        # env = gym.wrappers.GrayScaleObservation(env)
-        # env = gym.wrappers.FrameStack(env, 4) #(4, 3, 84, 84)
-        env.seed(seed)
-        env.action_space.seed(seed)
-        env.observation_space.seed(seed)
-        return env
+# def make_env_cleanrl(env, seed, idx, capture_video, run_name):
+#     def thunk(env=env):
+#         # env = gym.make(env_id)
+#         # env = CarRacing(continuous=False, background='red')
+#         env = gym.wrappers.RecordEpisodeStatistics(env)
+#         if capture_video:
+#             if idx == 0:
+#                 env = gym.wrappers.RecordVideo(env, f"videos/{run_name}")
+#         # env = NoopResetEnv(env, noop_max=30)
+#         # env = MaxAndSkipEnv(env, skip=4)
+#         # env = EpisodicLifeEnv(env)
+#         # if "FIRE" in env.unwrapped.get_action_meanings():
+#         #     env = FireResetEnv(env)
+#         # env = ClipRewardEnv(env)
+#         # env = gym.wrappers.ResizeObservation(env, (84, 84))
+#         env = PreprocessFrameRGB((84, 84, 3), env) # (3, 84, 84)
+#         # env = gym.wrappers.GrayScaleObservation(env)
+#         # env = gym.wrappers.FrameStack(env, 4) #(4, 3, 84, 84)
+#         env.seed(seed)
+#         env.action_space.seed(seed)
+#         env.observation_space.seed(seed)
+#         return env
 
-    return thunk
+#     return thunk
 
 
 

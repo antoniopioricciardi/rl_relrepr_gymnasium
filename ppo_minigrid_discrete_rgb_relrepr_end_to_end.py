@@ -51,13 +51,13 @@ seed_everything(42)
 
 def parse_env_specific_args(parser):
     # env specific arguments
-    parser.add_argument("--background", type=str, default='green',
-        help="the background of the car racing environment. Can be: green, red, blue, yellow")
-    parser.add_argument("--image-path", type=str, default="",#data/track_bg_images/0.jpg",
-        help="the path of the image to use for the car racing environment background, if --background is set to 'image'")
-
-    parser.add_argument("--car-mode", type=str, default="standard",
-                        help="the model of the car. Can be: standard, fast, heavy, var1, var2")
+    parser.add_argument("--grid-size", type=int, default=8,
+                        help="the size of the grid world")
+    # goal-pos is a tuple of two ints, default is 6,6
+    parser.add_argument("--goal-pos", type=int, nargs=2, default=(6,6),
+                        help="the position of the goal in x,y coordinates (integers)")
+    parser.add_argument("--wall-color", type=str, default="grey",
+                        help="color of the walls. Can be: grey, red, blue")
     
     return parser
 
@@ -116,33 +116,19 @@ if __name__ == "__main__":
 
     device = torch.device("cuda" if torch.cuda.is_available() and args.cuda else "cpu")
     
-    car_modes = ["standard", "slow", "no_noop", "no_noop_4as", "scrambled", "noleft", "heavy", "camera_far", "multicolor"]
-    assert args.car_mode in car_modes, f"car mode must be one of {car_modes}"
-    zoom = 2.7
-    if args.car_mode == "standard":
-        from envs.carracing.car_racing import CarRacing
-    # elif args.car_mode == "fast":
-    #     from envs.carracing.car_racing_faster import CarRacing
-    elif args.car_mode == "slow":
-        # python ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name green_rgb --env-id CarRacing-custom --seed 0 --num-envs 16 --background green --stack-n 4 --total-timesteps 5000000 --car-mode slow
-        from envs.carracing.car_racing_slow import CarRacing
-    # elif args.car_mode == "no_noop":
-    #     from envs.carracing.car_racing_nonoop import CarRacing
-    elif args.car_mode == "no_noop_4as":
-        from envs.carracing.car_racing_nonoop_4as import CarRacing
-    elif args.car_mode == "scrambled":
-        from envs.carracing.car_racing_scrambled import CarRacing
-    elif args.car_mode == "noleft":
-        from envs.carracing.car_racing_noleft import CarRacing
-    # elif args.car_mode == "heavy":
-    #     from envs.carracing.car_racing_heavy import CarRacing
-    elif args.car_mode == "camera_far":
-        # from envs.carracing.car_racing_camera_far import CarRacing
-        from envs.carracing.car_racing import CarRacing
-        zoom=1
-        # python ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name green_rgb --env-id CarRacing-custom --seed 0 --num-envs 16 --background green --stack-n 4 --total-timesteps 5000000 --car-mode no_noop
-    env = CarRacing(continuous=False, background=args.background, zoom=zoom)# , image_path=args.image_path)
-    eval_env = CarRacing(continuous=False, background=args.background, zoom=zoom)#, image_path=args.image_path)
+    from envs.minigrid.envs import *
+    from minigrid.wrappers import *
+
+
+    env = EmptyEnv(size=args.grid_size, goal_pos=args.goal_pos, wall_color=args.wall_color)
+    # env = EmptyEnv(size=8)
+    env = RGBImgPartialObsWrapper(env)
+    # env = FilterFromDict(env, "image")
+    eval_env = EmptyEnv(size=args.grid_size, goal_pos=args.goal_pos, wall_color=args.wall_color)
+    eval_env = RGBImgPartialObsWrapper(eval_env)
+    # eval_env = FilterFromDict(eval_env, "image")
+    # env = CarRacing(continuous=False, background=args.background, image_path=args.image_path)
+    # eval_env = CarRacing(continuous=False, background=args.background, image_path=args.image_path)
     num_eval_envs = 5
 
     # env setup
@@ -151,7 +137,8 @@ if __name__ == "__main__":
     envs = gym.vector.AsyncVectorEnv([ 
         make_env_atari(
             env, seed=args.seed, rgb=True, stack=args.stack_n, no_op=0, action_repeat=0,
-            max_frames=False, episodic_life=False, clip_reward=False, check_fire=False, idx=i, capture_video=False, run_name=run_name
+            max_frames=False, episodic_life=False, clip_reward=False, check_fire=False, filter_dict='image',
+            idx=i, capture_video=False, run_name=run_name
             )
         for i in range(args.num_envs)
     ])
@@ -159,7 +146,8 @@ if __name__ == "__main__":
     eval_envs = gym.vector.AsyncVectorEnv([
         make_env_atari(
             eval_env, seed=args.seed, rgb=True, stack=args.stack_n, no_op=0, action_repeat=0,
-            max_frames=False, episodic_life=False, clip_reward=False, check_fire=False, idx=i, capture_video=False, run_name=eval_run_name
+            max_frames=False, episodic_life=False, clip_reward=False, check_fire=False, filter_dict='image',
+            idx=i, capture_video=False, run_name=eval_run_name
             )
         for i in range(num_eval_envs)
     ])

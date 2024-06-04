@@ -1,5 +1,5 @@
 import gymnasium as gym
-from utils.preprocess_env import PreprocessFrameRGB, RepeatAction, RescaleObservation, ReshapeObservation
+from utils.preprocess_env import PreprocessFrameRGB, RepeatAction, RescaleObservation, ReshapeObservation, FilterFromDict
 
 from stable_baselines3.common.atari_wrappers import (  # isort:skip
     ClipRewardEnv,
@@ -37,7 +37,7 @@ def make_env_carracing(env, seed=0, stack=0, no_op=0, action_repeat=0, max_frame
     return thunk
 
 # TODO: rename to rgb, create a single function to instantiate envs
-def make_env_atari(env, seed=0, rgb=True, stack=0, no_op=0, action_repeat=0, max_frames=False, episodic_life=False, clip_reward=False, check_fire=True, idx=0, capture_video=False, run_name=''):
+def make_env_atari(env, seed=0, rgb=True, stack=0, no_op=0, action_repeat=0, max_frames=False, episodic_life=False, clip_reward=False, check_fire=True, filter_dict=None, idx=0, capture_video=False, run_name=''):
     def thunk(env=env):
         # print('Observation space: ', env.observation_space, 'Action space: ', env.action_space)
         # env = gym.make(env_id)
@@ -73,6 +73,8 @@ def make_env_atari(env, seed=0, rgb=True, stack=0, no_op=0, action_repeat=0, max
         # env = gym.wrappers.GrayScaleObservation(env)
         if stack > 1:
             env = gym.wrappers.FrameStack(env, stack) #(4, 3, 84, 84)
+        if filter_dict:
+            env = FilterFromDict(env, filter_dict)
         # env.seed(seed)
         env.action_space.seed(seed)
         env.observation_space.seed(seed)
