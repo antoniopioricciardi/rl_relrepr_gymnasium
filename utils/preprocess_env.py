@@ -198,7 +198,6 @@ class FilterFromDict(gym.ObservationWrapper):
         self.env = env
         self.key = key
         self.observation_space = env.observation_space.spaces[self.key]
-        print(self.observation_space)
 
         TransformObservation.__init__(
             self,
@@ -208,7 +207,48 @@ class FilterFromDict(gym.ObservationWrapper):
         )
 
 
+class RepeatAction(gym.Wrapper):
+    """
+    Repeat the same action a certain number of times.
+    Often, in a game, a couple of sequential frames do not differ that much from each other, so repeat the chosen action.
+    """
 
+    def __init__(self, env=None, repeat=4, clip_rewards=False, fire_first=False):
+        """
+        :param env:
+        :param repeat:
+        :param fire_first: If the rl_agent need to start the game by pressing "fire" button
+        """
+        # fire_first: in certain envs the rl_agent have to fire to start the env, as in pong
+        # the rl_agent can figure it out alone sometimes
+        super(RepeatAction, self).__init__(env)
+        self.env = env
+        self.repeat = repeat
+        self.clip_rewards = clip_rewards
+        self.shape = env.observation_space.low.shape
+        self.fire_first = fire_first
+
+    def step(self, action):
+        total_reward = 0.0
+        done = False
+        for i in range(self.repeat):
+            obs, reward, done, info = self.env.step(action)
+            if self.clip_rewards:
+                # clip the reward in -1, 1, then take first element (we need the scalar, not an array)
+                reward = np.sign(reward) # np.clip(np.array([reward]), -1, 1)[0]
+
+            total_reward += reward
+            if done:
+                break
+        return obs, total_reward, done, info
+
+    def reset(self):
+        obs = self.env.reset()
+        if self.fire_first:
+            # get_action_meanings returns a list of strings (['NOOP', 'FIRE', 'RIGHT', 'LEFT', 'RIGHTFIRE', 'LEFTFIRE'])
+            fire_act_idx = self.env.unwrapped.get_action_meanings().index("FIRE")
+            obs, _, _, _ = self.env.step(fire_act_idx)
+        return obs
 
 
 

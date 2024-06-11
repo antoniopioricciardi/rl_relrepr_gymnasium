@@ -161,7 +161,7 @@ class MetersGroup(object):
         self._meters.clear()
 
 
-class Logger(object):
+class CustomLogger(object):
     def __init__(self, log_dir, use_tb, use_wandb):
         self._log_dir = log_dir
         log_dir = Path(log_dir)

@@ -1,5 +1,5 @@
 import gymnasium as gym
-from utils.preprocess_env import PreprocessFrameRGB, RepeatAction, RescaleObservation, ReshapeObservation, FilterFromDict
+from utils.preprocess_env import RepeatAction, RescaleObservation, ReshapeObservation, FilterFromDict
 
 from stable_baselines3.common.atari_wrappers import (  # isort:skip
     ClipRewardEnv,
@@ -10,31 +10,31 @@ from stable_baselines3.common.atari_wrappers import (  # isort:skip
 )
 
 
-def make_env_carracing(env, seed=0, stack=0, no_op=0, action_repeat=0, max_frames=False, episodic_life=False, clip_reward=False, idx=0, capture_video=False, run_name=''):
-    def thunk(env=env):
-        # env = gym.make(env_id)
-        # env = CarRacing(continuous=False, background='red')
-        env = gym.wrappers.RecordEpisodeStatistics(env)
-        if capture_video:
-            if idx == 0:
-                env = gym.wrappers.RecordVideo(env, f"videos/{run_name}")
-        # env = NoopResetEnv(env, noop_max=30)
-        # env = MaxAndSkipEnv(env, skip=4)
-        # env = EpisodicLifeEnv(env)
-        # if "FIRE" in env.unwrapped.get_action_meanings():
-        #     env = FireResetEnv(env)
-        # env = ClipRewardEnv(env)
-        # env = gym.wrappers.ResizeObservation(env, (84, 84))
-        env = PreprocessFrameRGB((84, 84, 3), env)  # (3, 84, 84)
-        # env = gym.wrappers.GrayScaleObservation(env)
-        if stack > 1:
-            env = gym.wrappers.FrameStack(env, stack) #(4, 3, 84, 84)
-        # env.seed(seed)
-        env.action_space.seed(seed)
-        env.observation_space.seed(seed)
-        return env
+# def make_env_carracing(env, seed=0, stack=0, no_op=0, action_repeat=0, max_frames=False, episodic_life=False, clip_reward=False, idx=0, capture_video=False, run_name=''):
+#     def thunk(env=env):
+#         # env = gym.make(env_id)
+#         # env = CarRacing(continuous=False, background='red')
+#         env = gym.wrappers.RecordEpisodeStatistics(env)
+#         if capture_video:
+#             if idx == 0:
+#                 env = gym.wrappers.RecordVideo(env, f"videos/{run_name}")
+#         # env = NoopResetEnv(env, noop_max=30)
+#         # env = MaxAndSkipEnv(env, skip=4)
+#         # env = EpisodicLifeEnv(env)
+#         # if "FIRE" in env.unwrapped.get_action_meanings():
+#         #     env = FireResetEnv(env)
+#         # env = ClipRewardEnv(env)
+#         # env = gym.wrappers.ResizeObservation(env, (84, 84))
+#         env = PreprocessFrameRGB((84, 84, 3), env)  # (3, 84, 84)
+#         # env = gym.wrappers.GrayScaleObservation(env)
+#         if stack > 1:
+#             env = gym.wrappers.FrameStack(env, stack) #(4, 3, 84, 84)
+#         # env.seed(seed)
+#         env.action_space.seed(seed)
+#         env.observation_space.seed(seed)
+#         return env
 
-    return thunk
+#     return thunk
 
 # TODO: rename to rgb, create a single function to instantiate envs
 def make_env_atari(env, seed=0, rgb=True, stack=0, no_op=0, action_repeat=0, max_frames=False, episodic_life=False, clip_reward=False, check_fire=True, filter_dict=None, idx=0, capture_video=False, run_name=''):
@@ -59,6 +59,8 @@ def make_env_atari(env, seed=0, rgb=True, stack=0, no_op=0, action_repeat=0, max
             env = FireResetEnv(env)
         if clip_reward:
             env = ClipRewardEnv(env)
+        if filter_dict:
+            env = FilterFromDict(env, filter_dict)
         env = gym.wrappers.ResizeObservation(env, (84, 84))
         env = RescaleObservation(env, value=255.0)
         if rgb:
@@ -73,8 +75,6 @@ def make_env_atari(env, seed=0, rgb=True, stack=0, no_op=0, action_repeat=0, max
         # env = gym.wrappers.GrayScaleObservation(env)
         if stack > 1:
             env = gym.wrappers.FrameStack(env, stack) #(4, 3, 84, 84)
-        if filter_dict:
-            env = FilterFromDict(env, filter_dict)
         # env.seed(seed)
         env.action_space.seed(seed)
         env.observation_space.seed(seed)
