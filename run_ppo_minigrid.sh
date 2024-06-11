@@ -18,9 +18,6 @@ usage() {
     exit 0
 }
 
-
-grid_size, goal_shape, goal_shape, goal_color, item_color, wall_color,
-
 # default values
 run_mode="ppo"
 env_id="CarRacing-v2"
@@ -78,7 +75,6 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
-
 
 # print the values
 echo "Run Mode: $run_mode"
