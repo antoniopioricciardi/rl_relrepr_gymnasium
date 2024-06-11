@@ -1,8 +1,7 @@
 #!/bin/sh
 #
-# bash run_ppo_carracing.sh --run-mode ppo --env-id CarRacing-v2 --background green --car-mode standard --anchors-alpha 0
-# bash run_ppo_carracing.sh --run-mode ppo-rel --env-id CarRacing-v2 --background multicolor --car-mode standard --anchors-alpha 0.999
-# bash run_ppo_carracing.sh --run-mode ppo_resnet --env-id CarRacing-v2 --car-mode standard --background green
+# bash run_ppo_minigrid.sh --run-mode ppo --env-id minigid --grid-size 6 --goal-shape square --goal-color red --item-color green --wall-color grey --anchors-alpha 
+
 #!/bin/bash
 
 # usage function
@@ -12,7 +11,7 @@ usage() {
     echo "  --run-mode     Set the run mode (default: ppo)"
     echo "  --env-id       Set the environment ID (default: CarRacing-v2)"
     echo "  --grid-size    Set the grid size (default: 6)"
-    echo "  --goal-shape   Set the goal shape (default: circle)"
+    echo "  --goal-shape   Set the goal shape (default: square)"
     echo "  --goal-color   Set the goal color (default: red)"
     echo "  --item-color   Set the item color (default: green)"
     echo "  --wall-color   Set the wall color (default: grey)"
@@ -26,7 +25,7 @@ grid_size, goal_shape, goal_shape, goal_color, item_color, wall_color,
 run_mode="ppo"
 env_id="CarRacing-v2"
 grid_size=6
-goal_shape="circle"
+goal_shape="square"
 goal_color="red"
 item_color="green"
 wall_color="grey"
