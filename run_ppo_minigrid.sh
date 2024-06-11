@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# bash run_ppo_minigrid.sh --run-mode ppo --env-id minigid --grid-size 6 --goal-shape square --goal-color green --item-color red --wall-color grey --anchors-alpha 
+# bash run_ppo_minigrid.sh --run-mode ppo --env-id minigid --grid-size 6 --goal-shape square --goal-color green --item-color red --wall-color grey --anchors-alpha 0
 
 #!/bin/bash
 
