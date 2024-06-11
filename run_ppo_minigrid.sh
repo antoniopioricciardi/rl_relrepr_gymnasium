@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# bash run_ppo_minigrid.sh --run-mode ppo --env-id minigrid --grid-size 6 --goal-shape square --goal-color green --item-color red --wall-color grey --anchors-alpha 0
+# bash run_ppo_minigrid.sh --run-mode ppo --env-id minigrid --grid-size 6 --goal-shape square --goal-pos right --goal-color green --item-color red --wall-color grey --anchors-alpha 0
 
 #!/bin/bash
 
@@ -12,6 +12,7 @@ usage() {
     echo "  --env-id       Set the environment ID (default: minigrid)"
     echo "  --grid-size    Set the grid size (default: 6)"
     echo "  --goal-shape   Set the goal shape (default: square)"
+    echo "  --goal-pos     Set the goal position (default: right)"
     echo "  --goal-color   Set the goal color (default: red)"
     echo "  --item-color   Set the item color (default: green)"
     echo "  --wall-color   Set the wall color (default: grey)"
@@ -24,6 +25,7 @@ run_mode="ppo"
 env_id="CarRacing-v2"
 grid_size=6
 goal_shape="square"
+goal_pos="right"
 goal_color="red"
 item_color="green"
 wall_color="grey"
@@ -54,7 +56,7 @@ while [[ $# -gt 0 ]]; do
             goal_shape="$2"
             shift 2
             ;;
-        --goal-shape)
+        --goal-pos)
             goal_shape="$2"
             shift 2
             ;;
