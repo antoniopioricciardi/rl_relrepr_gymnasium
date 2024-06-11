@@ -127,7 +127,7 @@ if __name__ == "__main__":
 
     # env = EmptyEnv(size=args.grid_size, goal_pos=args.goal_pos, wall_color=args.wall_color)
     # env = EmptyEnv(size=6, goal_pos=(2,2), wall_color="green", render_mode="human")
-    env = EmptyDualEnv(size=6, goal_shape="ball", goal_pos="right", goal_color="red", item_color="green", wall_color="grey", render_mode="human")
+    env = EmptyDualEnv(size=6, goal_shape="square", goal_pos="right", goal_color="green", item_color="red", wall_color="grey", render_mode="human")
     
     # env = EmptyEnv(size=8)
     # env = RGBImgPartialObsWrapper(env)
@@ -159,3 +159,5 @@ if __name__ == "__main__":
 
     manual_control = ManualControl(env, seed=args.seed)
     manual_control.start()
+
+# python -m minigrid.manual_control_custom --env-id MiniGrid-Empty-5x5-v0

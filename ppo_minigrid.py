@@ -148,16 +148,18 @@ if __name__ == "__main__":
     from minigrid.wrappers import *
 
     from minigrid.envs.empty_dual import EmptyDualEnv
-    env = EmptyEnv(size=args.grid_size, goal_pos=(4,4), wall_color=args.wall_color)
-    # env = EmptyDualEnv(size=args.grid_size, goal_shape=args.goal_shape, goal_pos=args.goal_pos, goal_color=args.goal_color, item_color=args.item_color, wall_color=args.wall_color, render_mode="rgb_array")
+    # env = EmptyEnv(size=args.grid_size, goal_pos=(4,4), wall_color=args.wall_color)
+    shape = "square" if args.goal_shape == "square" else "circle"
+    env = EmptyDualEnv(size=args.grid_size, goal_shape=shape, goal_pos=args.goal_pos, goal_color=args.goal_color, item_color=args.item_color, wall_color=args.wall_color, render_mode="rgb_array")
     # env = EmptyEnv(size=8)
     env = RGBImgPartialObsWrapper(env)
     env = FilterFromDict(env, "image")
-    eval_env = EmptyEnv(size=args.grid_size, goal_pos=(4,4), wall_color=args.wall_color)
-    # eval_env = EmptyDualEnv(size=args.grid_size, goal_shape=args.goal_shape, goal_pos=args.goal_shape, goal_color=args.goal_color, item_color=args.item_color, wall_color=args.wall_color, render_mode="rgb_array")
+    # eval_env = EmptyEnv(size=args.grid_size, goal_pos=(4,4), wall_color=args.wall_color)
+    # eval_env = EmptyDualEnv(size=args.grid_size, goal_shape=args.goal_shape, goal_pos=args.goal_pos, goal_color=args.goal_color, item_color=args.item_color, wall_color=args.wall_color, render_mode="human")
+    eval_env = EmptyDualEnv(size=args.grid_size, goal_shape=shape, goal_pos=args.goal_pos, goal_color=args.goal_color, item_color=args.item_color, wall_color=args.wall_color, render_mode="rgb_array")
     eval_env = RGBImgPartialObsWrapper(eval_env)
     eval_env = FilterFromDict(eval_env, "image")
-    num_eval_envs = 5
+    num_eval_envs = 1
 
     # env setup
     from utils.env_initializer import make_env_atari

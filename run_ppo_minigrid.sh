@@ -13,8 +13,8 @@ usage() {
     echo "  --grid-size    Set the grid size (default: 6)"
     echo "  --goal-shape   Set the goal shape (default: square)"
     echo "  --goal-pos     Set the goal position (default: right)"
-    echo "  --goal-color   Set the goal color (default: red)"
-    echo "  --item-color   Set the item color (default: green)"
+    echo "  --goal-color   Set the goal color (default: green)"
+    echo "  --item-color   Set the item color (default: red)"
     echo "  --wall-color   Set the wall color (default: grey)"
     echo "  --anchors-alpha Set the alpha value for the relative representation (default: 0)"
     exit 0
@@ -26,8 +26,8 @@ env_id="CarRacing-v2"
 grid_size=6
 goal_shape="square"
 goal_pos="right"
-goal_color="red"
-item_color="green"
+goal_color="green"
+item_color="red"
 wall_color="grey"
 anchors_alpha=0
 
@@ -57,7 +57,7 @@ while [[ $# -gt 0 ]]; do
             shift 2
             ;;
         --goal-pos)
-            goal_shape="$2"
+            goal_pos="$2"
             shift 2
             ;;
         --goal-color)
@@ -88,6 +88,7 @@ echo "Run Mode: $run_mode"
 echo "Environment ID: $env_id"
 echo "Grid Size: $grid_size"
 echo "Goal Shape: $goal_shape"
+echo "Goal Position: $goal_pos"
 echo "Goal Color: $goal_color"
 echo "Item Color: $item_color"
 echo "Wall Color: $wall_color"
