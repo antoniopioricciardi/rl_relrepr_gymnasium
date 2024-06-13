@@ -118,6 +118,15 @@ class Goal(WorldObj):
         fill_coords(img, point_in_rect(0, 1, 0, 1), COLORS[self.color])
 
 
+class LavaSquare(WorldObj):
+    def __init__(self, color: str = "green"):
+        super().__init__("lava", color)
+
+    def can_overlap(self):
+        return True
+
+    def render(self, img):
+        fill_coords(img, point_in_rect(0, 1, 0, 1), COLORS[self.color])
 
 
 class GoalBall(WorldObj):
@@ -130,6 +139,16 @@ class GoalBall(WorldObj):
     def render(self, img):
         fill_coords(img, point_in_rect(0, 1, 0, 1), COLORS[self.color])
 
+
+class LavaBall(WorldObj):
+    def __init__(self, color: str = "green"):
+        super().__init__("lava", color)
+
+    def can_overlap(self):
+        return True
+    
+    def render(self, img):
+        fill_coords(img, point_in_rect(0, 1, 0, 1), COLORS[self.color])
 
 class Floor(WorldObj):
     """

@@ -143,7 +143,7 @@ if __name__ == "__main__":
 
     device = torch.device("cuda" if torch.cuda.is_available() and args.cuda else "cpu")
 
-    from minigrid.envs.empty_dual import EmptyDualEnv    
+    from minigrid.envs.empty_dual_old import EmptyDualEnv    
     from minigrid.envs import *
     from minigrid.wrappers import *
 

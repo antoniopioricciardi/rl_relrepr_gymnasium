@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from minigrid.core.grid import Grid
 from minigrid.core.mission import MissionSpace
-from minigrid.core.world_object import Goal, GoalBall, Ball, Box, LavaSquare, LavaBall
+from minigrid.core.world_object import Goal, GoalBall, Ball, Box
 from minigrid.minigrid_env import MiniGridEnv
 
 # import tuple
@@ -117,28 +117,24 @@ class EmptyDualEnv(MiniGridEnv):
         self.grid.wall_rect(0, 0, width, height, wall_color=self.wall_color)
 
         # Place a goal square
-        if self.goal_pos == "right":
-            if self.goal_shape == "square":
+        if self.goal_pos is "right":
+            if self.goal_shape is "square":
                 self.put_obj(Goal(color=self.goal_color), width - 2, height - 2)
                 # put box in the bottom left corner
-                # self.put_obj(Box(color=self.item_color), 1, height - 2)
-                self.put_obj(LavaSquare(color=self.item_color), 1, height - 2)
-            elif self.goal_shape == "ball":
+                self.put_obj(Box(color=self.item_color), 1, height - 2)
+            elif self.goal_shape is "ball":
                 self.put_obj(GoalBall(color=self.goal_color), width - 2, height - 2)
                 # put ball in the bottom left corner
-                #self.put_obj(Ball(color=self.item_color), 1, height - 2)
-                self.put_obj(LavaBall(color=self.item_color), 1, height - 2)
-        elif self.goal_pos == "left":
-            if self.goal_shape == "square":
+                self.put_obj(Ball(color=self.item_color), 1, height - 2)
+        elif self.goal_pos is "left":
+            if self.goal_shape is "square":
                 self.put_obj(Goal(color=self.goal_color), 1, height - 2)
                 # put box in the bottom right corner
-                # self.put_obj(Box(color=self.item_color), width - 2, height - 2)
-                self.put_obj(LavaSquare(color=self.item_color), width - 2, height - 2)
-            elif self.goal_shape == "ball":
+                self.put_obj(Box(color=self.item_color), width - 2, height - 2)
+            elif self.goal_shape is "ball":
                 self.put_obj(GoalBall(color=self.goal_color), 1, height - 2)
                 # put ball in the bottom right corner
-                # self.put_obj(Ball(color=self.item_color), width - 2, height - 2)
-                self.put_obj(LavaBall(color=self.item_color), width - 2, height - 2)
+                self.put_obj(Ball(color=self.item_color), width - 2, height - 2)
         
         # # Place a goal square
         # if self.goal_pos is None:
