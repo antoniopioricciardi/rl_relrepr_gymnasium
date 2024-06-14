@@ -187,25 +187,43 @@ class RescaleObservation(
         )
 
 
+# class FilterFromDict(gym.ObservationWrapper):
+#     from typing import List
+#     # Minigrid: Dict('direction': Discrete(4), 'image': Box(0, 255, (7, 7, 3), uint8), 'mission': MissionSpace(<function EmptyEnv._gen_mission at 0x12dfeb4c0>, None))
+#     """
+#     Filter the observation from the dict to return only values for the specified key
+#     """
+#     def __init__(self, env=None, key:str='image'):
+#         super(FilterFromDict, self).__init__(env)
+#         self.env = env
+#         self.key = key
+#         self.observation_space = env.observation_space.spaces[self.key]
+
+#         TransformObservation.__init__(
+#             self,
+#             env=env,
+#             func=lambda obs: obs[self.key],
+#             observation_space=self.observation_space,
+#         )
+
 class FilterFromDict(gym.ObservationWrapper):
     from typing import List
     # Minigrid: Dict('direction': Discrete(4), 'image': Box(0, 255, (7, 7, 3), uint8), 'mission': MissionSpace(<function EmptyEnv._gen_mission at 0x12dfeb4c0>, None))
     """
-    Filter the observation from the dict to return only values for the specified key
+    Filter the observation from the dict to only return values for the specified key
     """
-    def __init__(self, env=None, key:str='image'):
+    def __init__(self, env=None, key:str=None):
         super(FilterFromDict, self).__init__(env)
         self.env = env
+        if key is None:
+            print('keys is None, trying to use \'image\' as default')
+            key = 'image'
         self.key = key
         self.observation_space = env.observation_space.spaces[self.key]
 
-        TransformObservation.__init__(
-            self,
-            env=env,
-            func=lambda obs: obs[self.key],
-            observation_space=self.observation_space,
-        )
-
+    def observation(self, observation):
+        observation = observation['image'] # print(observation['image'])
+        return observation#[0][self.key]
 
 class RepeatAction(gym.Wrapper):
     """

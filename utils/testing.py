@@ -9,7 +9,7 @@ from pytorch_lightning import seed_everything
 from utils.evaluation import evaluate_vec_env
 # TODO: MOVE THEM TO A COMMON FILE
 
-from utils.preprocess_env import PreprocessFrameRGB
+# from utils.preprocess_env import PreprocessFrameRGB
 from stable_baselines3.common.atari_wrappers import (  # isort:skip
     ClipRewardEnv,
     EpisodicLifeEnv,

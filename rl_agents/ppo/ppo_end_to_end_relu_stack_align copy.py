@@ -37,12 +37,16 @@ class FeatureExtractor(nn.Module):
         )
 
         if self.use_relative:
-            self.register_buffer("obs_anchors", obs_anchors)
-            anchors = None
+            # obs_anchors_filename is used to recover the obs_anchors when loading the model
+            # self.register_buffer("obs_anchors_filename", obs_anchors_filename)
+            # self.register_buffer("obs_anchors", obs_anchors)
+            self.obs_anchors = obs_anchors
+            # anchors = None
             self.projector = RelativeProjector(
                 projection_fn=relative.cosine_proj,
                 abs_transforms=[Centering(), StandardScaling()],
             )
+            # self.set_anchors()
 
     def _compute_relative_representation(self, hidden):
         return self.projector(x=hidden, anchors=self.anchors)#.vectors
@@ -74,7 +78,7 @@ class FeatureExtractor(nn.Module):
     def update_anchors(self):
         """ BEWARE. During testing, this must be called after the model params are loaded. """
         new_anchors = self.network(self.obs_anchors)
-        self.anchors = self.anchors_alpha * self.anchors + (1 - self.anchors_alpha) * new_anchors # keep 90% of the old anchors # 0.99 e 0.999
+        self.anchors = self.anchors_alpha * self.anchors + (1 - self.anchors_alpha) * new_anchors # keep % of the old anchors # 0.99 and 0.999
 
     def set_anchors(self):
         anchors = self.network(self.obs_anchors)

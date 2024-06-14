@@ -159,7 +159,7 @@ if __name__ == "__main__":
     eval_env = EmptyDualEnv(size=args.grid_size, goal_shape=shape, goal_pos=args.goal_pos, goal_color=args.goal_color, item_color=args.item_color, wall_color=args.wall_color, render_mode="rgb_array")
     eval_env = RGBImgPartialObsWrapper(eval_env)
     eval_env = FilterFromDict(eval_env, "image")
-    num_eval_envs = 1
+    num_eval_envs = 5
 
     # env setup
     from utils.env_initializer import make_env_atari

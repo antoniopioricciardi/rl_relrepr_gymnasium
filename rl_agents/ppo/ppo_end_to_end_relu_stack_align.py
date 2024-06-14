@@ -19,7 +19,7 @@ def layer_init(layer, std=np.sqrt(2), bias_const=0.0):
     return layer
 
 class FeatureExtractor(nn.Module):
-    def __init__(self, use_relative=False, pretrained=False, obs_anchors=None, anchors_alpha=0.99, device='cpu'):#, anchors_std=None):
+    def __init__(self, use_relative=False, pretrained=False, obs_anchors=None, obs_anchors_filename=None, anchors_alpha=0.99, device='cpu'):
         super().__init__()
         self.use_relative = use_relative
         self.pretrained = pretrained
@@ -38,15 +38,23 @@ class FeatureExtractor(nn.Module):
 
         if self.use_relative:
             # obs_anchors_filename is used to recover the obs_anchors when loading the model
-            # self.register_buffer("obs_anchors_filename", obs_anchors_filename)
-            # self.register_buffer("obs_anchors", obs_anchors)
+            self.register_buffer("obs_anchors_filename", obs_anchors_filename)
             self.obs_anchors = obs_anchors
-            # anchors = None
             self.projector = RelativeProjector(
                 projection_fn=relative.cosine_proj,
                 abs_transforms=[Centering(), StandardScaling()],
             )
-            # self.set_anchors()
+        # if self.use_relative:
+        #     # obs_anchors_filename is used to recover the obs_anchors when loading the model
+        #     # self.register_buffer("obs_anchors_filename", obs_anchors_filename)
+        #     # self.register_buffer("obs_anchors", obs_anchors)
+        #     self.obs_anchors = obs_anchors
+        #     # anchors = None
+        #     self.projector = RelativeProjector(
+        #         projection_fn=relative.cosine_proj,
+        #         abs_transforms=[Centering(), StandardScaling()],
+        #     )
+        #     # self.set_anchors()
 
     def _compute_relative_representation(self, hidden):
         return self.projector(x=hidden, anchors=self.anchors)#.vectors
@@ -81,8 +89,8 @@ class FeatureExtractor(nn.Module):
         self.anchors = self.anchors_alpha * self.anchors + (1 - self.anchors_alpha) * new_anchors # keep % of the old anchors # 0.99 and 0.999
 
     def set_anchors(self):
-        anchors = self.network(self.obs_anchors)
-        self.register_buffer("anchors", anchors)
+        self.anchors = self.network(self.obs_anchors)
+        # self.register_buffer("anchors", anchors)
 
 
 class Policy(nn.Module):
