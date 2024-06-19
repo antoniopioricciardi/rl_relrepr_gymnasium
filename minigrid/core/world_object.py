@@ -118,9 +118,9 @@ class Goal(WorldObj):
         fill_coords(img, point_in_rect(0, 1, 0, 1), COLORS[self.color])
 
 
-class LavaSquare(WorldObj):
+class ObstacleSquare(WorldObj):
     def __init__(self, color: str = "green"):
-        super().__init__("lava", color)
+        super().__init__("obstacle", color)
 
     def can_overlap(self):
         return True
@@ -140,9 +140,9 @@ class GoalBall(WorldObj):
         fill_coords(img, point_in_rect(0, 1, 0, 1), COLORS[self.color])
 
 
-class LavaBall(WorldObj):
+class ObstacleBall(WorldObj):
     def __init__(self, color: str = "green"):
-        super().__init__("lava", color)
+        super().__init__("obstacle", color)
 
     def can_overlap(self):
         return True

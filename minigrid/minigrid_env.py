@@ -547,8 +547,9 @@ class MiniGridEnv(gym.Env):
                 terminated = True
                 reward = self._reward()
             if fwd_cell is not None and fwd_cell.type == "lava":
-                reward = -0.1
                 terminated = True
+            if fwd_cell is not None and fwd_cell.type == "obstacle":
+                reward = -1
 
         # Pick up an object
         elif action == self.actions.pickup:
