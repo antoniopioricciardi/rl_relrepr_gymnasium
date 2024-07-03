@@ -164,7 +164,7 @@ if __name__ == "__main__":
     # env setup
     from utils.env_initializer import make_env_atari
     
-    envs = gym.vector.SyncVectorEnv([ 
+    envs = gym.vector.AsyncVectorEnv([ 
         make_env_atari(
             env, seed=args.seed, rgb=True, stack=args.stack_n, no_op=0, action_repeat=0,
             max_frames=False, episodic_life=False, clip_reward=False, check_fire=False, filter_dict=None,
@@ -173,7 +173,7 @@ if __name__ == "__main__":
         for i in range(args.num_envs)
     ])
 
-    eval_envs = gym.vector.SyncVectorEnv([
+    eval_envs = gym.vector.AsyncVectorEnv([
         make_env_atari(
             eval_env, seed=args.seed, rgb=True, stack=args.stack_n, no_op=0, action_repeat=0,
             max_frames=False, episodic_life=False, clip_reward=False, check_fire=False, filter_dict=None,

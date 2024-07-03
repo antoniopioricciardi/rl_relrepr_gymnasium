@@ -192,7 +192,6 @@ class PPOTrainer_vec:
                 rewards[step] = torch.tensor(reward).to(self.device).view(-1)
                 next_obs, next_done = torch.Tensor(next_obs).to(self.device), torch.Tensor(next_done).to(self.device)
 
-
                 if next_done[0]:
                     episode_n += 1
                     """ LOG DATA TO CSV """
