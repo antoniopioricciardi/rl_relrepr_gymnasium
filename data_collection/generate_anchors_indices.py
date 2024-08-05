@@ -13,7 +13,7 @@ parser.add_argument("--env-id", type=str, default="BreakoutNoFrameskip-v4",
 parser.add_argument("--num-anchors", type=int, default=3136,
                     help="Number of anchors")
 parser.add_argument("--total-num-obs", type=int, default=4000,
-                    help="Total number of observations")")
+                    help="Total number of observations")
 parser.add_argument("--seed", type=int, default=1,
                     help="Random seed")
 

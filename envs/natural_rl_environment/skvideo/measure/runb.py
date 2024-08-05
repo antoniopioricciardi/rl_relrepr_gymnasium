@@ -19,4 +19,4 @@ disvid = skvideo.io.vread("/home/luke/databases/video/live_sample/st13_25fps.yuv
 )
 
 feat = skvideo.measure.msssim(prisvid, disvid)
-print feat
+print(feat)

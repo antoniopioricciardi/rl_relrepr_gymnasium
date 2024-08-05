@@ -39,7 +39,7 @@ def extract_on_patches(img, patch_size):
 def _get_patches_generic(img, patch_size, is_train, stride):
     h, w = np.shape(img)
     if h < patch_size or w < patch_size:
-        print "Input image is too small"
+        print("Input image is too small")
         exit(0)
 
     # ensure that the patch divides evenly into img
@@ -132,13 +132,13 @@ if __name__ == "__main__":
             experimental_data.append([imscore, distance])
 
             # ideally, distance is close to 0 for the pristine set and far away for the distorted set
-            print impath, distance, scipy.stats.spearmanr(np.array(experimental_data)[:, 0], np.array(experimental_data)[:, 1])[0]
+            print(impath, distance, scipy.stats.spearmanr(np.array(experimental_data)[:, 0], np.array(experimental_data)[:, 1])[0])
     else:
 
         total_patchbased_features = []
         # grab patches from images
         for idx, impath in enumerate(pristine_images):
-            print idx, impath
+            print(idx, impath)
             img = skimage.io.imread(impath)
             img = 0.2989 * img[:, :, 0] + 0.5870 * img[:, :, 1] + 0.1140 * img[:, :, 2]
 
@@ -156,5 +156,5 @@ if __name__ == "__main__":
         joblib.dump(total_patchbased_mu, "niqe_mu_%d.pkl" % (patch_size,), compress=9)
         joblib.dump(total_patchbased_cov, "niqe_cov_%d.pkl" % (patch_size,), compress=9)
 
-        print np.shape(total_patchbased_mu)
-        print np.shape(total_patchbased_cov)
+        print(np.shape(total_patchbased_mu))
+        print(np.shape(total_patchbased_cov))
