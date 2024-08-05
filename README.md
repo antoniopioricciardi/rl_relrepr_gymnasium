@@ -1,8 +1,8 @@
-# new
-conda env create -n relative_rl python=3.9.1
+# new env
+conda create -n relative_rl python=3.9
 
 ## on mac
-pip install -r requirements.txt
+pip install -r requirements_mac.txt
 
 ## on linux
 pip install -r requirements_linux.txt

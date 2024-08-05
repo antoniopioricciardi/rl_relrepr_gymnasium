@@ -32,7 +32,7 @@ from rl_agents.ppo.ppo_end_to_end_relu_stack_align import FeatureExtractor, Poli
 from utils.helputils import save_model, upload_csv_wandb
 from utils.evaluation import evaluate_vec_env
 
-from logger import Logger
+from logger import CustomLogger
 import copy
 
 from train_ppo import PPOTrainer_vec
@@ -102,7 +102,7 @@ if __name__ == "__main__":
     # create logger
     # logger = Logger(work_dir, use_tb=cfg.use_tb, use_wandb=cfg.use_wandb)
     # work_dir = Path.cwd() / "runs" / run_name
-    logger = Logger(log_path, use_tb=False, use_wandb=False)#True if args.track else False)
+    logger = CustomLogger(log_path, use_tb=False, use_wandb=False)#True if args.track else False)
     csv_file_name = "train"
     csv_file_path = os.path.join(log_path, f"{csv_file_name}.csv")
     eval_csv_file_name = "eval"

@@ -143,7 +143,7 @@ if __name__ == "__main__":
 
     device = torch.device("cuda" if torch.cuda.is_available() and args.cuda else "cpu")
 
-    from minigrid.envs.empty_dual_old import EmptyDualEnv    
+    # from minigrid.envs.empty_dual_old import EmptyDualEnv
     from minigrid.envs import *
     from minigrid.wrappers import *
 
@@ -179,7 +179,7 @@ if __name__ == "__main__":
             max_frames=False, episodic_life=False, clip_reward=False, check_fire=False, filter_dict=None,
             idx=i, capture_video=False, run_name=eval_run_name
             )
-        for i in range(num_eval_envs)
+        for i in range(num_eval_envs)w
     ])
 
     init_stuff_ppo(args=args, envs=envs, eval_envs=eval_envs, device=device, wandb=wandb, writer=writer, logger=custom_logger, log_path=log_path, csv_file_path=csv_file_path, eval_csv_file_path=eval_csv_file_path)
