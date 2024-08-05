@@ -1,4 +1,4 @@
-name: base
+name: relative_rl
 channels:
   - defaults
 dependencies:
