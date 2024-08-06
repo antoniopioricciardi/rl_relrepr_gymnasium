@@ -12,11 +12,11 @@ import torch.nn.functional as F
 import pandas as pd
 from utils.testing import test_rel_repr_vec
 
-from utils.preprocess_env import (
-    make_custom_env,
-    make_custom_env_no_stack,
-    # make_env,
-)
+# from utils.preprocess_env import (
+#     make_custom_env,
+#     make_custom_env_no_stack,
+#     # make_env,
+# )
 
 # from ppo_naturalenv_discrete_rgb_nostack_relrepr_end_to_end import make_env
 
@@ -32,7 +32,7 @@ from rl_agents.ppo.ppo_end_to_end_relu_stack_align import FeatureExtractor, Poli
 
 from utils.models import load_model, get_algo_instance, get_algo_instance_bw, load_model_from_path, load_encoder_from_path, load_policy_from_path
 
-from utils.preprocess_env import PreprocessFrameRGB
+# from utils.preprocess_env import PreprocessFrameRGB
 
 from utils.env_initializer import instantiate_env, make_env_atari
 

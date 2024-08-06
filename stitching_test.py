@@ -26,7 +26,7 @@ from rl_agents.ppo.ppo_end_to_end_relu_stack_align import FeatureExtractor, Poli
 
 from utils.models import load_model, get_algo_instance, get_algo_instance_bw, load_model_from_path, load_encoder_from_path, load_policy_from_path
 
-from utils.preprocess_env import PreprocessFrameRGB
+# from utils.preprocess_env import PreprocessFrameRGB
 
 from utils.env_initializer import instantiate_env, make_env_atari, init_env, init_carracing_env
 

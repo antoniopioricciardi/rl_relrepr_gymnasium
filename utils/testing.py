@@ -141,7 +141,7 @@ def stitching_test_quantitative(
                     path2_pol = os.path.join('models', path2, "policy.pt")
                     if env_info == "rgb":
                         encoder_instance, policy_instance, agent_instance = get_algo_instance(
-                            encoder_algo=encoder_algo, policy_algo=policy_algo
+                            encoder_algo=encoder_algo, policy_algo=policy_algo, use_resnet=False
                         )
                     # TODO: use bool "models_initialized" and move this part outside the loop to remove duplicate init_env
                     env_controller = init_env(playing_env_id if playon=='policy' else enc_env_id, env_info, background_color=enc_bg, image_path='', zoom=zoom, cust_seed=0, render_md=render_mode)
@@ -264,11 +264,11 @@ def stitching_test_quantitative(
                         print(f"Episode finished: {score} points, {ep_length} steps")
                         print(clustering_time)
                         
-                        df = df.append({"env_seed": i, "encoder_background": enc_bg, "policy_background": pol_bg,
-                                        "encoder_seed": enc_seed, "policy_seed": pol_seed,
-                                        "encoder_env": enc_env_id, "policy_env": playing_env_id,
-                                        "score": score, "episode_length": ep_length,
-                                        "algorithm": "ppo", "clustering_time": clustering_time}, ignore_index=True)
+                        df = pd.concat([df, pd.DataFrame({"env_seed": i, "encoder_background": enc_bg, "policy_background": pol_bg,
+                                                          "encoder_seed": enc_seed, "policy_seed": pol_seed,
+                                                          "encoder_env": enc_env_id, "policy_env": playing_env_id,
+                                                          "score": score, "episode_length": ep_length,
+                                                          "algorithm": "ppo", "clustering_time": clustering_time}, index=[0])])
     # print a recap of the results, along with the max score and max episode length, average score and average episode length over all seeds
     print(df)
     return df
