@@ -172,7 +172,11 @@ results = stitching_test_quantitative(
 if not os.path.exists(f"experiments/stitching_tests/{args.policy_env_id}/{env_info}/{args.stitching_mode}"):
     os.makedirs(f"experiments/stitching_tests/{args.policy_env_id}/{env_info}/{args.stitching_mode}")
     
-stitch_filename = f"experiments/stitching_tests/{args.policy_env_id}/{env_info}/{args.stitching_mode}/"
+stitch_filename = f"experiments/stitching_tests/{args.policy_env_id}/"
+if len(args.encoder_colors) == 1:
+    if args.encoder_colors[0] == "multicolor":
+        stitch_filename += f"multicolor/"
+stitch_filename += f"{env_info}/{args.stitching_mode}/"
 if args.stitching_mode == "translate":
     stitch_filename += f"{args.anchors_method}/"
 if args.stitching_mode == "relative":
