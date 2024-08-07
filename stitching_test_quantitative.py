@@ -69,7 +69,7 @@ def parse_args():
 
     # args mandatory only if stitching mode is translate
     parser.add_argument("--anchors-alpha", default=None, type=str, help="Alpha value to use for anchors")
-    parser.add_argument("--anchors-method", default="fps", type=str, help="Method to use for anchors: fps, kmeans, random")
+    parser.add_argument("--anchors-method", default="random", type=str, help="Method to use for anchors: fps, kmeans, random")
     
 
     parser.add_argument("--render-mode", default="rgb_array", type=str, help="Render mode: human, rgb_array")
@@ -84,8 +84,9 @@ def parse_args():
 # python stitching_test_quantitative.py --stitching-mode relative --encoder-env-id CarRacing-v2 --policy-env-id CarRacing-v2 --encoder-colors green red blue --policy-colors green red blue --env-seeds 1 2 3 4 --encoder-seeds 1 2 3 4 --policy-seeds 1 2 3 4 --encoder-algo ppo --policy-algo ppo --encoder-activation-func relu --policy-activation-func relu --anchors-alpha 0.999 --render-mode rgb_array
 """ multicolor: abs, transl, rel """
 # python stitching_test_quantitative.py --stitching-mode absolute --encoder-env-id CarRacing-v2 --policy-env-id CarRacing-v2 --encoder-colors multicolor --policy-colors multicolor --env-seeds 1 2 3 4 --encoder-seeds 1 2 3 4 --policy-seeds 1 2 3 4 --encoder-algo ppo --policy-algo ppo --encoder-activation-func relu --policy-activation-func relu --render-mode rgb_array
-# python stitching_test_quantitative.py --stitching-mode translate --encoder-env-id CarRacing-v2 --policy-env-id CarRacing-v2 --encoder-colors multicolor --policy-colors multicolor --env-seeds 1 2 3 4 --encoder-seeds 1 2 3 4 --policy-seeds 1 2 3 4 --encoder-algo ppo --policy-algo ppo --encoder-activation-func relu --policy-activation-func relu --render-mode rgb_array
-# python stitching_test_quantitative.py --stitching-mode relative --encoder-env-id CarRacing-v2 --policy-env-id CarRacing-v2 --encoder-colors multicolor --policy-colors multicolor --env-seeds 1 2 3 4 --encoder-seeds 1 2 3 4 --policy-seeds 1 2 3 4 --encoder-algo ppo --policy-algo ppo --encoder-activation-func relu --policy-activation-func relu --anchors-alpha 0.999 --render-mode rgb_array
+# python stitching_test_quantitative.py --stitching-mode translate --encoder-env-id CarRacing-v2 --policy-env-id CarRacing-v2 --encoder-colors multicolor --policy-colors multicolor --env-seeds 1 2 3 4 --encoder-seeds 1 2 3 4 --policy-seeds 1 2 3 4 --encoder-anchors CarRacing-v2 --controller-anchors CarRacing-v2 --encoder-algo ppo --policy-algo ppo --encoder-activation-func relu --policy-activation-func relu --render-mode rgb_array
+# python stitching_test_quantitative.py --stitching-mode relative --encoder-env-id CarRacing-v2 --policy-env-id CarRacing-v2 --encoder-colors multicolor --policy-colors multicolor --env-seeds 1 2 3 4 --encoder-seeds 1 2 3 4 --policy-seeds 1 2 3 4 --encoder-anchors CarRacing-v2 --controller-anchors CarRacing-v2 --encoder-algo ppo --policy-algo ppo --encoder-activation-func relu --policy-activation-func relu --anchors-alpha 0.999 --render-mode rgb_array
+
 """ no_noop_4as: abs, transl, rel """
 # python stitching_test_quantitative.py --stitching-mode absolute --encoder-env-id CarRacing-v2 --policy-env-id CarRacing-v2-no_noop_4as --encoder-colors green red blue yellow --policy-colors green --env-seeds 1 2 3 4 --encoder-seeds 1 2 3 4 --policy-seeds 1 2 3 4 --encoder-algo ppo --policy-algo ppo --encoder-activation-func relu --policy-activation-func relu --render-mode rgb_array
 # python stitching_test_quantitative.py --stitching-mode translate --encoder-env-id CarRacing-v2 --policy-env-id CarRacing-v2-no_noop_4as --encoder-colors green red blue yellow --policy-colors green --env-seeds 1 2 3 4 --encoder-seeds 1 2 3 4 --policy-seeds 1 2 3 4 --encoder-algo ppo --policy-algo ppo --encoder-activation-func relu --policy-activation-func relu --render-mode rgb_array
