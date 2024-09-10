@@ -137,14 +137,19 @@ env_id = args.env_id # "CarRacing-v2" # "Wolfenstein-basic" # "StarGunnerNoFrame
 env_info = "rgb"
 cust_seed = args.env_seed
 
-# env_seeds_totest = [0]
-# if env_id.startswith("CarRacing"):
-#     env_seeds_totest = [40, 41, 42, 43] # 39
+env_seeds_totest = [0]
+if env_id.startswith("CarRacing"):
+    env_seeds_totest = [40, 41, 42, 43] # 39
 # torch.Size([4000, 3, 84, 84])
 
 """ Parameters to change for single test """
-model_color_1 = args.background_color
-model_color_2 = "green" #args.policy_color
+background_color = "green"
+model_color_1 = "green"
+# policy_model_color = "green"
+model_color_2 = "green"
+# policy_model_color2 = "green"
+model_seed_1 = 40 # "39"
+model_seed_2 = 0 # "39"
 
 model_algo_1 = "ppo"
 model_algo_2 = "ppo"
@@ -161,10 +166,11 @@ image_path = "data/track_bg_images/0.jpg"
 
 # imgsource = "plain" # "color" "plain"
 render_md = args.render_mode
+num_envs = 1
 
 # env_pathname = f"{env_id}"
 # env_pathname2 = f"{env_id2}"
-num_envs = 1
+
 if env_info == "rgb":
     encoder_instance, policy_instance, agent_instance = get_algo_instance(
         model_algo_1, model_algo_2, use_resnet=args.use_resnet

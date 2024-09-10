@@ -1,15 +1,15 @@
 import torch
 import torch.nn.functional as F
-# from torch_cluster import fps as torchfps
+from torch_cluster import fps as torchfps
 from typing import Sequence
 from pathlib import Path
 
 
-# def fps(x: torch.Tensor, k: int, device="cpu"):
-#     x = F.normalize(x, p=2, dim=-1)
-#     x = torchfps(x.to(device), random_start=False, ratio=k / x.size(0))
-#     anchor_ids: Sequence[int] = x.cpu().tolist()
-#     return anchor_ids
+def fps(x: torch.Tensor, k: int, device="cpu"):
+    x = F.normalize(x, p=2, dim=-1)
+    x = torchfps(x.to(device), random_start=False, ratio=k / x.size(0))
+    anchor_ids: Sequence[int] = x.cpu().tolist()
+    return anchor_ids
 
 
 # def fps(xyz, npoint):
@@ -86,33 +86,33 @@ def get_anchors(space1_vectors, space2_vectors, num_anchors, subset_indices, anc
         space1_anchors = space1_vectors[subset_indices][closest]
         space2_anchors = space2_vectors[subset_indices][closest]
         """ KMEANS """
-    # elif anchoring_method == "fps":
-    #     anchor_file = Path(
-    #         file_path
-    #         # f"alignment_indices/fps_{file_path}"
-    #     )
-    #     # Furthest Point Sampling over space1_vectors
+    elif anchoring_method == "fps":
+        anchor_file = Path(
+            file_path
+            # f"alignment_indices/fps_{file_path}"
+        )
+        # Furthest Point Sampling over space1_vectors
 
-    #     if use_saved:
-    #         if anchor_file.exists():
-    #             print("loading fps anchors")
-    #             anchor_indices = torch.load(anchor_file)
+        if use_saved:
+            if anchor_file.exists():
+                print("loading fps anchors")
+                anchor_indices = torch.load(anchor_file)
 
-    #         else:
-    #             print("fps starting")
-    #             anchor_indices = fps(x=space1_vectors[subset_indices], k=num_anchors, device=device)
-    #             torch.save(
-    #                 anchor_indices,#.cpu(),
-    #                 anchor_file,
-    #             )
-    #             print(anchor_indices)
-    #             print("fps done and saved")
-    #     else:
-    #         print("fps starting")
-    #         anchor_indices = fps(x=space1_vectors[subset_indices], k=num_anchors, device=device)
-    #         print("fps done")
-    #     space1_anchors = space1_vectors[subset_indices][anchor_indices]
-    #     space2_anchors = space2_vectors[subset_indices][anchor_indices]
+            else:
+                print("fps starting")
+                anchor_indices = fps(x=space1_vectors[subset_indices], k=num_anchors, device=device)
+                torch.save(
+                    anchor_indices,#.cpu(),
+                    anchor_file,
+                )
+                print(anchor_indices)
+                print("fps done and saved")
+        else:
+            print("fps starting")
+            anchor_indices = fps(x=space1_vectors[subset_indices], k=num_anchors, device=device)
+            print("fps done")
+        space1_anchors = space1_vectors[subset_indices][anchor_indices]
+        space2_anchors = space2_vectors[subset_indices][anchor_indices]
     elif anchoring_method == "random":
         anchor_file = Path(
             file_path
