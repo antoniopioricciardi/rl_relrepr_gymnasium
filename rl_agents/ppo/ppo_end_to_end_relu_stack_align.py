@@ -4,10 +4,11 @@ import torch.nn as nn
 from torch.distributions.categorical import Categorical
 
 # Relative stuff
-from latentis.transform.base import Centering, StandardScaling
+from latentis.transform.base import StandardScaling
 from latentis.transform.projection import cosine_proj, relative_projection
 from latentis.transform import XTransformSequence
 from latentis.space import Space
+
 
 def layer_init(layer, std=np.sqrt(2), bias_const=0.0):
     torch.nn.init.orthogonal_(layer.weight, std)
@@ -48,7 +49,7 @@ class FeatureExtractor(nn.Module):
 
             self.rel_transform = XTransformSequence(transforms=[StandardScaling()])
             self.rel_transform.fit(self.obs_anchors)
-            
+
             # self.projector = RelativeProjector(
             #     projection_fn=relative.cosine_proj,
             #     abs_transforms=[Centering(), StandardScaling()],
