@@ -1,22 +1,16 @@
 import skvideo.io
-import sys
 import numpy as np
-import hashlib
-import os
-from numpy.testing import assert_equal
 from nose.tools import *
 
 
 @raises(OSError)
 def test_failedread():
-
     # try to read invalid path
     skvideo.io.vread("garbage")
 
 
 @raises(AssertionError)
 def test_failedwrite():
-
     # try to read invalid path
     np.random.seed(0)
 
@@ -30,7 +24,6 @@ def test_failedwrite():
 
 @raises(AssertionError)
 def test_failedextension():
-
     # try to read invalid path
     np.random.seed(0)
 

@@ -6,13 +6,11 @@
 # LICENSE file in the root directory of this source tree.
 
 import os
-import argparse
 import glob
 import gym
-import numpy as np
-from gym.utils import play
 
 from natural_rl_environment.matting import BackgroundMattingWithColor
+
 # from matting import BackgroundMattingWithColor
 from natural_rl_environment.imgsource import (
     RandomImageSource,
@@ -21,6 +19,7 @@ from natural_rl_environment.imgsource import (
     NoiseSource,
     RandomVideoSource,
 )
+
 # from imgsource import (
 #     RandomImageSource,
 #     RandomColorSource,
@@ -31,21 +30,27 @@ from natural_rl_environment.imgsource import (
 import pygame
 from pygame.locals import VIDEORESIZE
 
+
 class RemoveElFromTupleWrapper(gym.ObservationWrapper):
-    """ The env returns a 5-tuple. Remove the fourth element from the tuple returned by the environment."""
+    """The env returns a 5-tuple. Remove the fourth element from the tuple returned by the environment."""
+
     def __init__(self, env):
         super().__init__(env)
 
     def step(self, action):
         step_tuple = self.env.step(action)
-        return step_tuple[0], step_tuple[1], step_tuple[2], step_tuple[4] # obs, reward, done, info
+        return (
+            step_tuple[0],
+            step_tuple[1],
+            step_tuple[2],
+            step_tuple[4],
+        )  # obs, reward, done, info
 
     def reset(self, **kwargs):
         return self.env.reset(**kwargs)
 
 
 class ReplaceBackgroundEnv(gym.ObservationWrapper):
-
     viewer = None
 
     def __init__(self, env, bg_matting, natural_source):
@@ -64,14 +69,15 @@ class ReplaceBackgroundEnv(gym.ObservationWrapper):
     it is assumed that observations are tuples, which gym functions do not always return.
     Probably a version mismatch.
     """
+
     def observation(self, obs):
         if len(obs) != 2:
-            # add a batch dimension to the observation, creating a tuple, to keep code working
+            # add a batch dimension to the observation, creating a tuple, to keep code working
             obs = (obs, 0)
         mask = self._bg_matting.get_mask(obs)
         img = self._natural_source.get_image()
         # then only take the first element of the tuple, which is the observation
-        obs=obs[0]
+        obs = obs[0]
         obs[mask] = img[mask]
         self._last_ob = obs
         return obs
@@ -96,22 +102,20 @@ class ReplaceBackgroundEnv(gym.ObservationWrapper):
             return env.viewer.isopen
 
 
-
-
 def naturalenv_wrapper(env, imgsource, color="green", resource_files=None):
     shape2d = env.observation_space.shape[:2]
     if imgsource:
         if imgsource == "color":
             if color == "green":
-                src_color = [0, 255, 0]# [102, 204, 102]
+                src_color = [0, 255, 0]  # [102, 204, 102]
             elif color == "red":
                 src_color = [255, 0, 0]
             elif color == "blue":
-                src_color = [0, 0, 255] # [102, 102, 204]
+                src_color = [0, 0, 255]  # [102, 102, 204]
             elif color == "violet":
                 src_color = [204, 102, 204]
             elif color == "yellow":
-                src_color = [255, 255, 0] #[230, 230, 102]
+                src_color = [255, 255, 0]  # [230, 230, 102]
             else:
                 raise ValueError("Unknown color {}".format(color))
             imgsource = ColorSource(shape2d, src_color)
@@ -132,7 +136,7 @@ def naturalenv_wrapper(env, imgsource, color="green", resource_files=None):
         if env.spec.id.startswith("Pong"):
             bg_col = (144, 72, 17)
         if env.spec.id.startswith("Boxing"):
-            bg_col = (110, 156,  66)
+            bg_col = (110, 156, 66)
         wrapped_env = ReplaceBackgroundEnv(
             env, BackgroundMattingWithColor(bg_col), imgsource
         )
@@ -142,7 +146,15 @@ def naturalenv_wrapper(env, imgsource, color="green", resource_files=None):
 
 
 class NaturalEnvWrapper(gym.ObservationWrapper):
-    def __init__(self, env_id, imgsource="color", color="green", resource_files=None, render_mode="human", zoom=4):
+    def __init__(
+        self,
+        env_id,
+        imgsource="color",
+        color="green",
+        resource_files=None,
+        render_mode="human",
+        zoom=4,
+    ):
         super().__init__(env_id)
         env = gym.make(env_id)
         self.wrapped_env = naturalenv_wrapper(env, imgsource, color, resource_files)
@@ -154,7 +166,10 @@ class NaturalEnvWrapper(gym.ObservationWrapper):
             self.zoom = zoom
             self.video_size = [rendered.shape[1], rendered.shape[0]]
             if zoom is not None:
-                self.video_size = int(self.video_size[0] * zoom), int(self.video_size[1] * zoom)
+                self.video_size = (
+                    int(self.video_size[0] * zoom),
+                    int(self.video_size[1] * zoom),
+                )
                 self.screen = pygame.display.set_mode(self.video_size)
                 self.clock = pygame.time.Clock()
 
@@ -175,7 +190,9 @@ class NaturalEnvWrapper(gym.ObservationWrapper):
     def render(self):
         rendered = self.wrapped_env.render(mode="rgb_array")
         if self.render_mode == "human":
-            img = self._display_arr(self.screen, rendered, video_size=self.video_size, transpose=True)
+            img = self._display_arr(
+                self.screen, rendered, video_size=self.video_size, transpose=True
+            )
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
@@ -185,7 +202,7 @@ class NaturalEnvWrapper(gym.ObservationWrapper):
 
             pygame.display.flip()
             self.clock.tick(90)
-            return img # self.wrapped_env.render(mode=mode)
+            return img  # self.wrapped_env.render(mode=mode)
 
     def close(self):
         return self.wrapped_env.close()
@@ -195,10 +212,12 @@ class NaturalEnvWrapper(gym.ObservationWrapper):
 
     def __getattr__(self, name):
         return getattr(self.wrapped_env, name)
-    
+
     def _display_arr(self, screen, arr, video_size, transpose):
         arr_min, arr_max = arr.min(), arr.max()
         arr = 255.0 * (arr - arr_min) / (arr_max - arr_min)
-        pyg_img = pygame.surfarray.make_surface(arr.swapaxes(0, 1) if transpose else arr)
+        pyg_img = pygame.surfarray.make_surface(
+            arr.swapaxes(0, 1) if transpose else arr
+        )
         pyg_img = pygame.transform.scale(pyg_img, video_size)
         screen.blit(pyg_img, (0, 0))

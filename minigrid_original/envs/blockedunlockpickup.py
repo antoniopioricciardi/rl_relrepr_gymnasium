@@ -7,7 +7,6 @@ from minigrid_original.core.world_object import Ball
 
 
 class BlockedUnlockPickupEnv(RoomGrid):
-
     """
 
     ## Description

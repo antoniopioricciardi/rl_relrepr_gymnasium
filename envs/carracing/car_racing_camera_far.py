@@ -1,6 +1,5 @@
 __credits__ = ["Andrea PIERRÉ"]
 # edits needed to modify the env
-import glob
 import math
 import os
 from typing import Optional, Union
@@ -8,6 +7,7 @@ from typing import Optional, Union
 import gym
 import numpy as np
 from gym import spaces
+
 # from gym.envs.box2d.car_dynamics import Car
 from envs.carracing.car_dynamics import Car
 from gym.error import DependencyNotInstalled, InvalidAction
@@ -217,8 +217,10 @@ class CarRacing(gym.Env, EzPickle):
         self.background = background
         self.image_path = image_path
         print(self.image_path)
-        if self.background == 'image' or self.background == 'video':
-            assert self.image_path is not None, "You set background=image. Please provide an image or a video path"
+        if self.background == "image" or self.background == "video":
+            assert (
+                self.image_path is not None
+            ), "You set background=image. Please provide an image or a video path"
         self.continuous = continuous
         self.domain_randomize = domain_randomize
         self.lap_complete_percent = lap_complete_percent
@@ -263,10 +265,13 @@ class CarRacing(gym.Env, EzPickle):
             self.background_img = pygame.image.load(self.image_path)
             self.background_img_rect = self.background_img.get_rect()
             # flip the image vertically
-            self.background_img = pygame.transform.flip(self.background_img, False, True)
+            self.background_img = pygame.transform.flip(
+                self.background_img, False, True
+            )
         if self.background == "video":
             import glob
-            print(f'############\n{self.image_path}\n############')
+
+            print(f"############\n{self.image_path}\n############")
             self.images_list = []
             video_path = self.image_path[:-4]
 
@@ -283,7 +288,9 @@ class CarRacing(gym.Env, EzPickle):
                 img = pygame.transform.flip(img, False, True)
                 # stretch the image to fit the screen, without getting it too big
                 img = pygame.transform.scale(img, (WINDOW_W, WINDOW_H))
-                self.images_list.append(img) #pygame.transform.scale(img, (WINDOW_W, WINDOW_H)))
+                self.images_list.append(
+                    img
+                )  # pygame.transform.scale(img, (WINDOW_W, WINDOW_H)))
             self.video_frame_idx = 0
             self.background_img = self.images_list[self.video_frame_idx]
             self.fps_idx = 0
@@ -636,7 +643,7 @@ class CarRacing(gym.Env, EzPickle):
         self.step_cnt += 1
         if self.step_cnt == 1000:
             done = True
-            
+
         # return self.state, step_reward, terminated, truncated, {}
         return self.state, step_reward, done, {}
 
@@ -747,14 +754,14 @@ class CarRacing(gym.Env, EzPickle):
             # draw background image
             self.background_img_rect.center = (bounds, bounds)
             self.surf.blit(self.background_img, self.background_img_rect)
-        
+
         if self.background == "video":
             self.background_img_rect = self.background_img.get_rect()
             # self.background_img_rect.center = (bounds, bounds)
             self.surf.blit(self.background_img, self.background_img_rect)
             # slow down video
             # if self.fps_idx % 10 == 0:
-                # this changes the background image, too
+            # this changes the background image, too
             self._increase_image_idx()
             #     self.fps_idx = 0
             # self.fps_idx += 1
@@ -812,6 +819,7 @@ class CarRacing(gym.Env, EzPickle):
             np.square(self.car.hull.linearVelocity[0])
             + np.square(self.car.hull.linearVelocity[1])
         )
+
         # simple wrapper to render if the indicator value is above a threshold
         def render_if_min(value, points, color):
             if abs(value) > 1e-4:
@@ -885,9 +893,10 @@ class CarRacing(gym.Env, EzPickle):
                 pygame.quit()
 
     def change_background_color(self, color):
-        # assert that the color is a tuple of length 3 and contains only integers up to 255
-        assert len(color) == 3 and all([isinstance(c, int) and c <= 255 for c in color]), \
-            "Color must be a tuple of length 3 containing integers up to 255"
+        # assert that the color is a tuple of length 3 and contains only integers up to 255
+        assert len(color) == 3 and all(
+            [isinstance(c, int) and c <= 255 for c in color]
+        ), "Color must be a tuple of length 3 containing integers up to 255"
         self.bg_color = color
         self.grass_color = color
         # get the index of the maximum value in the color tuple.
@@ -900,6 +909,7 @@ class CarRacing(gym.Env, EzPickle):
         grass_color = np.array(color)
         grass_color[max_color_idx] = max_color
         self.grass_color = grass_color
+
 
 if __name__ == "__main__":
     a = np.array([0.0, 0.0, 0.0])

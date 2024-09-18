@@ -6,7 +6,6 @@ from minigrid_original.core.roomgrid import RoomGrid
 
 
 class KeyCorridorEnv(RoomGrid):
-
     """
     ## Description
 

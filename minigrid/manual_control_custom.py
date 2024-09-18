@@ -7,7 +7,6 @@ import pygame
 from gymnasium import Env
 
 from minigrid.core.actions import Actions
-from minigrid.minigrid_env import MiniGridEnv
 from minigrid.wrappers import ImgObsWrapper, RGBImgPartialObsWrapper
 
 
@@ -120,15 +119,20 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    from minigrid.envs import EmptyEnv
     from minigrid.envs.empty_dual import EmptyDualEnv
-    from utils.env_initializer import make_env_atari
-    from utils.preprocess_env import FilterFromDict
 
     # env = EmptyEnv(size=args.grid_size, goal_pos=args.goal_pos, wall_color=args.wall_color)
     # env = EmptyEnv(size=6, goal_pos=(2,2), wall_color="green", render_mode="human")
-    env = EmptyDualEnv(size=6, goal_shape="square", goal_pos="right", goal_color="green", item_color="red", wall_color="grey", render_mode="human")
-    
+    env = EmptyDualEnv(
+        size=6,
+        goal_shape="square",
+        goal_pos="right",
+        goal_color="green",
+        item_color="red",
+        wall_color="grey",
+        render_mode="human",
+    )
+
     # env = EmptyEnv(size=8)
     # env = RGBImgPartialObsWrapper(env)
     # env = FilterFromDict(env, "image")
@@ -138,9 +142,8 @@ if __name__ == "__main__":
     #         max_frames=False, episodic_life=False, clip_reward=False, check_fire=False, filter_dict=None,
     #         idx=0, capture_video=False, run_name="test"
     #         )()
-    
-    print(env.reset(seed=0))
 
+    print(env.reset(seed=0))
 
     # env: MiniGridEnv = gym.make(
     #     args.env_id,

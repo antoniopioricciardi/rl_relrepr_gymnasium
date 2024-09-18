@@ -9,7 +9,6 @@ import os
 import argparse
 import glob
 import gym
-import numpy as np
 from gym.utils import play
 
 from matting import BackgroundMattingWithColor
@@ -22,20 +21,25 @@ from imgsource import (
 
 
 class RemoveElFromTupleWrapper(gym.ObservationWrapper):
-    """ The env returns a 5-tuple. Remove the fourth element from the tuple returned by the environment."""
+    """The env returns a 5-tuple. Remove the fourth element from the tuple returned by the environment."""
+
     def __init__(self, env):
         super().__init__(env)
 
     def step(self, action):
         step_tuple = self.env.step(action)
-        return step_tuple[0], step_tuple[1], step_tuple[2], step_tuple[4] # obs, reward, done, info
+        return (
+            step_tuple[0],
+            step_tuple[1],
+            step_tuple[2],
+            step_tuple[4],
+        )  # obs, reward, done, info
 
     def reset(self, **kwargs):
         return self.env.reset(**kwargs)
 
 
 class ReplaceBackgroundEnv(gym.ObservationWrapper):
-
     viewer = None
 
     def __init__(self, env, bg_matting, natural_source):
@@ -53,18 +57,18 @@ class ReplaceBackgroundEnv(gym.ObservationWrapper):
     it is assumed that observations are tuples, which gym functions do not always return.
     Probably a version mismatch.
     """
+
     def observation(self, obs):
         if len(obs) != 2:
-            # add a batch dimension to the observation, creating a tuple, to keep code working
+            # add a batch dimension to the observation, creating a tuple, to keep code working
             obs = (obs, 0)
         mask = self._bg_matting.get_mask(obs)
         img = self._natural_source.get_image()
         # then only take the first element of the tuple, which is the observation
-        obs=obs[0]
+        obs = obs[0]
         obs[mask] = img[mask]
         self._last_ob = obs
         return obs
-
 
     # def observation(self, obs):
     #     mask = self._bg_matting.get_mask(obs)
@@ -72,7 +76,6 @@ class ReplaceBackgroundEnv(gym.ObservationWrapper):
     #     obs[mask] = img[mask]
     #     self._last_ob = obs
     #     return obs
-    
 
     def reset(self):
         self._natural_source.reset()
@@ -104,8 +107,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # the two lines below are to be deleted
-    args.env = "SpaceInvadersNoFrameskip-v4" # "EnduroNoFrameskip-v4" # "BreakoutNoFrameskip-v4"
-    args.imgsource = "videos" # "images" # "videos" # "images" # "noise"
+    args.env = "SpaceInvadersNoFrameskip-v4"  # "EnduroNoFrameskip-v4" # "BreakoutNoFrameskip-v4"
+    args.imgsource = "videos"  # "images" # "videos" # "images" # "noise"
     args.dump_video = False
     env = gym.make(args.env)
     shape2d = env.observation_space.shape[:2]

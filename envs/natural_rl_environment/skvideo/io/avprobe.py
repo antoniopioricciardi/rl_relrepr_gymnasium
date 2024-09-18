@@ -1,5 +1,3 @@
-import subprocess as sp
-
 from ..utils import *
 from .. import _HAS_AVCONV, _LIBAV_MAJOR_VERSION
 from .. import _AVCONV_PATH
@@ -21,16 +19,28 @@ def avprobe(filename):
     Returns
     -------
     metaDict : dict
-       Dictionary containing all header-based information 
+       Dictionary containing all header-based information
        about the passed-in source video.
 
     """
     # check if FFMPEG exists in the path
     assert _HAS_AVCONV, "Cannot find installation of avprobe."
-    assert int(_LIBAV_MAJOR_VERSION) >= 10, "Version of libav (" + str(_LIBAV_MAJOR_VERSION) +") < 9. Please update libav or use ffmpeg."
+    assert int(_LIBAV_MAJOR_VERSION) >= 10, (
+        "Version of libav ("
+        + str(_LIBAV_MAJOR_VERSION)
+        + ") < 9. Please update libav or use ffmpeg."
+    )
 
     try:
-        command = [_AVCONV_PATH + "/" + _AVPROBE_APPLICATION, "-v", "error", "-show_streams", "-of", "json", filename]
+        command = [
+            _AVCONV_PATH + "/" + _AVPROBE_APPLICATION,
+            "-v",
+            "error",
+            "-show_streams",
+            "-of",
+            "json",
+            filename,
+        ]
 
         # simply get std output
         jsonstr = check_output(command)

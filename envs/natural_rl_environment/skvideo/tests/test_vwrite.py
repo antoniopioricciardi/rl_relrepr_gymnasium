@@ -3,7 +3,7 @@ import sys
 import numpy as np
 import hashlib
 import os
-from numpy.testing import assert_equal
+
 
 def hashfile(afile, hasher, blocksize=65536):
     buf = afile.read(blocksize)
@@ -11,6 +11,7 @@ def hashfile(afile, hasher, blocksize=65536):
         hasher.update(buf)
         buf = afile.read(blocksize)
     return hasher.hexdigest()
+
 
 def _vwrite(backend):
     outputfile = sys._getframe().f_code.co_name + ".mp4"
@@ -25,18 +26,20 @@ def _vwrite(backend):
     skvideo.io.vwrite(outputfile, outputdata, backend=backend)
 
     # check a hash of the output file
-    h = hashfile(open(outputfile, 'rb'), hashlib.sha256())
+    h = hashfile(open(outputfile, "rb"), hashlib.sha256())
 
     # not done developing the writer yet, so this is disabled for now
-    #assert_equal(h, "7670dc3556bfc447210b66869a81774cab06774c05160a16d9865995f20e7b12")
+    # assert_equal(h, "7670dc3556bfc447210b66869a81774cab06774c05160a16d9865995f20e7b12")
 
     # remove test file
     os.remove(outputfile)
+
 
 def test_vreader_ffmpeg():
     if not skvideo._HAS_FFMPEG:
         return 0
     _vwrite("ffmpeg")
+
 
 def test_vreader_libav():
     if not skvideo._HAS_AVCONV:
@@ -48,4 +51,3 @@ def test_vreader_libav():
         return 0
 
     _vwrite("libav")
-

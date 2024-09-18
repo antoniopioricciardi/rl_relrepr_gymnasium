@@ -114,7 +114,7 @@ fi
 echo "DONE!"
 # Usage:
 # ./collect_data_end_to_end.sh [--env-id ENV_ID] [--num-steps NUM_STEPS] [--actions-path ACTIONS_PATH] [--collect-actions] [--generate-anchors-indices]
-# 
+#
 # Options:
 #   --env-id           Set the environment ID (default: CarRacing-v2)
 #   --num-steps        Set the number of steps (default: 4000)

@@ -1,4 +1,4 @@
-""" Plugin that uses ffmpeg to read and write series of images to
+"""Plugin that uses ffmpeg to read and write series of images to
 a wide range of video formats.
 
 """
@@ -40,41 +40,61 @@ class FFmpegReader(VideoReaderAbstract):
     OUTPUT_METHOD = "image2pipe"
 
     def __init__(self, *args, **kwargs):
-        assert _HAS_FFMPEG, "Cannot find installation of real FFmpeg (which comes with ffprobe)."
-        super(FFmpegReader,self).__init__(*args, **kwargs)
+        assert (
+            _HAS_FFMPEG
+        ), "Cannot find installation of real FFmpeg (which comes with ffprobe)."
+        super(FFmpegReader, self).__init__(*args, **kwargs)
 
     def _createProcess(self, inputdict, outputdict, verbosity):
-        if '-vcodec' not in outputdict:
-            outputdict['-vcodec'] = "rawvideo"
+        if "-vcodec" not in outputdict:
+            outputdict["-vcodec"] = "rawvideo"
 
         iargs = self._dict2Args(inputdict)
         oargs = self._dict2Args(outputdict)
 
         if verbosity > 0:
-            cmd = [_FFMPEG_PATH + "/" + _FFMPEG_APPLICATION] + iargs + ['-i', self._filename] + oargs + ['-']
+            cmd = (
+                [_FFMPEG_PATH + "/" + _FFMPEG_APPLICATION]
+                + iargs
+                + ["-i", self._filename]
+                + oargs
+                + ["-"]
+            )
             print(cmd)
-            self._proc = sp.Popen(cmd, stdin=sp.PIPE,
-                                  stdout=sp.PIPE, stderr=None)
+            self._proc = sp.Popen(cmd, stdin=sp.PIPE, stdout=sp.PIPE, stderr=None)
         else:
-            cmd = [_FFMPEG_PATH + "/" + _FFMPEG_APPLICATION, "-nostats", "-loglevel", "0"] + iargs + ['-i',
-                                                                                                      self._filename] + oargs + [
-                      '-']
-        self._proc = sp.Popen(cmd, stdin=sp.PIPE,
-                              stdout=sp.PIPE, stderr=sp.PIPE)
+            cmd = (
+                [_FFMPEG_PATH + "/" + _FFMPEG_APPLICATION, "-nostats", "-loglevel", "0"]
+                + iargs
+                + ["-i", self._filename]
+                + oargs
+                + ["-"]
+            )
+        self._proc = sp.Popen(cmd, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE)
         self._cmd = " ".join(cmd)
 
     def _probCountFrames(self):
         # open process, grabbing number of frames using ffprobe
-        probecmd = [_FFMPEG_PATH + "/ffprobe"] + ["-v", "error", "-count_frames", "-select_streams", "v:0",
-                                                  "-show_entries", "stream=nb_read_frames", "-of",
-                                                  "default=nokey=1:noprint_wrappers=1", self._filename]
-        return np.int(check_output(probecmd).decode().split('\n')[0])
+        probecmd = [_FFMPEG_PATH + "/ffprobe"] + [
+            "-v",
+            "error",
+            "-count_frames",
+            "-select_streams",
+            "v:0",
+            "-show_entries",
+            "stream=nb_read_frames",
+            "-of",
+            "default=nokey=1:noprint_wrappers=1",
+            self._filename,
+        ]
+        return np.int(check_output(probecmd).decode().split("\n")[0])
 
     def _probe(self):
         return ffprobe(self._filename)
 
     def _getSupportedDecoders(self):
         return _FFMPEG_SUPPORTED_DECODERS
+
 
 class FFmpegWriter(VideoWriterAbstract):
     """Writes frames using FFmpeg
@@ -84,8 +104,10 @@ class FFmpegWriter(VideoWriterAbstract):
     """
 
     def __init__(self, *args, **kwargs):
-        assert _HAS_FFMPEG, "Cannot find installation of real FFmpeg (which comes with ffprobe)."
-        super(FFmpegWriter,self).__init__(*args, **kwargs)
+        assert (
+            _HAS_FFMPEG
+        ), "Cannot find installation of real FFmpeg (which comes with ffprobe)."
+        super(FFmpegWriter, self).__init__(*args, **kwargs)
 
     def _getSupportedEncoders(self):
         return _FFMPEG_SUPPORTED_ENCODERS
@@ -94,16 +116,21 @@ class FFmpegWriter(VideoWriterAbstract):
         iargs = self._dict2Args(inputdict)
         oargs = self._dict2Args(outputdict)
 
-        cmd = [_FFMPEG_PATH + "/" + _FFMPEG_APPLICATION, "-y"] + iargs + ["-i", "-"] + oargs + [self._filename]
+        cmd = (
+            [_FFMPEG_PATH + "/" + _FFMPEG_APPLICATION, "-y"]
+            + iargs
+            + ["-i", "-"]
+            + oargs
+            + [self._filename]
+        )
 
         self._cmd = " ".join(cmd)
 
         # Launch process
         if self.verbosity > 0:
             print(self._cmd)
-            self._proc = sp.Popen(cmd, stdin=sp.PIPE,
-                                  stdout=sp.PIPE, stderr=None)
+            self._proc = sp.Popen(cmd, stdin=sp.PIPE, stdout=sp.PIPE, stderr=None)
         else:
-            self._proc = sp.Popen(cmd, stdin=sp.PIPE,
-                                  stdout=self.DEVNULL, stderr=sp.STDOUT)
-
+            self._proc = sp.Popen(
+                cmd, stdin=sp.PIPE, stdout=self.DEVNULL, stderr=sp.STDOUT
+            )

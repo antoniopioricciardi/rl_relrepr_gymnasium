@@ -1,6 +1,5 @@
 from ..utils import *
 import numpy as np
-import scipy.ndimage
 
 
 def mse(referenceVideoData, distortedVideoData):
@@ -32,18 +31,21 @@ def mse(referenceVideoData, distortedVideoData):
     referenceVideoData = vshape(referenceVideoData)
     distortedVideoData = vshape(distortedVideoData)
 
-    assert(referenceVideoData.shape == distortedVideoData.shape)
+    assert referenceVideoData.shape == distortedVideoData.shape
 
     T, M, N, C = referenceVideoData.shape
 
-    assert C == 1, "mse called with videos containing %d channels. Please supply only the luminance channel" % (C,)
+    assert C == 1, (
+        "mse called with videos containing %d channels. Please supply only the luminance channel"
+        % (C,)
+    )
 
     scores = np.zeros(T, dtype=np.float32)
     for t in range(T):
         referenceFrame = referenceVideoData[t].astype(np.float32)
         distortedFrame = distortedVideoData[t].astype(np.float32)
 
-        mse = np.mean((referenceFrame - distortedFrame)**2)
+        mse = np.mean((referenceFrame - distortedFrame) ** 2)
 
         scores[t] = mse
 

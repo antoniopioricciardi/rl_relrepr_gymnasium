@@ -11,7 +11,6 @@ from minigrid_original.minigrid_env import MiniGridEnv
 
 
 class CrossingEnv(MiniGridEnv):
-
     """
     ## Description
 

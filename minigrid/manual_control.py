@@ -127,7 +127,7 @@ if __name__ == "__main__":
         agent_pov=args.agent_view,
         agent_view_size=args.agent_view_size,
         screen_size=args.screen_size,
-        goal_pos = (2,2),
+        goal_pos=(2, 2),
     )
 
     # TODO: check if this can be removed

@@ -1,6 +1,4 @@
-"""Measurement and quality assessment tools.
-
-"""
+"""Measurement and quality assessment tools."""
 
 from .msssim import *
 from .ssim import *
@@ -16,17 +14,17 @@ from .niqe import *
 from .Li3DDCT import *
 
 __all__ = [
-    'msssim',
-    'ssim',
-    'strred',
-    'mse',
-    'mae',
-    'psnr',
-    'scenedet',
-    'brisque_features',
-    'videobliinds_features',
-    'viideo_features',
-    'viideo_score',
-    'Li3DDCT_features',
-    'niqe',
+    "msssim",
+    "ssim",
+    "strred",
+    "mse",
+    "mae",
+    "psnr",
+    "scenedet",
+    "brisque_features",
+    "videobliinds_features",
+    "viideo_features",
+    "viideo_score",
+    "Li3DDCT_features",
+    "niqe",
 ]

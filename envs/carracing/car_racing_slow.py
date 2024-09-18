@@ -233,9 +233,17 @@ class CarRacing(gym.Env, EzPickle):
         self.step_cnt = 0
         self.background = background
 
-        self.background_list = ["green", "red", "blue"] #"violet", "pink", "yellow"]
-        self.background_colors_list = [[102, 204, 102], [204, 102, 102], [102, 102, 204]] #[204, 102, 204], [230, 102, 230], [230, 230, 102]
-        self.grass_color_list = [[102, 230, 102], [230, 102, 102], [102, 102, 230]] #[204, 102, 204], [230, 102, 230], [255, 255, 102]
+        self.background_list = ["green", "red", "blue"]  # "violet", "pink", "yellow"]
+        self.background_colors_list = [
+            [102, 204, 102],
+            [204, 102, 102],
+            [102, 102, 204],
+        ]  # [204, 102, 204], [230, 102, 230], [230, 230, 102]
+        self.grass_color_list = [
+            [102, 230, 102],
+            [230, 102, 102],
+            [102, 102, 230],
+        ]  # [204, 102, 204], [230, 102, 230], [255, 255, 102]
         self.background_list_len = len(self.background_colors_list)
         self.background_idx = 0
 
@@ -320,7 +328,9 @@ class CarRacing(gym.Env, EzPickle):
             if self.background == "multicolor":
                 self.bg_color = self.background_colors_list[self.background_idx]
                 self.grass_color = self.grass_color_list[self.background_idx]
-                self.background_idx = (self.background_idx + 1) % self.background_list_len
+                self.background_idx = (
+                    self.background_idx + 1
+                ) % self.background_list_len
 
     def _reinit_colors(self, randomize):
         assert (
@@ -620,10 +630,10 @@ class CarRacing(gym.Env, EzPickle):
         true_speed = np.sqrt(
             np.square(self.car.hull.linearVelocity[0])
             + np.square(self.car.hull.linearVelocity[1])
-        )   
+        )
         # print(true_speed)
         if true_speed > 35:
-            step_reward = - 100
+            step_reward = -100
             terminated = True
 
         if self.render_mode == "human":
@@ -631,7 +641,7 @@ class CarRacing(gym.Env, EzPickle):
         self.step_cnt += 1
         if self.step_cnt == 3000:
             terminated = True
-            
+
         return self.state, step_reward, terminated, truncated, {}
 
     def render(self):
@@ -720,7 +730,15 @@ class CarRacing(gym.Env, EzPickle):
         #     self.surf, field, self.bg_color, zoom, translation, angle, clip=False
         # )
 
-        if self.background in ["green", "red", "blue", "violet", "pink", "yellow", "multicolor"]:
+        if self.background in [
+            "green",
+            "red",
+            "blue",
+            "violet",
+            "pink",
+            "yellow",
+            "multicolor",
+        ]:
             self._draw_colored_polygon(
                 self.surf, field, self.bg_color, zoom, translation, angle, clip=False
             )

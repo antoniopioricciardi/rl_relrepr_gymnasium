@@ -553,7 +553,7 @@ class MiniGridEnv(gym.Env):
                 # terminated = True
 
         # Pick up an object
-        elif action == self.actions.pickup: 
+        elif action == self.actions.pickup:
             if fwd_cell and fwd_cell.can_pickup():
                 if self.carrying is None:
                     self.carrying = fwd_cell

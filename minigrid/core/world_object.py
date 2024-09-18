@@ -25,7 +25,6 @@ Point = Tuple[int, int]
 
 
 class WorldObj:
-
     """
     Base class for grid world objects
     """
@@ -146,9 +145,10 @@ class ObstacleBall(WorldObj):
 
     def can_overlap(self):
         return True
-    
+
     def render(self, img):
         fill_coords(img, point_in_rect(0, 1, 0, 1), COLORS[self.color])
+
 
 class Floor(WorldObj):
     """
@@ -300,6 +300,7 @@ class Ball(WorldObj):
 
     def render(self, img):
         fill_coords(img, point_in_circle(0.5, 0.5, 0.31), COLORS[self.color])
+
 
 class Box(WorldObj):
     def __init__(self, color, contains: WorldObj | None = None):

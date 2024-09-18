@@ -1,4 +1,5 @@
 "Extract patterns from grids of tiles. Implementation based on https://github.com/ikarth/wfc_2019f"
+
 from __future__ import annotations
 
 import logging
@@ -127,7 +128,12 @@ def make_pattern_catalog_with_rotations(
     merged_patch_codes: NDArray[np.int64] | None = None
 
     def _make_catalog() -> None:
-        nonlocal rotated_tile_grid, merged_dict_of_pattern_contents, merged_pattern_contents_list, merged_pattern_frequency, merged_patch_codes
+        nonlocal \
+            rotated_tile_grid, \
+            merged_dict_of_pattern_contents, \
+            merged_pattern_contents_list, \
+            merged_pattern_frequency, \
+            merged_patch_codes
         (
             dict_of_pattern_contents,
             pattern_frequency,

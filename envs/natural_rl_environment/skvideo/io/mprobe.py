@@ -1,5 +1,3 @@
-import subprocess as sp
-
 from ..utils import *
 from .. import _HAS_MEDIAINFO
 from .. import _MEDIAINFO_APPLICATION
@@ -21,7 +19,7 @@ def mprobe(filename):
     Returns
     -------
     mediaDict : dict
-       Dictionary containing all header-based information 
+       Dictionary containing all header-based information
        about the passed-in source video.
 
     """
@@ -52,9 +50,9 @@ def mprobe(filename):
                 assert "@type" in d
                 # can't have more than 1 key. If this case arises
                 # an issue should be made in the tracker for a fix.
-                assert d["@type"] not in tracksbytype 
+                assert d["@type"] not in tracksbytype
                 tracksbytype[d["@type"]] = d
-        else: # not list
+        else:  # not list
             assert "@type" in unorderedtracks
             tracksbytype[unorderedtracks["@type"]] = unorderedtracks
 

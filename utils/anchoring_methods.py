@@ -36,7 +36,16 @@ def fps(x: torch.Tensor, k: int, device="cpu"):
 #     return centroids
 
 
-def get_anchors(space1_vectors, space2_vectors, num_anchors, subset_indices, anchoring_method, file_path, use_saved=True, device="cpu"):
+def get_anchors(
+    space1_vectors,
+    space2_vectors,
+    num_anchors,
+    subset_indices,
+    anchoring_method,
+    file_path,
+    use_saved=True,
+    device="cpu",
+):
     if anchoring_method == "kmeans":
         anchor_file = Path(
             file_path
@@ -57,7 +66,9 @@ def get_anchors(space1_vectors, space2_vectors, num_anchors, subset_indices, anc
                 kmeans.fit(subset.cpu())
 
                 # get centroid ids from space1 and used as anchors for both spaces
-                closest, _ = pairwise_distances_argmin_min(kmeans.cluster_centers_, subset)
+                closest, _ = pairwise_distances_argmin_min(
+                    kmeans.cluster_centers_, subset
+                )
                 torch.save(
                     closest,
                     anchor_file,
@@ -100,16 +111,20 @@ def get_anchors(space1_vectors, space2_vectors, num_anchors, subset_indices, anc
 
             else:
                 print("fps starting")
-                anchor_indices = fps(x=space1_vectors[subset_indices], k=num_anchors, device=device)
+                anchor_indices = fps(
+                    x=space1_vectors[subset_indices], k=num_anchors, device=device
+                )
                 torch.save(
-                    anchor_indices,#.cpu(),
+                    anchor_indices,  # .cpu(),
                     anchor_file,
                 )
                 print(anchor_indices)
                 print("fps done and saved")
         else:
             print("fps starting")
-            anchor_indices = fps(x=space1_vectors[subset_indices], k=num_anchors, device=device)
+            anchor_indices = fps(
+                x=space1_vectors[subset_indices], k=num_anchors, device=device
+            )
             print("fps done")
         space1_anchors = space1_vectors[subset_indices][anchor_indices]
         space2_anchors = space2_vectors[subset_indices][anchor_indices]

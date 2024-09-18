@@ -1,6 +1,5 @@
-""" Various utility functions for manipulating video data
+"""Various utility functions for manipulating video data"""
 
-"""
 import os
 import platform
 import itertools
@@ -188,9 +187,9 @@ bpplut["ayuv64be"] = [4, 64]
 bpplut["videotoolbox_vld"] = [0, 0]
 
 
-
 # python2 only
 binary_type = str
+
 
 def check_dict(dic, key, valueifnot):
     if key not in dic:
@@ -202,10 +201,12 @@ def check_output(*popenargs, **kwargs):
     closeNULL = 0
     try:
         from subprocess import DEVNULL
+
         closeNULL = 0
     except ImportError:
         import os
-        DEVNULL = open(os.devnull, 'wb')
+
+        DEVNULL = open(os.devnull, "wb")
         closeNULL = 1
 
     process = sp.Popen(stdout=sp.PIPE, stderr=DEVNULL, *popenargs, **kwargs)
@@ -224,6 +225,7 @@ def check_output(*popenargs, **kwargs):
         raise error
     return output
 
+
 try:
     # on py27 make map/filter behave like an iterator
     map = itertools.imap
@@ -233,23 +235,24 @@ except AttributeError:
     pass
 
 
-def where( filename ):
-    """ Returns all matching file paths. """
+def where(filename):
+    """Returns all matching file paths."""
     return list(iwhere(filename))
 
 
-def first( filename ):
-    """ Returns first matching file path. """
+def first(filename):
+    """Returns first matching file path."""
     try:
         return next(iwhere(filename))
     except StopIteration:
         return None
 
 
-def iwhere( filename ):
+def iwhere(filename):
     possible_paths = _gen_possible_matches(filename)
     existing_file_paths = filter(os.path.isfile, possible_paths)
     return existing_file_paths
+
 
 def iter_unique(iterable):
     yielded = set()
@@ -259,19 +262,26 @@ def iter_unique(iterable):
         yield i
         yielded.add(i)
 
+
 def imapchain(*a, **kwa):
-    """ Like map but also chains the results. """
+    """Like map but also chains the results."""
 
     imap_results = map(*a, **kwa)
     return itertools.chain(*imap_results)
 
+
 def _gen_possible_matches(filename):
-    path_parts =     os.environ.get("PATH", "").split(os.pathsep)
-    path_parts =     itertools.chain((os.curdir,), path_parts)
-    possible_paths = map(lambda path_part: os.path.join(path_part, filename), path_parts)
+    path_parts = os.environ.get("PATH", "").split(os.pathsep)
+    path_parts = itertools.chain((os.curdir,), path_parts)
+    possible_paths = map(
+        lambda path_part: os.path.join(path_part, filename), path_parts
+    )
 
     if platform.system() == "Windows":
-        possible_paths = imapchain(lambda path: (path, path+".bat", path+".com", path+".exe"), possible_paths)
+        possible_paths = imapchain(
+            lambda path: (path, path + ".bat", path + ".com", path + ".exe"),
+            possible_paths,
+        )
 
     possible_paths = map(os.path.abspath, possible_paths)
 
@@ -279,18 +289,19 @@ def _gen_possible_matches(filename):
 
     return result
 
+
 def vshape(videodata):
     """Standardizes the input data shape.
 
     Transforms video data into the standardized shape (T, M, N, C), where
-    T is number of frames, M is height, N is width, and C is number of 
+    T is number of frames, M is height, N is width, and C is number of
     channels.
 
     Parameters
     ----------
     videodata : ndarray
         Input data of shape (T, M, N, C), (T, M, N), (M, N, C), or (M, N), where
-        T is number of frames, M is height, N is width, and C is number of 
+        T is number of frames, M is height, N is width, and C is number of
         channels.
 
     Returns
@@ -302,34 +313,35 @@ def vshape(videodata):
     if not isinstance(videodata, np.ndarray):
         videodata = np.array(videodata)
 
-    if len(videodata.shape) == 2: 
+    if len(videodata.shape) == 2:
         a, b = videodata.shape
-        return videodata.reshape(1, a, b, 1) 
-    elif len(videodata.shape) == 3: 
+        return videodata.reshape(1, a, b, 1)
+    elif len(videodata.shape) == 3:
         a, b, c = videodata.shape
         # check the last dimension small
         # interpret as color channel
         if c in [1, 2, 3, 4]:
-            return videodata.reshape(1, a, b, c) 
+            return videodata.reshape(1, a, b, c)
         else:
-            return videodata.reshape(a, b, c, 1) 
-    elif len(videodata.shape) == 4: 
+            return videodata.reshape(a, b, c, 1)
+    elif len(videodata.shape) == 4:
         return videodata
     else:
         raise ValueError("Improper data input")
 
+
 def rgb2gray(videodata):
     """Computes the grayscale video.
 
-    Computes the grayscale video from the input video returning the 
-    standardized shape (T, M, N, C), where T is number of frames, 
+    Computes the grayscale video from the input video returning the
+    standardized shape (T, M, N, C), where T is number of frames,
     M is height, N is width, and C is number of channels (here always 1).
 
     Parameters
     ----------
     videodata : ndarray
         Input data of shape (T, M, N, C), (T, M, N), (M, N, C), or (M, N), where
-        T is number of frames, M is height, N is width, and C is number of 
+        T is number of frames, M is height, N is width, and C is number of
         channels.
 
     Returns
@@ -342,25 +354,30 @@ def rgb2gray(videodata):
 
     if C == 1:
         return videodata
-    elif C == 3: # assume RGB
-        videodata = videodata[:, :, :, 0]*0.2989 + videodata[:, :, :, 1]*0.5870 + videodata[:, :, :, 2]*0.1140 
+    elif C == 3:  # assume RGB
+        videodata = (
+            videodata[:, :, :, 0] * 0.2989
+            + videodata[:, :, :, 1] * 0.5870
+            + videodata[:, :, :, 2] * 0.1140
+        )
         return vshape(videodata)
     else:
-        raise NotImplemented
+        raise NotImplementedError
+
 
 __all__ = [
-    'xmltodictparser',
-    'bpplut',
-    'where',
-    'check_output',
-    'rgb2gray',
-    'vshape',
-    'canny',
-    'SpatialSteerablePyramid',
-    'compute_image_mscn_transform',
-    'gen_gauss_window',
-    'paired_product',
-    'ggd_features',
-    'aggd_features',
-    'rolling_window'
+    "xmltodictparser",
+    "bpplut",
+    "where",
+    "check_output",
+    "rgb2gray",
+    "vshape",
+    "canny",
+    "SpatialSteerablePyramid",
+    "compute_image_mscn_transform",
+    "gen_gauss_window",
+    "paired_product",
+    "ggd_features",
+    "aggd_features",
+    "rolling_window",
 ]

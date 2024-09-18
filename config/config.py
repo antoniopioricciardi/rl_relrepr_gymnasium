@@ -1,6 +1,1 @@
-carracing = {
-    "rgb": True,
-    "frame_stack": 4,
-    "random_start": 0
-}
-
+carracing = {"rgb": True, "frame_stack": 4, "random_start": 0}

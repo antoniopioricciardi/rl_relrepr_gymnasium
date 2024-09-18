@@ -3,18 +3,19 @@ import scipy.special
 import math
 
 gamma_range = np.arange(0.2, 10, 0.001)
-a = scipy.special.gamma(2.0/gamma_range)
+a = scipy.special.gamma(2.0 / gamma_range)
 a *= a
-b = scipy.special.gamma(1.0/gamma_range)
-c = scipy.special.gamma(3.0/gamma_range)
-prec_gammas = a/(b*c)
+b = scipy.special.gamma(1.0 / gamma_range)
+c = scipy.special.gamma(3.0 / gamma_range)
+prec_gammas = a / (b * c)
+
 
 def aggd_features(imdata):
-    #flatten imdata
+    # flatten imdata
     imdata.shape = (len(imdata.flat),)
-    imdata2 = imdata*imdata
-    left_data = imdata2[imdata<0]
-    right_data = imdata2[imdata>=0]
+    imdata2 = imdata * imdata
+    left_data = imdata2[imdata < 0]
+    right_data = imdata2[imdata >= 0]
     left_mean_sqrt = 0
     right_mean_sqrt = 0
     if len(left_data) > 0:
@@ -23,41 +24,46 @@ def aggd_features(imdata):
         right_mean_sqrt = np.sqrt(np.average(right_data))
 
     if right_mean_sqrt != 0:
-      gamma_hat = left_mean_sqrt/right_mean_sqrt
+        gamma_hat = left_mean_sqrt / right_mean_sqrt
     else:
-      gamma_hat = np.inf
-    #solve r-hat norm
+        gamma_hat = np.inf
+    # solve r-hat norm
 
     imdata2_mean = np.mean(imdata2)
     if imdata2_mean != 0:
-      r_hat = (np.average(np.abs(imdata))**2) / (np.average(imdata2))
+        r_hat = (np.average(np.abs(imdata)) ** 2) / (np.average(imdata2))
     else:
-      r_hat = np.inf
-    rhat_norm = r_hat * (((math.pow(gamma_hat, 3) + 1)*(gamma_hat + 1)) / math.pow(math.pow(gamma_hat, 2) + 1, 2))
+        r_hat = np.inf
+    rhat_norm = r_hat * (
+        ((math.pow(gamma_hat, 3) + 1) * (gamma_hat + 1))
+        / math.pow(math.pow(gamma_hat, 2) + 1, 2)
+    )
 
-    #solve alpha by guessing values that minimize ro
-    pos = np.argmin((prec_gammas - rhat_norm)**2);
+    # solve alpha by guessing values that minimize ro
+    pos = np.argmin((prec_gammas - rhat_norm) ** 2)
     alpha = gamma_range[pos]
 
-    gam1 = scipy.special.gamma(1.0/alpha)
-    gam2 = scipy.special.gamma(2.0/alpha)
-    gam3 = scipy.special.gamma(3.0/alpha)
+    gam1 = scipy.special.gamma(1.0 / alpha)
+    gam2 = scipy.special.gamma(2.0 / alpha)
+    gam3 = scipy.special.gamma(3.0 / alpha)
 
     aggdratio = np.sqrt(gam1) / np.sqrt(gam3)
     bl = aggdratio * left_mean_sqrt
     br = aggdratio * right_mean_sqrt
 
-    #mean parameter
-    N = (br - bl)*(gam2 / gam1)#*aggdratio
+    # mean parameter
+    N = (br - bl) * (gam2 / gam1)  # *aggdratio
     return (alpha, N, bl, br, left_mean_sqrt, right_mean_sqrt)
 
+
 def ggd_features(imdata):
-    nr_gam = 1/prec_gammas
+    nr_gam = 1 / prec_gammas
     sigma_sq = np.var(imdata)
     E = np.mean(np.abs(imdata))
-    rho = sigma_sq/E**2
-    pos = np.argmin(np.abs(nr_gam - rho));
+    rho = sigma_sq / E**2
+    pos = np.argmin(np.abs(nr_gam - rho))
     return gamma_range[pos], sigma_sq
+
 
 def paired_product(new_im):
     shift1 = np.roll(new_im.copy(), 1, axis=1)

@@ -49,4 +49,3 @@ def test_vreader_libav_version12():
         return 0
 
     _vreader("libav")
-

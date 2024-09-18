@@ -4,7 +4,6 @@ Implementation of global motion estimators.
 """
 
 import numpy as np
-import os
 import scipy.ndimage
 import scipy.spatial
 
@@ -16,18 +15,17 @@ def _hausdorff_distance(E_1, E_2):
     diamond = np.array([[0, 1, 0], [1, 1, 1], [0, 1, 0]])
 
     # extract only 1-pixel border line of objects
-    E_1_per = E_1^scipy.ndimage.morphology.binary_erosion(E_1, structure=diamond)
-    E_2_per = E_2^scipy.ndimage.morphology.binary_erosion(E_2, structure=diamond)
+    E_1_per = E_1 ^ scipy.ndimage.morphology.binary_erosion(E_1, structure=diamond)
+    E_2_per = E_2 ^ scipy.ndimage.morphology.binary_erosion(E_2, structure=diamond)
 
     A = scipy.ndimage.morphology.distance_transform_edt(~E_2_per)[E_1_per].max()
     B = scipy.ndimage.morphology.distance_transform_edt(~E_1_per)[E_2_per].max()
     return np.max((A, B))
 
 
-
-def globalEdgeMotion(frame1, frame2, r=6, method='hamming'):
+def globalEdgeMotion(frame1, frame2, r=6, method="hamming"):
     """Global motion estimation using edge features
-    
+
     Given two frames, find a robust global translation vector
     found using edge information.
 
@@ -54,20 +52,23 @@ def globalEdgeMotion(frame1, frame2, r=6, method='hamming'):
 
     References
     ----------
-    .. [#f1] Ramin Zabih and John Woodfill. Non-parametric local transforms for computing visual correspondence. Computer Vision-ECCV, 151-158, 1994. 
-    
+    .. [#f1] Ramin Zabih and John Woodfill. Non-parametric local transforms for computing visual correspondence. Computer Vision-ECCV, 151-158, 1994.
+
     .. [#f2] Kevin Mai, Ramin Zabih, and Justin Miller. Feature-based algorithms for detecting and classifying scene breaks. Cornell University, 1995.
 
     """
 
     frame1 = vshape(frame1)
     frame2 = vshape(frame2)
-    
-    assert(frame1.shape == frame2.shape)
+
+    assert frame1.shape == frame2.shape
 
     T, M, N, C = frame1.shape
 
-    assert C == 1, "called with frames having %d channels. Please supply only the luminance channel." % (C,)
+    assert C == 1, (
+        "called with frames having %d channels. Please supply only the luminance channel."
+        % (C,)
+    )
     # if type bool, then these are edge maps. No need to convert them
     if frame1.dtype != np.bool:
         E_1 = canny(frame1)
@@ -81,14 +82,16 @@ def globalEdgeMotion(frame1, frame2, r=6, method='hamming'):
 
     distances = []
     displacements = []
-    for dx in range(-r, r+1, 1):
-        for dy in range(-r, r+1, 1):
+    for dx in range(-r, r + 1, 1):
+        for dy in range(-r, r + 1, 1):
             cimage = np.roll(E_2, dx, axis=0)
             cimage = np.roll(cimage, dy, axis=1)
             # smallest distance between a point of points found in cimage
-            if method == 'hamming':
-                distance = scipy.spatial.distance.hamming(np.ravel(cimage), np.ravel(E_1))
-            elif method == 'hausdorff':
+            if method == "hamming":
+                distance = scipy.spatial.distance.hamming(
+                    np.ravel(cimage), np.ravel(E_1)
+                )
+            elif method == "hausdorff":
                 distance = _hausdorff_distance(cimage, E_2)
             else:
                 raise Notimplemented

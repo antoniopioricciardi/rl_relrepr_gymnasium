@@ -1,9 +1,8 @@
-import subprocess as sp
-
 from ..utils import *
 from .. import _HAS_FFMPEG
 from .. import _FFMPEG_PATH
 from .. import _FFPROBE_APPLICATION
+
 
 def ffprobe(filename):
     """get metadata by using ffprobe
@@ -19,15 +18,25 @@ def ffprobe(filename):
     Returns
     -------
     metaDict : dict
-       Dictionary containing all header-based information 
+       Dictionary containing all header-based information
        about the passed-in source video.
 
     """
     # check if FFMPEG exists in the path
-    assert _HAS_FFMPEG, "Cannot find installation of real FFmpeg (which comes with ffprobe)."
+    assert (
+        _HAS_FFMPEG
+    ), "Cannot find installation of real FFmpeg (which comes with ffprobe)."
 
     try:
-        command = [_FFMPEG_PATH + "/" + _FFPROBE_APPLICATION, "-v", "error", "-show_streams", "-print_format", "xml", filename]
+        command = [
+            _FFMPEG_PATH + "/" + _FFPROBE_APPLICATION,
+            "-v",
+            "error",
+            "-show_streams",
+            "-print_format",
+            "xml",
+            filename,
+        ]
 
         # simply get std output
         xml = check_output(command)
@@ -36,9 +45,9 @@ def ffprobe(filename):
 
         d = d["streams"]
 
-        #import json
-        #print json.dumps(d, indent = 4)
-        #exit(0)
+        # import json
+        # print json.dumps(d, indent = 4)
+        # exit(0)
 
         # check type
         streamsbytype = {}

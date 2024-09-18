@@ -40,10 +40,10 @@ relative_analysis.ipynb - read stitching results
 # copy content of pydrive2fs from computer where you can access monitor to the computer where you can't. Paths are:
 $CACHE_HOME/pydrive2fs/{gdrive_client_id}/default.json (unless profile is specified), where the CACHE_HOME location per platform is:
 
-macOS	
+macOS
 ~/Library/Caches	~/.cache	%CSIDL_LOCAL_APPDATA%
 
-Linux (*typical)	
+Linux (*typical)
 ~/.cache
 
 Windows

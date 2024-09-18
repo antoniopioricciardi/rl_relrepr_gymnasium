@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from minigrid.core.grid import Grid
 from minigrid.core.mission import MissionSpace
-from minigrid.core.world_object import Goal, GoalBall, Ball, Box, ObstacleBall, ObstacleSquare
+from minigrid.core.world_object import Goal, GoalBall, ObstacleBall, ObstacleSquare
 from minigrid.minigrid_env import MiniGridEnv
 
 # import tuple
-from typing import Tuple
+
 
 class EmptyDualEnv(MiniGridEnv):
     """
@@ -72,8 +72,8 @@ class EmptyDualEnv(MiniGridEnv):
         size=8,
         agent_start_pos=(1, 1),
         agent_start_dir=0,
-        goal_shape: str = "square", # ball
-        goal_pos: str = "right", # left
+        goal_shape: str = "square",  # ball
+        goal_pos: str = "right",  # left
         goal_color="green",
         item_color="red",
         wall_color: str = "grey",
@@ -83,12 +83,11 @@ class EmptyDualEnv(MiniGridEnv):
         self.agent_start_pos = agent_start_pos
         self.agent_start_dir = agent_start_dir
 
-
         self.goal_shape = goal_shape
         self.goal_pos = goal_pos
         self.goal_color = goal_color
         self.item_color = item_color
-        
+
         self.wall_color = wall_color
 
         mission_space = MissionSpace(mission_func=self._gen_mission)
@@ -126,20 +125,22 @@ class EmptyDualEnv(MiniGridEnv):
             elif self.goal_shape == "ball":
                 self.put_obj(GoalBall(color=self.goal_color), width - 2, height - 2)
                 # put ball in the bottom left corner
-                #self.put_obj(Ball(color=self.item_color), 1, height - 2)
+                # self.put_obj(Ball(color=self.item_color), 1, height - 2)
                 self.put_obj(ObstacleBall(color=self.item_color), 1, height - 2)
         elif self.goal_pos == "left":
             if self.goal_shape == "square":
                 self.put_obj(Goal(color=self.goal_color), 1, height - 2)
                 # put box in the bottom right corner
                 # self.put_obj(Box(color=self.item_color), width - 2, height - 2)
-                self.put_obj(ObstacleSquare(color=self.item_color), width - 2, height - 2)
+                self.put_obj(
+                    ObstacleSquare(color=self.item_color), width - 2, height - 2
+                )
             elif self.goal_shape == "ball":
                 self.put_obj(GoalBall(color=self.goal_color), 1, height - 2)
                 # put ball in the bottom right corner
                 # self.put_obj(Ball(color=self.item_color), width - 2, height - 2)
                 self.put_obj(ObstacleBall(color=self.item_color), width - 2, height - 2)
-        
+
         # # Place a goal square
         # if self.goal_pos is None:
         #     # in the bottom-right corner

@@ -6,7 +6,6 @@
 
 import numpy as np
 import cv2
-import natural_rl_environment.skvideo.io
 # import skvideo.io
 
 
@@ -14,6 +13,7 @@ class ImageSource(object):
     """
     Source of natural images to be added to a simulated environment.
     """
+
     def get_image(self):
         """
         Returns:
@@ -22,7 +22,7 @@ class ImageSource(object):
         pass
 
     def reset(self):
-        """ Called when an episode ends. """
+        """Called when an episode ends."""
         pass
 
 
@@ -56,7 +56,8 @@ class RandomColorSource(ImageSource):
         arr = np.zeros((self.shape[0], self.shape[1], 3))
         arr[:, :] = self._color
         return arr
-    
+
+
 class ColorSource(ImageSource):
     def __init__(self, shape, color):
         """
@@ -64,11 +65,11 @@ class ColorSource(ImageSource):
             shape: [h, w]
         """
         self.shape = shape
-        self.color = color # TODO: makes no sense to have both _color e color, fix and check that reset works
+        self.color = color  # TODO: makes no sense to have both _color e color, fix and check that reset works
         self.reset()
 
     def reset(self):
-        self._color = self.color # np.random.randint(0, 256, size=(3,))
+        self._color = self.color  # np.random.randint(0, 256, size=(3,))
 
     def get_image(self):
         arr = np.zeros((self.shape[0], self.shape[1], 3))
@@ -87,8 +88,9 @@ class NoiseSource(ImageSource):
         self.strength = strength
 
     def get_image(self):
-        return np.maximum(np.random.randn(
-            self.shape[0], self.shape[1], 3) * self.strength, 0)
+        return np.maximum(
+            np.random.randn(self.shape[0], self.shape[1], 3) * self.strength, 0
+        )
 
 
 class RandomImageSource(ImageSource):

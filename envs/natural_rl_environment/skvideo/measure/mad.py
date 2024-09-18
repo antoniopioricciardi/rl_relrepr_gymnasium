@@ -1,6 +1,5 @@
 from ..utils import *
 import numpy as np
-import scipy.ndimage
 
 
 def mad(referenceVideoData, distortedVideoData):
@@ -32,11 +31,14 @@ def mad(referenceVideoData, distortedVideoData):
     referenceVideoData = vshape(referenceVideoData)
     distortedVideoData = vshape(distortedVideoData)
 
-    assert(referenceVideoData.shape == distortedVideoData.shape)
+    assert referenceVideoData.shape == distortedVideoData.shape
 
     T, M, N, C = referenceVideoData.shape
 
-    assert C == 1, "mad called with videos containing %d channels. Please supply only the luminance channel" % (C,)
+    assert C == 1, (
+        "mad called with videos containing %d channels. Please supply only the luminance channel"
+        % (C,)
+    )
 
     scores = np.zeros(T, dtype=np.float32)
     for t in range(T):

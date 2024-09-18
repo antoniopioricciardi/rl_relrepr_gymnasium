@@ -1,6 +1,7 @@
 from distutils.util import strtobool
 import os
 
+
 def parse_args(parser):
     # fmt: off
     # parser = argparse.ArgumentParser()
@@ -20,7 +21,7 @@ def parse_args(parser):
         help="the entity (team) of wandb's project")
     parser.add_argument("--capture-video", type=lambda x: bool(strtobool(x)), default=False, nargs="?", const=True,
         help="whether to capture videos of the agent performances (check out `videos` folder)")
-    
+
     # Algorithm specific arguments
     parser.add_argument("--env-id", type=str, default="BreakoutNoFrameskip-v4",
         help="the id of the environment")
@@ -56,7 +57,7 @@ def parse_args(parser):
         help="the maximum norm for the gradient clipping")
     parser.add_argument("--target-kl", type=float, default=None,
         help="the target KL divergence threshold")
-    
+
     # additional arguments
     parser.add_argument("--num-eval-eps", type=int, default=200,
     help="the frequency of evaluation episodes in terms of number of steps")
@@ -68,18 +69,52 @@ def parse_args(parser):
 
 def parse_relative_args(parser):
     # Relrepr specific arguments
-    parser.add_argument("--use-relative", type=lambda x: bool(strtobool(x)), default=False, nargs="?", const=True,
-        help="if toggled, train using relative representations")
-    parser.add_argument("--use-resnet", type=lambda x: bool(strtobool(x)), default=False, nargs="?", const=True,
-        help="if toggled, use resnet as encoder")
-    parser.add_argument("--pretrained", type=lambda x: bool(strtobool(x)), default=False, nargs="?", const=True,
-        help="if toggled, train using pretrained model")
-    parser.add_argument("--anchors-path", type=str, default="",
-        help="the path of the anchors to use for training with relative representations")
-    parser.add_argument("--model-path", type=str, default=None,
-        help="the path to the model to test. Only used when `--train=False`. If --download-model is True, the path will refer to the wandb run")
-    parser.add_argument("--anchors-alpha", type=float, default=0.999,
-        help="the alpha parameter for the anchors soft update")
-    parser.add_argument("--anchors-indices-path", type=str, default="",
-                        help="the path of the indices of the anchors to use for training with relative representations")
+    parser.add_argument(
+        "--use-relative",
+        type=lambda x: bool(strtobool(x)),
+        default=False,
+        nargs="?",
+        const=True,
+        help="if toggled, train using relative representations",
+    )
+    parser.add_argument(
+        "--use-resnet",
+        type=lambda x: bool(strtobool(x)),
+        default=False,
+        nargs="?",
+        const=True,
+        help="if toggled, use resnet as encoder",
+    )
+    parser.add_argument(
+        "--pretrained",
+        type=lambda x: bool(strtobool(x)),
+        default=False,
+        nargs="?",
+        const=True,
+        help="if toggled, train using pretrained model",
+    )
+    parser.add_argument(
+        "--anchors-path",
+        type=str,
+        default="",
+        help="the path of the anchors to use for training with relative representations",
+    )
+    parser.add_argument(
+        "--model-path",
+        type=str,
+        default=None,
+        help="the path to the model to test. Only used when `--train=False`. If --download-model is True, the path will refer to the wandb run",
+    )
+    parser.add_argument(
+        "--anchors-alpha",
+        type=float,
+        default=0.999,
+        help="the alpha parameter for the anchors soft update",
+    )
+    parser.add_argument(
+        "--anchors-indices-path",
+        type=str,
+        default="",
+        help="the path of the indices of the anchors to use for training with relative representations",
+    )
     return parser

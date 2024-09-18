@@ -3,6 +3,7 @@ import numpy as np
 from os.path import dirname
 from os.path import join
 
+
 def bikes():
     """Test video data for video scene detection algorithms
 
@@ -12,7 +13,8 @@ def bikes():
         Absolute path to bikes.mp4
     """
     module_path = dirname(__file__)
-    return join(module_path, 'data', 'bikes.mp4')
+    return join(module_path, "data", "bikes.mp4")
+
 
 def bigbuckbunny():
     """Test video data for general video algorithms
@@ -23,7 +25,8 @@ def bigbuckbunny():
         Absolute path to bigbuckbunny.mp4
     """
     module_path = dirname(__file__)
-    return join(module_path, 'data', 'bigbuckbunny.mp4')
+    return join(module_path, "data", "bigbuckbunny.mp4")
+
 
 def fullreferencepair():
     """Test video data for full-reference video quality algorithms
@@ -40,9 +43,12 @@ def fullreferencepair():
         absolute path to a distorted video.
     """
     module_path = dirname(__file__)
-    return np.array([
-            join(module_path, 'data', 'carphone_pristine.mp4'),
-            join(module_path, 'data', 'carphone_distorted.mp4'),
-    ])
+    return np.array(
+        [
+            join(module_path, "data", "carphone_pristine.mp4"),
+            join(module_path, "data", "carphone_distorted.mp4"),
+        ]
+    )
 
-__all__ = ['bikes', 'bigbuckbunny', 'fullreferencepair']
+
+__all__ = ["bikes", "bigbuckbunny", "fullreferencepair"]

@@ -8,6 +8,7 @@ from minigrid.minigrid_env import MiniGridEnv
 # import tuple
 from typing import Tuple
 
+
 class EmptyEnv(MiniGridEnv):
     """
     ## Description
@@ -116,7 +117,9 @@ class EmptyEnv(MiniGridEnv):
             self.put_obj(Goal(color=self.goal_color), width - 2, height - 2)
         else:
             # or at the specified position
-            self.put_obj(Goal(color=self.goal_color), self.goal_pos[0], self.goal_pos[1])
+            self.put_obj(
+                Goal(color=self.goal_color), self.goal_pos[0], self.goal_pos[1]
+            )
             # self.put_obj(Goal(color=self.goal_color), 1,6)
 
         # Place the agent

@@ -5,11 +5,12 @@ from torch.nn.functional import mse_loss, pairwise_distance
 from torchmetrics.functional import pearson_corrcoef, spearman_corrcoef
 from torch import cosine_similarity
 from enum import auto
-from strenum import StrEnum
+from backports.strenum import StrEnum
 
 import matplotlib.pyplot as plt
 
 CMAP = "jet"
+
 
 class DistMethod(StrEnum):
     COSINE = auto()
@@ -71,7 +72,6 @@ def all_dist(space1: torch.Tensor, space2: torch.Tensor, method: DistMethod):
     return dists
 
 
-
 def plot_pairwise_dist(space1: torch.Tensor, space2: torch.Tensor, prefix: str):
     fig, axs = plt.subplots(
         nrows=1, ncols=len(DistMethod), figsize=(20, 6), sharey=False
@@ -118,6 +118,7 @@ def plot_self_dist(space1: torch.Tensor, space2: torch.Tensor, prefix: str):
     plt.close()
 
     return fig
+
 
 def set_cmap(cmap):
     global CMAP

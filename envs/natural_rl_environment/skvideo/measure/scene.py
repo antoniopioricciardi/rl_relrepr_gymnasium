@@ -14,10 +14,15 @@ from ..utils import *
 def _percentage_distance(canny_in, canny_out, r):
     diamond = np.array([[0, 1, 0], [1, 1, 1], [0, 1, 0]])
 
-    E_1 = scipy.ndimage.morphology.binary_dilation(canny_in, structure=diamond, iterations=r)
-    E_2 = scipy.ndimage.morphology.binary_dilation(canny_out, structure=diamond, iterations=r)
+    E_1 = scipy.ndimage.morphology.binary_dilation(
+        canny_in, structure=diamond, iterations=r
+    )
+    E_2 = scipy.ndimage.morphology.binary_dilation(
+        canny_out, structure=diamond, iterations=r
+    )
 
-    return 1.0 - np.float32(np.sum(E_1 & E_2))/np.float32(np.sum(E_1))
+    return 1.0 - np.float32(np.sum(E_1 & E_2)) / np.float32(np.sum(E_1))
+
 
 def _scenedet_edges(videodata, threshold, min_scene_len=2):
     # the first frame is always a new scene
@@ -32,23 +37,25 @@ def _scenedet_edges(videodata, threshold, min_scene_len=2):
     # lop off the meaningless dimension
     luminancedata = luminancedata[:, :, :, 0]
 
-    for t in range(0, numFrames-1):
+    for t in range(0, numFrames - 1):
         canny_in = canny(luminancedata[t])
-        canny_out = canny(luminancedata[t+1])
+        canny_out = canny(luminancedata[t + 1])
 
         # estimate the motion
         disp = globalEdgeMotion(canny_in, canny_out)
         canny_out = np.roll(canny_out, disp[0], axis=0)
         canny_out = np.roll(canny_out, disp[1], axis=1)
-        
+
         # compute percentage
         p_in = _percentage_distance(canny_in, canny_out, r)
         p_out = _percentage_distance(canny_out, canny_in, r)
         # print "percentage: ", bt - at
         p = np.max((p_in, p_out))
 
-        if (p > threshold) and (t - detected_scenes[len(detected_scenes)-1] > min_scene_len):
-            detected_scenes.append(t+1)
+        if (p > threshold) and (
+            t - detected_scenes[len(detected_scenes) - 1] > min_scene_len
+        ):
+            detected_scenes.append(t + 1)
 
     return np.array(detected_scenes)
 
@@ -60,9 +67,9 @@ def _scenedet_histogram(videodata, parameter1, min_scene_len=2):
     # grayscale
     numFrames, height, width, channels = videodata.shape
 
-    for t in range(0, numFrames-1):
+    for t in range(0, numFrames - 1):
         curr = rgb2gray(videodata[t])
-        nxt = rgb2gray(videodata[t+1])
+        nxt = rgb2gray(videodata[t + 1])
         curr = curr[0, :, :, 0]
         nxt = nxt[0, :, :, 0]
         hist1, bins = np.histogram(curr, bins=256, range=(0, 255))
@@ -73,36 +80,38 @@ def _scenedet_histogram(videodata, parameter1, min_scene_len=2):
 
         hist1 /= 256.0
         hist2 /= 256.0
-        
+
         framediff = np.mean(np.abs(hist1 - hist2))
-        if (framediff > parameter1) and (t - detected_scenes[len(detected_scenes)-1] > min_scene_len):
-            detected_scenes.append(t+1)
+        if (framediff > parameter1) and (
+            t - detected_scenes[len(detected_scenes) - 1] > min_scene_len
+        ):
+            detected_scenes.append(t + 1)
 
     return np.array(detected_scenes)
 
 
-def _scenedet_intensity(videodata, parameter1, min_scene_len=2, colorspace='hsv'):
-
+def _scenedet_intensity(videodata, parameter1, min_scene_len=2, colorspace="hsv"):
     detected_scenes = [0]
 
     numFrames, height, width, channels = videodata.shape
 
-    for t in range(0, numFrames-1):
+    for t in range(0, numFrames - 1):
         frame0 = videodata[t].astype(np.float32)
-        frame1 = videodata[t+1].astype(np.float32)
+        frame1 = videodata[t + 1].astype(np.float32)
 
-        delta = np.sum(np.abs(frame1 - frame0)/(height * width * channels))
+        delta = np.sum(np.abs(frame1 - frame0) / (height * width * channels))
 
-        if (delta > parameter1) and (t - detected_scenes[len(detected_scenes)-1] > min_scene_len):
-            detected_scenes.append(t+1)
+        if (delta > parameter1) and (
+            t - detected_scenes[len(detected_scenes) - 1] > min_scene_len
+        ):
+            detected_scenes.append(t + 1)
 
     return np.array(detected_scenes)
 
 
-
-def scenedet(videodata, method='histogram', parameter1=None, min_scene_length=2):
+def scenedet(videodata, method="histogram", parameter1=None, min_scene_length=2):
     """Scene detection algorithms
-    
+
     Given a sequence of frames, this function
     is able to run find the first index of new
     scenes.
@@ -157,5 +166,3 @@ def scenedet(videodata, method='histogram', parameter1=None, min_scene_length=2)
         raise NotImplementedError
 
     return detected_scenes
-
-

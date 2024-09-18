@@ -10,8 +10,11 @@ def layer_init(layer, std=np.sqrt(2), bias_const=0.0):
     torch.nn.init.constant_(layer.bias, bias_const)
     return layer
 
+
 class FeatureExtractor(nn.Module):
-    def __init__(self, use_anchors=False, anchors=None, anchors_mean=None):#, anchors_std=None):
+    def __init__(
+        self, use_anchors=False, anchors=None, anchors_mean=None
+    ):  # , anchors_std=None):
         super().__init__()
 
         self.use_anchors = use_anchors
@@ -26,7 +29,7 @@ class FeatureExtractor(nn.Module):
             layer_init(nn.Conv2d(32, 64, 4, stride=2)),
             nn.Tanh(),
             layer_init(nn.Conv2d(64, 64, 3, stride=1)),
-            nn.Flatten()
+            nn.Flatten(),
         )
 
     def forward(self, x):
@@ -34,13 +37,13 @@ class FeatureExtractor(nn.Module):
             with torch.no_grad():
                 hidden = self.network(x)
                 # TODO: hypeperam per cenetering and scaling
-                hidden = (hidden - self.anchors_mean)#  / self.anchors_std
+                hidden = hidden - self.anchors_mean  #  / self.anchors_std
                 hidden: torch.Tensor = F.normalize(hidden, p=2, dim=-1)
                 hidden = hidden @ self.anchors.T  # relative representations
         else:
             hidden = self.network(x)
         return hidden
-    
+
     def set_anchors(self, use_anchors, anchors, anchors_mean):
         self.use_anchors = use_anchors
         self.register_buffer("anchors", anchors)
@@ -51,13 +54,11 @@ class Policy(nn.Module):
     def __init__(self, num_actions) -> None:
         super().__init__()
         self.network_linear = nn.Sequential(
-            nn.Tanh(),
-            layer_init(nn.Linear(64 * 7 * 7, 512)),
-            nn.Tanh()
+            nn.Tanh(), layer_init(nn.Linear(64 * 7 * 7, 512)), nn.Tanh()
         )
         self.actor = layer_init(nn.Linear(512, num_actions), std=0.01)
         self.critic = layer_init(nn.Linear(512, 1), std=1)
-    
+
     def get_value(self, x):
         x = self.network_linear(x)
         return self.critic(x)
@@ -80,9 +81,9 @@ class Agent(nn.Module):
 
     def get_value(self, x):
         return self.policy.get_value(self.encoder(x))
-                                     
+
     def get_action_and_value(self, x, action=None):
         return self.policy.get_action_and_value(self.encoder(x), action=action)
-    
+
     def forward(self, x):
         return self.get_action_and_value(x, action=None)

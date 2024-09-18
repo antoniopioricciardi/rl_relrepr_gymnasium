@@ -1,16 +1,12 @@
-import collections
-
-import cv2
 import gymnasium as gym
 import numpy as np
-import matplotlib.pyplot as plt
 
-from typing import Any, Callable, Final, Sequence
+from typing import Any, Callable
 from gymnasium import spaces
 from gymnasium.core import ActType, ObsType, WrapperObsType
-from gymnasium.error import DependencyNotInstalled
 
 from typing import Optional, Union, Tuple
+
 
 class TransformObservation(
     gym.ObservationWrapper[WrapperObsType, ActType, ObsType],
@@ -92,8 +88,10 @@ class ReshapeObservation(
      * v1.0.0 - Initially added
     """
 
-    #shape: int | tuple[int, ...]):
-    def __init__(self, env: gym.Env[ObsType, ActType], shape: Union[int, Tuple[int, ...]]):
+    # shape: int | tuple[int, ...]):
+    def __init__(
+        self, env: gym.Env[ObsType, ActType], shape: Union[int, Tuple[int, ...]]
+    ):
         """Constructor for env with ``Box`` observation space that has a shape product equal to the new shape product.
 
         Args:
@@ -124,7 +122,6 @@ class ReshapeObservation(
         )
 
 
-
 class RescaleObservation(
     TransformObservation[WrapperObsType, ActType, ObsType],
     gym.utils.RecordConstructorArgs,
@@ -145,12 +142,12 @@ class RescaleObservation(
         >>> normalize_env.observation_space.max()
         1
 
-        
+
     Change logs:
      * v1.0.0 - Initially added
     """
 
-    #shape: int | tuple[int, ...]):
+    # shape: int | tuple[int, ...]):
     def __init__(self, env: gym.Env[ObsType, ActType], value=255.0):
         """Constructor for env with ``Box`` observation space that has a shape product equal to the new shape product.
 
@@ -206,24 +203,28 @@ class RescaleObservation(
 #             observation_space=self.observation_space,
 #         )
 
+
 class FilterFromDict(gym.ObservationWrapper):
     from typing import List
+
     # Minigrid: Dict('direction': Discrete(4), 'image': Box(0, 255, (7, 7, 3), uint8), 'mission': MissionSpace(<function EmptyEnv._gen_mission at 0x12dfeb4c0>, None))
     """
     Filter the observation from the dict to only return values for the specified key
     """
-    def __init__(self, env=None, key:str=None):
+
+    def __init__(self, env=None, key: str = None):
         super(FilterFromDict, self).__init__(env)
         self.env = env
         if key is None:
-            print('keys is None, trying to use \'image\' as default')
-            key = 'image'
+            print("keys is None, trying to use 'image' as default")
+            key = "image"
         self.key = key
         self.observation_space = env.observation_space.spaces[self.key]
 
     def observation(self, observation):
-        observation = observation['image'] # print(observation['image'])
-        return observation#[0][self.key]
+        observation = observation["image"]  # print(observation['image'])
+        return observation  # [0][self.key]
+
 
 class RepeatAction(gym.Wrapper):
     """
@@ -253,7 +254,7 @@ class RepeatAction(gym.Wrapper):
             obs, reward, done, info = self.env.step(action)
             if self.clip_rewards:
                 # clip the reward in -1, 1, then take first element (we need the scalar, not an array)
-                reward = np.sign(reward) # np.clip(np.array([reward]), -1, 1)[0]
+                reward = np.sign(reward)  # np.clip(np.array([reward]), -1, 1)[0]
 
             total_reward += reward
             if done:
@@ -269,12 +270,7 @@ class RepeatAction(gym.Wrapper):
         return obs
 
 
-
-
-
 ############### old normalization methods
-
-
 
 
 # class RepeatAction(gym.Wrapper):
@@ -430,7 +426,7 @@ class RepeatAction(gym.Wrapper):
 
 #     def observation(self, observation):
 #         return np.array(observation).astype(np.float32) / 255.0
-    
+
 # class FilterFromDict(gym.ObservationWrapper):
 #     from typing import List
 #     # Minigrid: Dict('direction': Discrete(4), 'image': Box(0, 255, (7, 7, 3), uint8), 'mission': MissionSpace(<function EmptyEnv._gen_mission at 0x12dfeb4c0>, None))
@@ -595,7 +591,6 @@ class RepeatAction(gym.Wrapper):
 #     return thunk
 
 
-
 '''
 from PIL import Image
 import torch
@@ -609,7 +604,7 @@ class PreprocessFrameRGBTimm(gym.ObservationWrapper):
         self.transform = transform
         self.env = env
         # pytorch expects channel firsts
-        # observation = env.reset() 
+        # observation = env.reset()
         # observation = Image.fromarray(observation).convert('RGB')
         # observation = self.transform(observation)
         # self.shape = observation.shape

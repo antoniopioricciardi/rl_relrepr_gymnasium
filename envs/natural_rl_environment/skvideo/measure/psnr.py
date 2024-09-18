@@ -1,6 +1,5 @@
 from ..utils import *
 import numpy as np
-import scipy.ndimage
 
 
 def psnr(referenceVideoData, distortedVideoData, bitdepth=8):
@@ -37,11 +36,14 @@ def psnr(referenceVideoData, distortedVideoData, bitdepth=8):
 
     bitdepth = np.int(bitdepth)
 
-    assert(referenceVideoData.shape == distortedVideoData.shape)
+    assert referenceVideoData.shape == distortedVideoData.shape
 
     T, M, N, C = referenceVideoData.shape
 
-    assert C == 1, "psnr called with videos containing %d channels. Please supply only the luminance channel" % (C,)
+    assert C == 1, (
+        "psnr called with videos containing %d channels. Please supply only the luminance channel"
+        % (C,)
+    )
 
     maxvalue = np.int(2**bitdepth - 1)
     maxsq = maxvalue**2
@@ -51,7 +53,7 @@ def psnr(referenceVideoData, distortedVideoData, bitdepth=8):
         referenceFrame = referenceVideoData[t].astype(np.float)
         distortedFrame = distortedVideoData[t].astype(np.float)
 
-        mse = np.mean((referenceFrame - distortedFrame)**2)
+        mse = np.mean((referenceFrame - distortedFrame) ** 2)
         psnr = 10 * np.log10(maxsq / mse)
 
         scores[t] = psnr

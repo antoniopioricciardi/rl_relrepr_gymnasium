@@ -16,13 +16,28 @@ def _extract_subband_feats(mscncoefs):
     alpha2, N2, bl2, br2, lsq2, rsq2 = aggd_features(pps2)
     alpha3, N3, bl3, br3, lsq3, rsq3 = aggd_features(pps3)
     alpha4, N4, bl4, br4, lsq4, rsq4 = aggd_features(pps4)
-    return np.array([
-            alpha_m, sigma_sq,
-            alpha1, N1, lsq1**2, rsq1**2,  # (V)
-            alpha2, N2, lsq2**2, rsq2**2,  # (H)
-            alpha3, N3, lsq3**2, rsq3**2,  # (D1)
-            alpha4, N4, lsq4**2, rsq4**2,  # (D2)
-    ])
+    return np.array(
+        [
+            alpha_m,
+            sigma_sq,
+            alpha1,
+            N1,
+            lsq1**2,
+            rsq1**2,  # (V)
+            alpha2,
+            N2,
+            lsq2**2,
+            rsq2**2,  # (H)
+            alpha3,
+            N3,
+            lsq3**2,
+            rsq3**2,  # (D1)
+            alpha4,
+            N4,
+            lsq4**2,
+            rsq4**2,  # (D2)
+        ]
+    )
 
 
 def brisque_features(videoData):
@@ -46,7 +61,7 @@ def brisque_features(videoData):
     References
     ----------
 
-    .. [#f1] A. Mittal, A. K. Moorthy and A. C. Bovik, "No-Reference Image Quality Assessment in the Spatial Domain" IEEE Transactions on Image Processing, 2012. 
+    .. [#f1] A. Mittal, A. K. Moorthy and A. C. Bovik, "No-Reference Image Quality Assessment in the Spatial Domain" IEEE Transactions on Image Processing, 2012.
     .. [#f2] A. Mittal, A. K. Moorthy and A. C. Bovik, "Referenceless Image Spatial Quality Evaluation Engine," 45th Asilomar Conference on Signals, Systems and Computers , November 2011.
 
     """
@@ -55,17 +70,20 @@ def brisque_features(videoData):
 
     T, M, N, C = videoData.shape
 
-    assert C == 1, "brisque_features called with video having %d channels. Please supply only the luminance channel." % (C,)
+    assert C == 1, (
+        "brisque_features called with video having %d channels. Please supply only the luminance channel."
+        % (C,)
+    )
 
     feats = np.zeros((T, 36), dtype=np.float32)
     for i in range(T):
-      full_scale = videoData[i, :, :, 0].astype(np.float32)
-      half_scale = scipy.misc.imresize(full_scale, 0.5, interp='bicubic', mode='F')
+        full_scale = videoData[i, :, :, 0].astype(np.float32)
+        half_scale = scipy.misc.imresize(full_scale, 0.5, interp="bicubic", mode="F")
 
-      full_scale, _, _ = compute_image_mscn_transform(full_scale)
-      half_scale, _, _ = compute_image_mscn_transform(half_scale)
+        full_scale, _, _ = compute_image_mscn_transform(full_scale)
+        half_scale, _, _ = compute_image_mscn_transform(half_scale)
 
-      feats[i, 18*0:18*1] = _extract_subband_feats(full_scale)
-      feats[i, 18*1:18*2] = _extract_subband_feats(half_scale)
+        feats[i, 18 * 0 : 18 * 1] = _extract_subband_feats(full_scale)
+        feats[i, 18 * 1 : 18 * 2] = _extract_subband_feats(half_scale)
 
     return feats

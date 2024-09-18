@@ -4,11 +4,11 @@ Implementation of edge-detection routines.
 """
 
 import numpy as np
-import os
 import scipy.ndimage
 import scipy.spatial
 
 from ..utils import *
+
 
 def gauss_window(lw, sigma):
     sd = float(sigma)
@@ -36,16 +36,16 @@ def canny(frame):
     low_threshold = int(max(0, (1.0 - sigma) * v))
     high_threshold = int(min(255, (1.0 + sigma) * v))
 
-    avg_window = gauss_window(4, 1.2) 
+    avg_window = gauss_window(4, 1.2)
 
     frame = frame.astype(np.float)
 
     # do a better threshood job lol
     mu = np.zeros((M, N), dtype=np.float)
 
-    scipy.ndimage.correlate1d(frame, avg_window, 0, mu, mode='constant')
-    scipy.ndimage.correlate1d(mu, avg_window, 1, mu, mode='constant')
-    
+    scipy.ndimage.correlate1d(frame, avg_window, 0, mu, mode="constant")
+    scipy.ndimage.correlate1d(mu, avg_window, 1, mu, mode="constant")
+
     jsobel = scipy.ndimage.sobel(mu, axis=1)
     isobel = scipy.ndimage.sobel(mu, axis=0)
     abs_isobel = np.abs(isobel)
@@ -61,13 +61,13 @@ def canny(frame):
     eroded_mask = scipy.ndimage.binary_erosion(mask, s, border_value=0)
     eroded_mask = eroded_mask & (magnitude > 0)
     #
-    #--------- Find local maxima --------------
+    # --------- Find local maxima --------------
     #
     # Assign each point to have a normal of 0-45 degrees, 45-90 degrees,
     # 90-135 degrees and 135-180 degrees.
     #
     local_maxima = np.zeros((M, N), bool)
-    #----- 0 to 45 degrees ------
+    # ----- 0 to 45 degrees ------
     pts_plus = (isobel >= 0) & (jsobel >= 0) & (abs_isobel >= abs_jsobel)
     pts_minus = (isobel <= 0) & (jsobel <= 0) & (abs_isobel >= abs_jsobel)
     pts = pts_plus | pts_minus
@@ -84,7 +84,7 @@ def canny(frame):
     c2 = magnitude[:-1, :-1][pts[1:, 1:]]
     c_minus = c2 * w + c1 * (1 - w) <= m
     local_maxima[pts] = c_plus & c_minus
-    #----- 45 to 90 degrees ------
+    # ----- 45 to 90 degrees ------
     # Mix diagonal and vertical
     #
     pts_plus = (isobel >= 0) & (jsobel >= 0) & (abs_isobel <= abs_jsobel)
@@ -100,7 +100,7 @@ def canny(frame):
     c2 = magnitude[:-1, :-1][pts[1:, 1:]]
     c_minus = c2 * w + c1 * (1 - w) <= m
     local_maxima[pts] = c_plus & c_minus
-    #----- 90 to 135 degrees ------
+    # ----- 90 to 135 degrees ------
     # Mix anti-diagonal and vertical
     #
     pts_plus = (isobel <= 0) & (jsobel >= 0) & (abs_isobel <= abs_jsobel)
@@ -116,7 +116,7 @@ def canny(frame):
     c2 = magnitude[1:, :-1][pts[:-1, 1:]]
     c_minus = c2 * w + c1 * (1.0 - w) <= m
     local_maxima[pts] = c_plus & c_minus
-    #----- 135 to 180 degrees ------
+    # ----- 135 to 180 degrees ------
     # Mix anti-diagonal and anti-horizontal
     #
     pts_plus = (isobel <= 0) & (jsobel >= 0) & (abs_isobel >= abs_jsobel)
@@ -133,12 +133,11 @@ def canny(frame):
     c_minus = c2 * w + c1 * (1 - w) <= m
     local_maxima[pts] = c_plus & c_minus
 
-
     # high_threshold = np.percentile(magnitude, 100.0 * 0.2)
     # low_threshold = np.percentile(magnitude, 100.0 * 0.1)
 
     #
-    #---- Create two masks at the two thresholds.
+    # ---- Create two masks at the two thresholds.
     #
     high_mask = local_maxima & (magnitude >= high_threshold)
     low_mask = local_maxima & (magnitude >= low_threshold)
@@ -151,9 +150,11 @@ def canny(frame):
     if count == 0:
         return low_mask
 
-    sums = (np.array(scipy.ndimage.sum(high_mask, labels,
-                             np.arange(count, dtype=np.int32) + 1),
-                     copy=False, ndmin=1))
+    sums = np.array(
+        scipy.ndimage.sum(high_mask, labels, np.arange(count, dtype=np.int32) + 1),
+        copy=False,
+        ndmin=1,
+    )
     good_label = np.zeros((count + 1,), bool)
     good_label[1:] = sums > 0
     output_mask = good_label[labels]
