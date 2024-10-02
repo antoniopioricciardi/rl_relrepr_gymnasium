@@ -11,39 +11,16 @@ from torch.utils.tensorboard import SummaryWriter
 
 # from utils.preprocess_env import PreprocessFrameRGB, RepeatAction
 
-from init_training import init_stuff_ppo
+from zeroshotrl.init_training import init_stuff_ppo
 
 # from utils.relative import init_anchors, init_anchors_from_obs, get_obs_anchors, get_obs_anchors_totensor
 
-from logger import CustomLogger
+from zeroshotrl.logger import CustomLogger
 
 from pytorch_lightning import seed_everything
-from utils.argparser import *
+from zeroshotrl.utils.argparser import *
 
-
-class FilterFromDict(gym.ObservationWrapper):
-    from typing import List
-
-    # Minigrid: Dict('direction': Discrete(4), 'image': Box(0, 255, (7, 7, 3), uint8), 'mission': MissionSpace(<function EmptyEnv._gen_mission at 0x12dfeb4c0>, None))
-    """
-    Filter the observation from the dict to only return values for the specified key
-    """
-
-    def __init__(self, env=None, key: str = None):
-        super(FilterFromDict, self).__init__(env)
-        self.env = env
-        if key is None:
-            print("keys is None, trying to use 'image' as default")
-            key = "image"
-        self.key = key
-        self.observation_space = env.observation_space.spaces[self.key]
-
-    def observation(self, observation):
-        observation = observation["image"]  # print(observation['image'])
-        return observation  # [0][self.key]
-
-
-# python ppo_minigrid_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_minigrid_discrete --exp-name empty_8x8 --env-id MiniGrid-Empty-8x8-v0 --seed 1 --num-envs 16 --grid-size 8 --goal-pos 6 6 --wall-color grey --total-timesteps 5000000
+# python ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name "$car_mode"_"$background"_rgb --env-id CarRacing-custom --seed 1 --num-envs 16 --background $background --car-mode $car_mode --stack-n 4 --total-timesteps 5000000
 """ CARRACING """
 """ standard green: abs, rel """
 # python ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name standard_green_rgb --env-id CarRacing-custom --seed 1 --num-envs 16 --background green --car-mode standard --stack-n 4 --total-timesteps 5000000
@@ -57,40 +34,23 @@ seed_everything(42)
 def parse_env_specific_args(parser):
     # env specific arguments
     parser.add_argument(
-        "--grid-size", type=int, default=8, help="the size of the grid world"
-    )
-    # # goal-pos is a tuple of two ints, default is 6,6
-    # parser.add_argument("--goal-pos", type=int, nargs=2, default=(6,6),
-    #                     help="the position of the goal in x,y coordinates (integers)")
-    parser.add_argument(
-        "--goal-shape",
-        type=str,
-        default="square",
-        help="the shape of the goal. Can be: square, circle",
-    )
-    parser.add_argument(
-        "--goal-pos",
-        type=str,
-        default="right",
-        help="the position of the goal. Can be: right, left",
-    )
-    parser.add_argument(
-        "--goal-color",
+        "--background",
         type=str,
         default="green",
-        help="the color of the goal. Can be: green, red",
+        help="the background of the car racing environment. Can be: green, red, blue, yellow",
     )
     parser.add_argument(
-        "--item-color",
+        "--image-path",
         type=str,
-        default="red",
-        help="the color of the othe item in the env. Can be: green, red",
+        default="",  # data/track_bg_images/0.jpg",
+        help="the path of the image to use for the car racing environment background, if --background is set to 'image'",
     )
+
     parser.add_argument(
-        "--wall-color",
+        "--car-mode",
         type=str,
-        default="grey",
-        help="color of the walls. Can be: grey, red, blue",
+        default="standard",
+        help="the model of the car. Can be: standard, fast, heavy, var1, var2",
     )
 
     return parser
@@ -142,7 +102,7 @@ if __name__ == "__main__":
     # create logger
     # logger = Logger(work_dir, use_tb=cfg.use_tb, use_wandb=cfg.use_wandb)
     # work_dir = Path.cwd() / "runs" / run_name
-    custom_logger = CustomLogger(
+    logger = CustomLogger(
         log_path, use_tb=False, use_wandb=False
     )  # True if args.track else False)
     csv_file_name = "train"
@@ -158,43 +118,52 @@ if __name__ == "__main__":
 
     device = torch.device("cuda" if torch.cuda.is_available() and args.cuda else "cpu")
 
-    # from minigrid.envs.empty_dual_old import EmptyDualEnv
-    from minigrid.envs import *
-    from minigrid.wrappers import *
+    car_modes = [
+        "standard",
+        "slow",
+        "no_noop",
+        "no_noop_4as",
+        "scrambled",
+        "noleft",
+        "heavy",
+        "camera_far",
+        "multicolor",
+    ]
+    assert args.car_mode in car_modes, f"car mode must be one of {car_modes}"
+    zoom = 2.7
+    if args.car_mode == "standard":
+        from zeroshotrl.envs.carracing.car_racing import CarRacing
+    # elif args.car_mode == "fast":
+    #     from envs.carracing.car_racing_faster import CarRacing
+    elif args.car_mode == "slow":
+        # python ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name green_rgb --env-id CarRacing-custom --seed 0 --num-envs 16 --background green --stack-n 4 --total-timesteps 5000000 --car-mode slow
+        from zeroshotrl.envs.carracing.car_racing_slow import CarRacing
+    # elif args.car_mode == "no_noop":
+    #     from envs.carracing.car_racing_nonoop import CarRacing
+    elif args.car_mode == "no_noop_4as":
+        from zeroshotrl.envs.carracing.car_racing_nonoop_4as import CarRacing
+    elif args.car_mode == "scrambled":
+        from zeroshotrl.envs.carracing.car_racing_scrambled import CarRacing
+    elif args.car_mode == "noleft":
+        from zeroshotrl.envs.carracing.car_racing_noleft import CarRacing
+    # elif args.car_mode == "heavy":
+    #     from envs.carracing.car_racing_heavy import CarRacing
+    elif args.car_mode == "camera_far":
+        # from envs.carracing.car_racing_camera_far import CarRacing
+        from zeroshotrl.envs.carracing.car_racing import CarRacing
 
-    from minigrid.envs.empty_dual import EmptyDualEnv
-
-    # env = EmptyEnv(size=args.grid_size, goal_pos=(4,4), wall_color=args.wall_color)
-    shape = "square" if args.goal_shape == "square" else "circle"
-    env = EmptyDualEnv(
-        size=args.grid_size,
-        goal_shape=shape,
-        goal_pos=args.goal_pos,
-        goal_color=args.goal_color,
-        item_color=args.item_color,
-        wall_color=args.wall_color,
-        render_mode="rgb_array",
-    )
-    # env = EmptyEnv(size=8)
-    env = RGBImgPartialObsWrapper(env)
-    env = FilterFromDict(env, "image")
-    # eval_env = EmptyEnv(size=args.grid_size, goal_pos=(4,4), wall_color=args.wall_color)
-    # eval_env = EmptyDualEnv(size=args.grid_size, goal_shape=args.goal_shape, goal_pos=args.goal_pos, goal_color=args.goal_color, item_color=args.item_color, wall_color=args.wall_color, render_mode="human")
-    eval_env = EmptyDualEnv(
-        size=args.grid_size,
-        goal_shape=shape,
-        goal_pos=args.goal_pos,
-        goal_color=args.goal_color,
-        item_color=args.item_color,
-        wall_color=args.wall_color,
-        render_mode="rgb_array",
-    )
-    eval_env = RGBImgPartialObsWrapper(eval_env)
-    eval_env = FilterFromDict(eval_env, "image")
+        zoom = 1
+        # python ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name green_rgb --env-id CarRacing-custom --seed 0 --num-envs 16 --background green --stack-n 4 --total-timesteps 5000000 --car-mode no_noop
+    env = CarRacing(
+        continuous=False, background=args.background, zoom=zoom
+    )  # , image_path=args.image_path)
+    eval_env = CarRacing(
+        continuous=False, background=args.background, zoom=zoom
+    )  # , image_path=args.image_path)
     num_eval_envs = 5
 
     # env setup
-    from utils.env_initializer import make_env_atari
+    from zeroshotrl.utils.env_initializer import make_env_atari
 
     envs = gym.vector.AsyncVectorEnv(
         [
@@ -209,7 +178,6 @@ if __name__ == "__main__":
                 episodic_life=False,
                 clip_reward=False,
                 check_fire=False,
-                filter_dict=None,
                 idx=i,
                 capture_video=False,
                 run_name=run_name,
@@ -231,7 +199,6 @@ if __name__ == "__main__":
                 episodic_life=False,
                 clip_reward=False,
                 check_fire=False,
-                filter_dict=None,
                 idx=i,
                 capture_video=False,
                 run_name=eval_run_name,
@@ -247,7 +214,7 @@ if __name__ == "__main__":
         device=device,
         wandb=wandb,
         writer=writer,
-        logger=custom_logger,
+        logger=logger,
         log_path=log_path,
         csv_file_path=csv_file_path,
         eval_csv_file_path=eval_csv_file_path,

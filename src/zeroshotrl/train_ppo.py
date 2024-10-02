@@ -7,8 +7,8 @@ import torch.nn as nn
 
 
 # from utils.relative import init_anchors, init_anchors_from_obs, get_obs_anchors, get_obs_anchors_totensor
-from utils.helputils import save_model, upload_csv_wandb
-from utils.evaluation import evaluate_vec_env
+from zeroshotrl.utils.helputils import save_model, upload_csv_wandb
+from zeroshotrl.utils.evaluation import evaluate_vec_env
 
 
 # """ RESUME TRAINING """

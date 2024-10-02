@@ -1,0 +1,51 @@
+seed=1
+num_steps=128
+pretrained=False
+model_path=''
+anchors_alpha=0
+
+run.env_id='CarRacing-v2'
+run.exp_name='ppo'
+run.batch_size=32
+run.torch_deterministic=True
+run.num_steps=%num_steps
+run.num_minibatches=4
+run.car_mode='standard' 
+run.background='green' 
+run.seed=%seed
+run.stack_n=4
+run.num_envs=1
+
+run.wandb_args={'project_name':'rlrepr_ppo_carracing_discrete', 'entity':'gladia'}
+
+run.pretrained=%pretrained
+run.anchors_alpha=%anchors_alpha
+run.model_path=%model_path
+
+# Init PPO arg
+run.use_relative=False
+run.anchors_path=''
+run.anchors_indices_path=''
+run.use_resnet=False
+run.learning_rate=2.5e-4
+run.anneal_lr=True
+# run.seed=%seed
+run.total_timesteps=500_000_0
+# run.num_steps=128
+run.num_eval_eps=200
+run.num_minibatches=4
+run.update_epochs=4
+run.gamma=0.99
+run.norm_adv=True
+run.gae_lambda=0.95
+run.clip_coef=0.1
+run.clip_vloss=True
+run.ent_coef=0.01
+run.vf_coef=0.5
+run.max_grad_norm=0.5
+run.target_kl=None
+run.track=False
+
+# run.model_path=%model_path
+# run.pretrained=%pretrained
+# run.anchors_alpha=%anchors_alpha

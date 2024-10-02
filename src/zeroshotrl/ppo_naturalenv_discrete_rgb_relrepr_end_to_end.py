@@ -13,11 +13,11 @@ from torch.utils.tensorboard import SummaryWriter
 from init_training import init_stuff_ppo
 
 # from utils.relative import get_obs_anchors
-from logger import Logger
+from zeroshotrl.logger import CustomLogger
 
-from envs.natural_rl_environment.natural_env import NaturalEnvWrapper
+from zeroshotrl.envs.natural_rl_environment.natural_env import NaturalEnvWrapper
 
-from utils.argparser import *
+from zeroshotrl.utils.argparser import *
 
 
 def parse_env_specific_args(parser):

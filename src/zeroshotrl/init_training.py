@@ -7,19 +7,19 @@ import torch.optim as optim
 # from utils.preprocess_env import PreprocessFrameRGB, RepeatAction
 
 
-from rl_agents.ppo.ppo_end_to_end_relu_stack_align import (
+from zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu_stack_align import (
     FeatureExtractor,
     Policy,
     Agent,
 )
-from utils.relative import (
+from zeroshotrl.utils.relative import (
     get_obs_anchors,
 )  # , init_anchors, init_anchors_from_obs, get_obs_anchors_totensor
 # from utils.helputils import save_model, upload_csv_wandb
 # from utils.evaluation import evaluate_vec_env
 
 
-from train_ppo import PPOTrainer_vec
+from zeroshotrl.train_ppo import PPOTrainer_vec
 # from pytorch_lightning import seed_everything
 # from utils.env_initializer import make_env_atari
 
@@ -50,7 +50,7 @@ def init_stuff_ppo(
         obs_set = obs_set[anchor_indices, :]
 
     if args.use_resnet:
-        from rl_agents.ppo.ppo_resnet import (
+        from zeroshotrl.rl_agents.ppo.ppo_resnet import (
             FeatureExtractorResNet,
             PolicyResNet,
             AgentResNet,
@@ -88,7 +88,7 @@ def init_stuff_ppo(
         encoder.eval()
         encoder.requires_grad_(False)
 
-    previous_anchors = []
+    # previous_anchors = []
 
     if args.use_resnet:
         policy = PolicyResNet(

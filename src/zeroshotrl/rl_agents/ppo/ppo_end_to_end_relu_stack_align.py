@@ -45,10 +45,9 @@ class FeatureExtractor(nn.Module):
         if self.use_relative:
             # obs_anchors_filename is used to recover the obs_anchors when loading the model
             self.register_buffer("obs_anchors_filename", obs_anchors_filename)
-            self.obs_anchors = obs_anchors
+            # self.obs_anchors = obs_anchors
 
-            self.rel_transform = XTransformSequence(transforms=[StandardScaling()])
-            self.rel_transform.fit(self.obs_anchors)
+            self.rel_transform = StandardScaling()# XTransformSequence(transforms=[StandardScaling()])
 
             # self.projector = RelativeProjector(
             #     projection_fn=relative.cosine_proj,
@@ -67,13 +66,14 @@ class FeatureExtractor(nn.Module):
         #     # self.set_anchors()
 
     def _compute_relative_representation(self, hidden):
+        print(hidden.shape, self.obs_anchors.shape)
         rel_space = relative_projection(
             x=self.rel_transform.transform(hidden),
             anchors=self.rel_transform.transform(self.obs_anchors),
             projection_fn=cosine_proj,
         )
         return rel_space
-        # return self.projector(x=hidden, anchors=self.anchors)  # .vectors
+        # return self.projector(x=hidden, anchors=self.anchors)
 
     def forward(self, x):
         num_stack = x.shape[1]
@@ -110,8 +110,11 @@ class FeatureExtractor(nn.Module):
             self.anchors_alpha * self.anchors + (1 - self.anchors_alpha) * new_anchors
         )  # keep % of the old anchors # 0.99 and 0.999
 
-    def set_anchors(self):
-        self.anchors = self.network(self.obs_anchors)
+    @torch.no_grad()
+    def fit(self, obs_anchors):
+        self.obs_anchors = obs_anchors
+        self.anchors = self.network(obs_anchors)
+        self.rel_transform.fit(obs_anchors)
         # self.register_buffer("anchors", anchors)
 
 

@@ -2,7 +2,7 @@ import os
 import argparse
 
 import torch
-
+from zeroshotrl.utils.testing import stitching_test_quantitative
 # from utils.preprocess_env import (
 #     make_custom_env,
 #     make_custom_env_no_stack,
@@ -141,8 +141,6 @@ args = parse_args()
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 env_info = "rgb"
-
-from utils.testing import stitching_test_quantitative
 
 results = stitching_test_quantitative(
     args.encoder_env_id,

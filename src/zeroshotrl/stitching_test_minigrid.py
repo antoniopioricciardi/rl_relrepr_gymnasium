@@ -5,7 +5,7 @@ import numpy as np
 import argparse
 
 import torch
-from utils.testing import test_rel_repr_vec
+from zeroshotrl.utils.testing import test_rel_repr_vec
 
 # from ppo_naturalenv_discrete_rgb_nostack_relrepr_end_to_end import make_env
 
@@ -14,11 +14,11 @@ from utils.testing import test_rel_repr_vec
 # from rl_agents.ppo.ppo_end_to_end_relu import FeatureExtractor, Policy, Agent
 # from rl_agents.ddqn.ddqn_end_to_end import FeatureExtractorDDQN, PolicyDDQN, AgentDDQN
 
-from rl_agents.ppo.ppo_end_to_end_relu_stack_align import FeatureExtractor, Agent
+from zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu_stack_align import FeatureExtractor, Agent
 
 # from natural_rl_environment.natural_env import NaturalEnvWrapper
 
-from utils.models import (
+from zeroshotrl.utils.models import (
     get_algo_instance,
     get_algo_instance_bw,
     load_model_from_path,
@@ -26,7 +26,7 @@ from utils.models import (
     load_policy_from_path,
 )
 
-from utils.env_initializer import make_env_atari
+from zeroshotrl.utils.env_initializer import make_env_atari
 
 from pytorch_lightning import seed_everything
 
