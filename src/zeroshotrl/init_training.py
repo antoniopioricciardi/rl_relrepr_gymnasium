@@ -68,6 +68,7 @@ def init_stuff_ppo(
             obs_anchors=obs_set,
             anchors_alpha=args.anchors_alpha,
         ).to(device)
+        encoder.fit(obs_anchors=obs_set)
 
     # if args.use_relative:
     #     encoder.set_anchors()
