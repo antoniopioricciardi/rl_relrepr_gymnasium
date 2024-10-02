@@ -1,3 +1,51 @@
+# UV GUIDE
+install uv guide (for up to date version check https://docs.astral.sh/uv/getting-started/installation/#__tabbed_1_1)
+ON MAC/LINUX:
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+ON WINDOWS:
+```bash
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+# Install
+```bash
+uv sync
+```
+
+if you get 'No such file or directory: 'clang': 'clang''
+```bash
+apt-get -y install clang
+```
+
+
+# ACTIVATE ENVIRONMENT
+```bash
+source .venv/bin/activate
+```
+
+# Training
+## standard training
+```bash
+bash scripts/run_ppo_carracing.sh --run-mode ppo --env-id CarRacing-v2 --background green --car-mode standard
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # new env
 conda create -n relative_rl python=3.9
 
