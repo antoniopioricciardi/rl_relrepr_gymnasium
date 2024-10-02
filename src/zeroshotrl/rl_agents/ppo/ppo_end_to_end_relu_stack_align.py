@@ -22,7 +22,7 @@ class FeatureExtractor(nn.Module):
         use_relative=False,
         pretrained=False,
         obs_anchors=None,
-        obs_anchors_filename=None,
+        # obs_anchors_filename=None,
         anchors_alpha=0.99,
         device="cpu",
     ):
@@ -44,8 +44,8 @@ class FeatureExtractor(nn.Module):
 
         if self.use_relative:
             # obs_anchors_filename is used to recover the obs_anchors when loading the model
-            self.register_buffer("obs_anchors_filename", obs_anchors_filename)
-            # self.obs_anchors = obs_anchors
+            # self.register_buffer("obs_anchors_filename", obs_anchors_filename)
+            self.obs_anchors = obs_anchors
 
             self.rel_transform = StandardScaling()# XTransformSequence(transforms=[StandardScaling()])
 

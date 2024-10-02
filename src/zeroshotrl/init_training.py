@@ -69,8 +69,8 @@ def init_stuff_ppo(
             anchors_alpha=args.anchors_alpha,
         ).to(device)
 
-    if args.use_relative:
-        encoder.set_anchors()
+    # if args.use_relative:
+    #     encoder.set_anchors()
 
     # if we are using a pretrained encoder, load its params into our encoder
     if args.pretrained:
