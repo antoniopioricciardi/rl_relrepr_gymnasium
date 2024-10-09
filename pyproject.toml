@@ -8,7 +8,6 @@ dependencies = [
     "backports-strenum>=1.3.1",
     "gymnasium[box2d]>=0.29.1",
     "ipykernel>=6.29.5",
-    "latentis",
     "opencv-python>=4.10.0.84",
     "pre-commit>=3.8.0",
     "stable-baselines3>=2.3.2",
@@ -18,11 +17,12 @@ dependencies = [
     "zeroshotrl",
     "gin-config>=0.5.0",
     "torch==2.0.1",
+    "latentis==0.0.7",
 ]
 
-[tool.uv.sources]
-latentis = { git = "https://github.com/flegyas/latentis.git", rev = "develop" }
-zeroshotrl = { workspace = true }
+# [tool.uv.sources]
+# latentis = { git = "https://github.com/flegyas/latentis.git", rev = "develop" }
+# zeroshotrl = { workspace = true }
 
 [build-system]
 requires = ["setuptools", "wheel", "setuptools_scm[toml]"]
