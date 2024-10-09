@@ -19,6 +19,7 @@ dependencies = [
     "torch==2.0.1",
     "latentis==0.0.7",
     "termcolor==2.4.0",
+    "pytorch-lightning==2.2.4",
 ]
 
 # [tool.uv.sources]
