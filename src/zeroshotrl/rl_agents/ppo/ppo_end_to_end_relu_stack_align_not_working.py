@@ -2,12 +2,12 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.distributions.categorical import Categorical
-from latentis.space import LatentSpace
 
 # Relative stuff
-from latentis.project import RelativeProjector
-from latentis.project import relative
-from latentis.transform import Centering, StandardScaling
+from latentis.transform.base import StandardScaling
+from latentis.transform.projection import cosine_proj, relative_projection
+from latentis.transform import XTransformSequence
+from latentis.space import Space
 
 
 def layer_init(layer, std=np.sqrt(2), bias_const=0.0):
@@ -22,9 +22,10 @@ class FeatureExtractor(nn.Module):
         use_relative=False,
         pretrained=False,
         obs_anchors=None,
+        # obs_anchors_filename=None,
         anchors_alpha=0.99,
         device="cpu",
-    ):  # , anchors_std=None):
+    ):
         super().__init__()
         self.use_relative = use_relative
         self.pretrained = pretrained
@@ -44,17 +45,34 @@ class FeatureExtractor(nn.Module):
         if self.use_relative:
             # obs_anchors_filename is used to recover the obs_anchors when loading the model
             # self.register_buffer("obs_anchors_filename", obs_anchors_filename)
-            # self.register_buffer("obs_anchors", obs_anchors)
-            self.obs_anchors = obs_anchors
-            # anchors = None
-            self.projector = RelativeProjector(
-                projection_fn=relative.cosine_proj,
-                abs_transforms=[Centering(), StandardScaling()],
-            )
-            # self.set_anchors()
+            # self.obs_anchors = obs_anchors
+            self.rel_transform = StandardScaling()# XTransformSequence(transforms=[StandardScaling()])
+
+            # self.projector = RelativeProjector(
+            #     projection_fn=relative.cosine_proj,
+            #     abs_transforms=[Centering(), StandardScaling()],
+            # )
+        # if self.use_relative:
+        #     # obs_anchors_filename is used to recover the obs_anchors when loading the model
+        #     # self.register_buffer("obs_anchors_filename", obs_anchors_filename)
+        #     # self.register_buffer("obs_anchors", obs_anchors)
+        #     self.obs_anchors = obs_anchors
+        #     # anchors = None
+        #     self.projector = RelativeProjector(
+        #         projection_fn=relative.cosine_proj,
+        #         abs_transforms=[Centering(), StandardScaling()],
+        #     )
+        #     # self.set_anchors()
 
     def _compute_relative_representation(self, hidden):
-        return self.projector(x=hidden, anchors=self.anchors)  # .vectors
+        print(hidden.shape, self.obs_anchors.shape)
+        rel_space = relative_projection(
+            x=self.rel_transform.transform(hidden),
+            anchors=self.rel_transform.fit(self.obs_anchors),
+            projection_fn=cosine_proj,
+        )
+        return rel_space
+        # return self.projector(x=hidden, anchors=self.anchors)
 
     def forward(self, x):
         num_stack = x.shape[1]
@@ -91,9 +109,12 @@ class FeatureExtractor(nn.Module):
             self.anchors_alpha * self.anchors + (1 - self.anchors_alpha) * new_anchors
         )  # keep % of the old anchors # 0.99 and 0.999
 
-    def set_anchors(self):
-        anchors = self.network(self.obs_anchors)
-        self.register_buffer("anchors", anchors)
+    @torch.no_grad()
+    def fit(self, obs_anchors):
+        self.obs_anchors = obs_anchors
+        self.anchors = self.network(obs_anchors)
+        self.rel_transform.fit(self.anchors)
+        # self.register_buffer("anchors", anchors)
 
 
 class Policy(nn.Module):
@@ -161,7 +182,7 @@ class Agent(nn.Module):
             hid = self.encoder(x)
             # reshape (1, 12544) tensor into (4, 3136)
             hid = hid.view(4, 3136)
-            hid = LatentSpace(vectors=hid, name="hid")
+            hid = Space(vectors=hid, name="hid")
             hid = self.translation(hid).vectors.view(
                 1, 12544
             )  # ['target'].view(1, 12544)
@@ -176,7 +197,7 @@ class Agent(nn.Module):
             hid = self.encoder(x)
             # reshape (1, 12544) tensor into (4, 3136)
             hid = hid.view(4, 3136)
-            hid = LatentSpace(vectors=hid, name="hid")
+            hid = Space(vectors=hid, name="hid")
             hid = self.translation(hid).vectors.view(
                 1, 12544
             )  # ['target'].view(1, 12544)

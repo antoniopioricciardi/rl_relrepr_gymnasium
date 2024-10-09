@@ -14,7 +14,7 @@ from zeroshotrl.utils.testing import test_rel_repr_vec
 # from rl_agents.ppo.ppo_end_to_end_relu import FeatureExtractor, Policy, Agent
 # from rl_agents.ddqn.ddqn_end_to_end import FeatureExtractorDDQN, PolicyDDQN, AgentDDQN
 
-from zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu_stack_align import FeatureExtractor, Agent
+from zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu_stack_align_not_working import FeatureExtractor, Agent
 
 # from natural_rl_environment.natural_env import NaturalEnvWrapper
 

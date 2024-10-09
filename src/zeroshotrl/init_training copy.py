@@ -7,7 +7,7 @@ import torch.optim as optim
 # from utils.preprocess_env import PreprocessFrameRGB, RepeatAction
 
 import gin
-from zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu_stack_align import (
+from zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu_stack_align_not_working import (
     FeatureExtractor,
     Policy,
     Agent,

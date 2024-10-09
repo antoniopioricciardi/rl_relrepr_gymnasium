@@ -65,13 +65,13 @@ def init_stuff_ppo(
         encoder = FeatureExtractor(
             use_relative=args.use_relative,
             pretrained=args.pretrained,
-            obs_anchors=obs_set,
+            # obs_anchors=obs_set,
             anchors_alpha=args.anchors_alpha,
         ).to(device)
-        encoder.fit(obs_anchors=obs_set)
+        # encoder.fit(obs_anchors=obs_set)
 
-    # if args.use_relative:
-    #     encoder.set_anchors()
+    if args.use_relative:
+        encoder.set_anchors(obs_anchors=obs_set)
 
     # if we are using a pretrained encoder, load its params into our encoder
     if args.pretrained:
