@@ -18,6 +18,7 @@ dependencies = [
     "gin-config>=0.5.0",
     "torch==2.0.1",
     "latentis==0.0.7",
+    "termcolor==2.4.0",
 ]
 
 # [tool.uv.sources]
