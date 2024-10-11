@@ -30,7 +30,7 @@ class FeatureExtractor(nn.Module):
         self.pretrained = pretrained
         self.anchors_alpha = anchors_alpha
         self.obs_anchors = None
-        self.obs_anchors_filename = None
+        # self.obs_anchors_filename = None
         # self.anchors = None # to be computed
         # self.anchors_mean = None # to be computer
         # self.observation_anchors = obs_anchors
