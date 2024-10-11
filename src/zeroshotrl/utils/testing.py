@@ -130,12 +130,12 @@ def stitching_test_quantitative(
     from latentis.translate.translator import LatentTranslator
 
     from pathlib import Path
-    from rl_agents.ppo.ppo_end_to_end_relu_stack_align import Agent
+    from src.zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu_stack_align import Agent
     import pickle
     import time
     import os
 
-    from utils.models import (
+    from src.zeroshotrl.utils.models import (
         get_algo_instance,
         load_encoder_from_path,
         load_model_from_path,

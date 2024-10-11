@@ -20,6 +20,7 @@ class FeatureExtractor(nn.Module):
         self,
         use_relative=False,
         pretrained=False,
+        obs_anchors_filename=None,
         # obs_anchors=None,
         anchors_alpha=0.99,
         device="cpu",
@@ -43,7 +44,7 @@ class FeatureExtractor(nn.Module):
 
         if self.use_relative:
             # obs_anchors_filename is used to recover the obs_anchors when loading the model
-            # self.register_buffer("obs_anchors_filename", obs_anchors_filename)
+            self.register_buffer("obs_anchors_filename", obs_anchors_filename)
             # self.register_buffer("obs_anchors", obs_anchors)
             # self.obs_anchors = obs_anchors
             # anchors = None

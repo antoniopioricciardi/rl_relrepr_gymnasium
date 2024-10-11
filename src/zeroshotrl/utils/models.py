@@ -207,15 +207,17 @@ def load_encoder_from_path(
             anchors_filename,
             map_location="cuda:0" if torch.cuda.is_available() else "cpu",
         )
-        # obs_anchors = torch.tensor(obs_anchors).to(device)
+        obs_anchors = torch.tensor(obs_anchors).to(device)
 
     encoder = FeatureExtractor(
         use_relative=is_relative,
         pretrained=is_pretrained,
-        obs_anchors=obs_anchors,
+        # obs_anchors=obs_anchors,
         obs_anchors_filename=anchors_filename,
         anchors_alpha=anchors_alpha,
     )
+    if is_relative:
+        encoder.set_anchors(obs_anchors)
 
     # print(encoder_params.keys())
     encoder.load_state_dict(encoder_params, strict=False)

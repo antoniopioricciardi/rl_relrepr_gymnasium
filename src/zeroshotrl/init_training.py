@@ -65,6 +65,7 @@ def init_stuff_ppo(
         encoder = FeatureExtractor(
             use_relative=args.use_relative,
             pretrained=args.pretrained,
+            obs_anchors_filename=args.anchors_path,
             # obs_anchors=obs_set,
             anchors_alpha=args.anchors_alpha,
         ).to(device)
