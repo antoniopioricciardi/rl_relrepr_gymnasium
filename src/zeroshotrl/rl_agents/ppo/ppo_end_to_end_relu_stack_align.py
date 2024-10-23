@@ -90,10 +90,11 @@ class FeatureExtractor(nn.Module):
 
     @torch.no_grad()
     def set_anchors(self, obs_anchors):
+        "THIS MUST BE CALLED BEFORE TRAINING"
         self.obs_anchors = obs_anchors
         anchors = self.network(obs_anchors)
-        self.anchors = anchors
-        # self.register_buffer("anchors", anchors)
+        # self.anchors = anchors
+        self.register_buffer("anchors", anchors)
 
     @torch.no_grad()
     def update_anchors(self):
@@ -103,8 +104,8 @@ class FeatureExtractor(nn.Module):
             self.anchors_alpha * self.anchors + (1 - self.anchors_alpha) * new_anchors
         )  # keep % of the old anchors # 0.99 and 0.999
     
-    def save_anchors_buffer(self):
-        self.register_buffer("saved_anchors", self.anchors)
+    # def save_anchors_buffer(self):
+    #     self.register_buffer("saved_anchors", self.anchors)
 
     def load_anchors_buffer(self):
         self.anchors = self.saved_anchors

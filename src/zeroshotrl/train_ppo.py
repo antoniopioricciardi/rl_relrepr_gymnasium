@@ -463,13 +463,7 @@ class PPOTrainer_vec:
         )
 
         """ HANDLE MODELS SAVING """
-
         if self.track:
-            if self.use_relative:
-                # save anchors buffer and then upload the model to wandb.
-                # this is to ensure that the model is saved with the updated anchors just once
-                # to avoid saving heavy models with anchors at each evaluation
-                self.agent.encoder.save_anchors_buffer()
             save_model(
                 wandb=self.wandb,
                 log_path=self.log_path,
@@ -481,7 +475,7 @@ class PPOTrainer_vec:
 
             self.wandb.finish()
         """ END OF EVALUATION """
-
+        
         self.envs.close()
         self.eval_envs.close()
         self.writer.close()
