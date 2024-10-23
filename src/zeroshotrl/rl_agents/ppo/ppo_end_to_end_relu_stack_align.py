@@ -20,7 +20,7 @@ class FeatureExtractor(nn.Module):
         self,
         use_relative=False,
         pretrained=False,
-        obs_anchors_filename=None,
+        # obs_anchors_filename=None,
         # obs_anchors=None,
         anchors_alpha=0.99,
         device="cpu",
@@ -87,23 +87,27 @@ class FeatureExtractor(nn.Module):
     def forward_single(self, x):
         return self.network(x)
 
+
+    @torch.no_grad()
+    def set_anchors(self, obs_anchors):
+        self.obs_anchors = obs_anchors
+        anchors = self.network(obs_anchors)
+        self.anchors = anchors
+        # self.register_buffer("anchors", anchors)
+
     @torch.no_grad()
     def update_anchors(self):
-        """BEWARE. During testing, this must be called after the model params are loaded."""
+        """ TO BE CALLED DURING TRAINING """
         new_anchors = self.network(self.obs_anchors)
         self.anchors = (
             self.anchors_alpha * self.anchors + (1 - self.anchors_alpha) * new_anchors
         )  # keep % of the old anchors # 0.99 and 0.999
-
-    def set_anchors(self, obs_anchors):
-        anchors = self.network(obs_anchors)
-        self.obs_anchors = obs_anchors
-        self.anchors = anchors
-        # self.register_buffer("anchors", anchors)
     
     def save_anchors_buffer(self):
-        self.register_buffer("anchors", self.anchors)
+        self.register_buffer("saved_anchors", self.anchors)
 
+    def load_anchors_buffer(self):
+        self.anchors = self.saved_anchors
 
 class Policy(nn.Module):
     def __init__(self, num_actions, stack_n: int = 4) -> None:

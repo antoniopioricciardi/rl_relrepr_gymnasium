@@ -48,6 +48,7 @@ def init_stuff_ppo(
             anchor_indices = f.readlines()
         anchor_indices = [int(item.strip()) for item in anchor_indices]
         obs_set = obs_set[anchor_indices, :]
+        obs_set.to(device)
 
     if args.use_resnet:
         from zeroshotrl.rl_agents.ppo.ppo_resnet import (
@@ -65,7 +66,7 @@ def init_stuff_ppo(
         encoder = FeatureExtractor(
             use_relative=args.use_relative,
             pretrained=args.pretrained,
-            obs_anchors_filename=args.anchors_path,
+            # obs_anchors_filename=args.anchors_path,
             # obs_anchors=obs_set,
             anchors_alpha=args.anchors_alpha,
         ).to(device)

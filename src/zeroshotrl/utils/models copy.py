@@ -202,7 +202,7 @@ def load_encoder_from_path(
     if is_relative:
         # obs_anchors = encoder_params["obs_anchors"]
 
-        # anchors_filename = encoder_params["obs_anchors_filename"]
+        anchors_filename = encoder_params["obs_anchors_filename"]
         obs_anchors = torch.load(
             anchors_filename,
             map_location="cuda:0" if torch.cuda.is_available() else "cpu",
@@ -213,7 +213,7 @@ def load_encoder_from_path(
         use_relative=is_relative,
         pretrained=is_pretrained,
         # obs_anchors=obs_anchors,
-        # obs_anchors_filename=anchors_filename,
+        obs_anchors_filename=anchors_filename,
         anchors_alpha=anchors_alpha,
     )
     if is_relative:
