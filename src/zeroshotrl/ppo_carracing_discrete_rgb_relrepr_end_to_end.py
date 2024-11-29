@@ -176,7 +176,7 @@ if __name__ == "__main__":
         eval_env = CarRacing(
             continuous=False, background=args.background, zoom=zoom
         )  # , image_path=args.image_path)
-    num_eval_envs = 1
+    num_eval_envs = 5
 
     # env setup
     from zeroshotrl.utils.env_initializer import make_env_atari
