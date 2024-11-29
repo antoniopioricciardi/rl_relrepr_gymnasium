@@ -110,13 +110,56 @@ class CustomCarRacing(CarRacing):
         if self.vehicle_class == Bus:
             self.max_steps = 2000
 
+    # def reset(
+    #     self,
+    #     *,
+    #     seed: Optional[int] = None,
+    #     return_info: bool = True,
+    #     options: Optional[dict] = None,
+    # ) -> Union[ObsType, tuple[ObsType, dict]]:
+    #     super().reset(seed=seed)
+    #     self._destroy()
+    #     self.world.contactListener_bug_workaround = FrictionDetector(
+    #         self, self.lap_complete_percent
+    #     )
+    #     self.world.contactListener = self.world.contactListener_bug_workaround
+    #     self.reward = 0.0
+    #     self.prev_reward = 0.0
+    #     self.tile_visited_count = 0
+    #     self.t = 0.0
+    #     self.new_lap = False
+    #     self.road_poly = []
+
+    #     if self.domain_randomize:
+    #         randomize = True
+    #         if isinstance(options, dict):
+    #             if "randomize" in options:
+    #                 randomize = options["randomize"]
+
+    #         self._reinit_colors(randomize)
+
+    #     while True:
+    #         success = self._create_track()
+    #         if success:
+    #             break
+    #         if self.verbose:
+    #             print(
+    #                 "retry to generate track (normal if there are not many"
+    #                 "instances of this message)"
+    #             )
+    #     self.car = self.vehicle_class(self.world, *self.track[0][1:4])
+
+    #     if self.render_mode == "human":
+    #         self.render()
+    #     return self.step(None)[0], {}
+
+
     def reset(
         self,
         *,
         seed: Optional[int] = None,
-        return_info: bool = True,
         options: Optional[dict] = None,
-    ) -> Union[ObsType, tuple[ObsType, dict]]:
+    ):
         super().reset(seed=seed)
         self._destroy()
         self.world.contactListener_bug_workaround = FrictionDetector(
@@ -129,7 +172,9 @@ class CustomCarRacing(CarRacing):
         self.t = 0.0
         self.new_lap = False
         self.road_poly = []
+        self.step_cnt = 0
 
+        self._init_colors()
         if self.domain_randomize:
             randomize = True
             if isinstance(options, dict):

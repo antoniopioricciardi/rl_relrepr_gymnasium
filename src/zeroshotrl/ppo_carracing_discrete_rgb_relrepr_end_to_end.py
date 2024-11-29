@@ -128,6 +128,9 @@ if __name__ == "__main__":
         "heavy",
         "camera_far",
         "multicolor",
+        "bus",
+        "tuktuk",
+        "street_car",
     ]
     assert args.car_mode in car_modes, f"car mode must be one of {car_modes}"
     zoom = 2.7
@@ -151,16 +154,29 @@ if __name__ == "__main__":
     elif args.car_mode == "camera_far":
         # from envs.carracing.car_racing_camera_far import CarRacing
         from zeroshotrl.envs.carracing.car_racing import CarRacing
-
         zoom = 1
         # python ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name green_rgb --env-id CarRacing-custom --seed 0 --num-envs 16 --background green --stack-n 4 --total-timesteps 5000000 --car-mode no_noop
-    env = CarRacing(
-        continuous=False, background=args.background, zoom=zoom
-    )  # , image_path=args.image_path)
-    eval_env = CarRacing(
-        continuous=False, background=args.background, zoom=zoom
-    )  # , image_path=args.image_path)
-    num_eval_envs = 5
+    elif args.car_mode == "bus":
+        from zeroshotrl.carl.envs.gymnasium.box2d.parking_garage.bus import Bus as custom_car
+    elif args.car_mode == "tuktuk":
+        from zeroshotrl.carl.envs.gymnasium.box2d.parking_garage.trike import TukTuk as custom_car
+    elif args.car_mode == "streetcar":
+        from zeroshotrl.carl.envs.gymnasium.box2d.parking_garage.street_car import StreetCar as custom_car 
+
+    if args.car_mode in ["bus", "tuktuk", "street_car"]:
+        from zeroshotrl.carl.envs.gymnasium.box2d.carl_vehicle_racing import CustomCarRacing
+        env = CustomCarRacing(vehicle_class=custom_car, continuous=False,
+                              background=args.background, zoom=zoom)
+        eval_env = CustomCarRacing(vehicle_class=custom_car, continuous=False,
+                                      background=args.background, zoom=zoom)#, render_mode="human")
+    else:
+        env = CarRacing(
+            continuous=False, background=args.background, zoom=zoom
+        )  # , image_path=args.image_path)
+        eval_env = CarRacing(
+            continuous=False, background=args.background, zoom=zoom
+        )  # , image_path=args.image_path)
+    num_eval_envs = 1
 
     # env setup
     from zeroshotrl.utils.env_initializer import make_env_atari
