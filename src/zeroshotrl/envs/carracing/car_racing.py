@@ -285,6 +285,7 @@ class CarRacing(gym.Env, EzPickle):
         )
 
         self.render_mode = render_mode
+        self.max_steps = 1000
 
     def _destroy(self):
         if not self.road:
@@ -628,7 +629,7 @@ class CarRacing(gym.Env, EzPickle):
             self.render()
 
         self.step_cnt += 1
-        if self.step_cnt == 1000:
+        if self.step_cnt == self.max_steps:
             terminated = True
         return self.state, step_reward, terminated, truncated, {}
 

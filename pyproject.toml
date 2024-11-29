@@ -20,6 +20,10 @@ dependencies = [
     "latentis==0.0.7",
     "termcolor==2.4.0",
     "pytorch-lightning==2.2.4",
+    "tueplots==0.0.17",
+    "torchvision==0.15.2",
+    "plotly==5.24.1",
+    "configspace>=1.2.1",
 ]
 
 # [tool.uv.sources]

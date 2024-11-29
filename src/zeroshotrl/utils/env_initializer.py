@@ -1,5 +1,5 @@
 import gymnasium as gym
-from utils.preprocess_env import (
+from zeroshotrl.utils.preprocess_env import (
     RepeatAction,
     RescaleObservation,
     ReshapeObservation,
@@ -223,11 +223,33 @@ def init_carracing_env(
         from envs.carracing.car_racing_camera_far import CarRacing
     # elif car_mode == "multicolor":
     #     from envs.carracing.car_racing_multicolor import CarRacing
+    elif car_mode == "bus":
+        from zeroshotrl.carl.envs.gymnasium.box2d.carl_vehicle_racing import CustomCarRacing
+        from zeroshotrl.carl.envs.gymnasium.box2d.parking_garage.bus import Bus as custom_car
+
+        # env = CustomCarRacing(vehicle_class=custom_car, continuous=False,
+        #                       background=background_color, zoom=zoom, render_mode=render_md)
+    elif car_mode == "tuktuk":
+        from zeroshotrl.carl.envs.gymnasium.box2d.carl_vehicle_racing import CustomCarRacing
+        from zeroshotrl.carl.envs.gymnasium.box2d.parking_garage.trike import TukTuk as custom_car
+
+        # env = CustomCarRacing(vehicle_class=custom_car, continuous=False,
+        #                       background=background_color, zoom=zoom, render_mode=render_md)
+    elif car_mode == "street_car":
+        from zeroshotrl.carl.envs.gymnasium.box2d.carl_vehicle_racing import CustomCarRacing
+        from zeroshotrl.carl.envs.gymnasium.box2d.parking_garage.street_car import StreetCar as custom_car
+
+        # env = CustomCarRacing(vehicle_class=custom_car, continuous=False,
+        #                       background=background_color, zoom=zoom, render_mode=render_md)
     else:
         from envs.carracing.car_racing import CarRacing
-    env = CarRacing(
-        continuous=False, background=background_color, zoom=zoom, render_mode=render_md
-    )
+    if car_mode in ["bus", "tuktuk", "street_car"]:
+        env = CustomCarRacing(vehicle_class=custom_car, continuous=False,
+                              background=background_color, zoom=zoom, render_mode=render_md)
+    else:
+        env = CarRacing(
+            continuous=False, background=background_color, zoom=zoom, render_mode=render_md
+        )                     
     nv = gym.vector.SyncVectorEnv(
         [
             make_env_atari(

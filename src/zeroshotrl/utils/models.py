@@ -266,57 +266,57 @@ def load_policy_from_path(
 def get_algo_instance(encoder_algo, policy_algo, use_resnet):
     if encoder_algo.startswith("ppo"):
         if encoder_algo.endswith("nostack"):
-            from src.zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu import FeatureExtractor
+            from zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu import FeatureExtractor
         else:
-            from src.zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu_stack_align import FeatureExtractor
+            from zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu_stack_align import FeatureExtractor
         encoder_instance = FeatureExtractor
 
     elif encoder_algo.startswith("ddqn"):
         if encoder_algo.endswith("nostack"):
-            from src.zeroshotrl.rl_agents.ddqn.ddqn_end_to_end import FeatureExtractorDDQN
+            from zeroshotrl.rl_agents.ddqn.ddqn_end_to_end import FeatureExtractorDDQN
         # else:
         #     from src.zeroshotrl.rl_agents.ddqn.ddqn_end_to_end_stack import FeatureExtractorDDQN
         encoder_instance = FeatureExtractorDDQN
 
     if policy_algo.startswith("ppo"):
         if policy_algo.endswith("nostack"):
-            from src.zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu import Policy
+            from zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu import Policy
         else:
             if use_resnet:
-                from src.zeroshotrl.rl_agents.ppo.ppo_resnet import PolicyResNet
+                from zeroshotrl.rl_agents.ppo.ppo_resnet import PolicyResNet
 
                 policy_instance = PolicyResNet
             else:
-                from src.zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu_stack_align import Policy
+                from zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu_stack_align import Policy
 
                 policy_instance = Policy
 
     elif policy_algo.startswith("ddqn"):
         if policy_algo.endswith("nostack"):
-            from src.zeroshotrl.rl_agents.ddqn.ddqn_end_to_end import PolicyDDQN
+            from zeroshotrl.rl_agents.ddqn.ddqn_end_to_end import PolicyDDQN
         # else:
-        #     from src.zeroshotrl.rl_agents.ddqn.ddqn_end_to_end_stack import PolicyDDQN
+        #     from zeroshotrl.rl_agents.ddqn.ddqn_end_to_end_stack import PolicyDDQN
         policy_instance = PolicyDDQN
     # if encoder_model=='resnet':
     #     agent = AgentResNet
 
     if policy_algo.startswith("ppo"):
         if policy_algo.endswith("nostack"):
-            from src.zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu import Agent
+            from zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu import Agent
         else:
             if use_resnet:
-                from src.zeroshotrl.rl_agents.ppo.ppo_resnet import AgentResNet
+                from zeroshotrl.rl_agents.ppo.ppo_resnet import AgentResNet
 
                 agent_instance = AgentResNet
             else:
-                from src.zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu_stack_align import Agent
+                from zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu_stack_align import Agent
 
                 agent_instance = Agent
     elif policy_algo.startswith("ddqn"):
         if policy_algo.endswith("nostack"):
-            from src.zeroshotrl.rl_agents.ddqn.ddqn_end_to_end import AgentDDQN
+            from zeroshotrl.rl_agents.ddqn.ddqn_end_to_end import AgentDDQN
         # else:
-        #     from src.zeroshotrl.rl_agents.ddqn.ddqn_end_to_end_stack import AgentDDQN
+        #     from zeroshotrl.rl_agents.ddqn.ddqn_end_to_end_stack import AgentDDQN
         agent_instance = AgentDDQN
     return encoder_instance, policy_instance, agent_instance
 
@@ -324,46 +324,46 @@ def get_algo_instance(encoder_algo, policy_algo, use_resnet):
 def get_algo_instance_bw(encoder_algo, policy_algo):
     if encoder_algo.startswith("ppo"):
         if encoder_algo.endswith("nostack"):
-            from src.zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu import FeatureExtractor
+            from zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu import FeatureExtractor
         else:
-            from src.zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu_stack_align_bw import (
+            from zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu_stack_align_bw import (
                 FeatureExtractor,
             )
         encoder_instance = FeatureExtractor
 
     elif encoder_algo.startswith("ddqn"):
         if encoder_algo.endswith("nostack"):
-            from src.zeroshotrl.rl_agents.ddqn.ddqn_end_to_end import FeatureExtractorDDQN
+            from zeroshotrl.rl_agents.ddqn.ddqn_end_to_end import FeatureExtractorDDQN
         # else:
-        #     from src.zeroshotrl.rl_agents.ddqn.ddqn_end_to_end_stack import FeatureExtractorDDQN
+        #     from zeroshotrl.rl_agents.ddqn.ddqn_end_to_end_stack import FeatureExtractorDDQN
         encoder_instance = FeatureExtractorDDQN
 
     if policy_algo.startswith("ppo"):
         if policy_algo.endswith("nostack"):
-            from src.zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu import Policy
+            from zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu import Policy
         else:
-            from src.zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu_stack_align_bw import Policy
+            from zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu_stack_align_bw import Policy
         policy_instance = Policy
 
     elif policy_algo.startswith("ddqn"):
         if policy_algo.endswith("nostack"):
-            from src.zeroshotrl.rl_agents.ddqn.ddqn_end_to_end import PolicyDDQN
+            from zeroshotrl.rl_agents.ddqn.ddqn_end_to_end import PolicyDDQN
         # else:
-        #     from src.zeroshotrl.rl_agents.ddqn.ddqn_end_to_end_stack import PolicyDDQN
+        #     from zeroshotrl.rl_agents.ddqn.ddqn_end_to_end_stack import PolicyDDQN
         policy_instance = PolicyDDQN
     # if encoder_model=='resnet':
     #     agent = AgentResNet
 
     if policy_algo.startswith("ppo"):
         if policy_algo.endswith("nostack"):
-            from src.zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu import Agent
+            from zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu import Agent
         else:
-            from src.zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu_stack_align_bw import Agent
+            from zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu_stack_align_bw import Agent
         agent_instance = Agent
     elif policy_algo.startswith("ddqn"):
         if policy_algo.endswith("nostack"):
-            from src.zeroshotrl.rl_agents.ddqn.ddqn_end_to_end import AgentDDQN
+            from zeroshotrl.rl_agents.ddqn.ddqn_end_to_end import AgentDDQN
         # else:
-        #     from src.zeroshotrl.rl_agents.ddqn.ddqn_end_to_end_stack import AgentDDQN
+        #     from zeroshotrl.rl_agents.ddqn.ddqn_end_to_end_stack import AgentDDQN
         agent_instance = AgentDDQN
     return encoder_instance, policy_instance, agent_instance
