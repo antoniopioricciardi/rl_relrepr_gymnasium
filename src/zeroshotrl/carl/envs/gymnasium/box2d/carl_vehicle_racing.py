@@ -97,7 +97,7 @@ class CustomCarRacing(CarRacing):
     def __init__(
         self,
         vehicle_class: Type[Car] = Car,
-        verbose: bool = True,
+        verbose: bool = False,
         render_mode: Optional[str] = None,
         background: str = "green",
         continuous: bool = False,
