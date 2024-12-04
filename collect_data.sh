@@ -95,14 +95,18 @@ fi
 # Collect actions list if --collect-actions argument is passed
 if [ "$collect_actions" = true ]; then
     echo "collecting actions list"
-    python collect_actions.py --env-id "$env_id" --seed 1 --model-seed 1 --num-steps "$num_steps" --background green --render-mode rgb_array
+    # build path to the model file to follow this format: --encoder-dir models/CarRacing-v2/rgb/green/ppo/absolute/relu/seed_1 --policy-dir models/CarRacing-v2/rgb/green/ppo/absolute/relu/seed_1
+    model_dir="models/${env_id}/rgb/green/ppo/absolute/relu/seed_1"
+    # policy_dir="models/${env_id}/rgb/green/ppo/absolute/relu/seed_1"
+
+    python data_collection/collect_actions.py --env-id "$env_id" --seed 1 --model-seed 1 --num-steps "$num_steps" --background green --render-mode rgb_array --model-dir $model_dir
 fi
 
 
 # Collect observations and move the anchors data to the anchors folder
 for background in "${backgrounds[@]}"; do
     echo -e "\ncollecting observations for ${env_id}_rgb_ppo_transitions_${background}_obs.pkl\n"
-    python collect_anchors_obs_ppo.py --env-id "$env_id" --background "$background" --algo ppo --render-mode rgb_array --actions-path "$actions_path" --seed 1
+    python src/zeroshotrl/collect_anchors_obs_ppo.py --env-id "$env_id" --background "$background" --algo ppo --render-mode rgb_array --actions-path "$actions_path" --seed 1
 done
 # if [[ "$env_id" != CarRacing-v2* ]]; then
 #     echo -e "\ncollecting observations for ${env_id}_rgb_ppo_rgb_transitions_plain_obs.pkl\n"
@@ -119,7 +123,7 @@ done
 # Generate anchor indices if --generate-anchors-indices argument is passed
 if [ "$generate_anchors_indices" = true ]; then
     echo "generating anchor indices"
-    python generate_anchors_indices.py --env-id "$env_id" --num-anchors 3136 --total-num-obs "$num_steps"
+    python data_collection/generate_anchors_indices.py --env-id "$env_id" --num-anchors 3136 --total-num-obs "$num_steps"
 fi
 
 echo "DONE!"

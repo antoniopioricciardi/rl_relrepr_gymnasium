@@ -3,8 +3,8 @@ import pandas as pd
 import numpy as np
 
 # from natural_rl_environment.natural_env import NaturalEnvWrapper
-from utils.env_initializer import init_env
-from utils.evaluation import evaluate_vec_env
+from zeroshotrl.utils.env_initializer import init_env
+from zeroshotrl.utils.evaluation import evaluate_vec_env
 # TODO: MOVE THEM TO A COMMON FILE
 
 # from utils.preprocess_env import PreprocessFrameRGB

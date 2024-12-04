@@ -90,7 +90,8 @@ def parse_args():
 # python src/zeroshotrl/stitching_test.py --stitching-mode translate --env-id CarRacing-v2-camera_far --env-seed 1 --background-color green --encoder-dir models/CarRacing-v2-camera_far/rgb/green/ppo/absolute/relu/seed_1 --policy-dir models/CarRacing-v2/rgb/green/ppo/absolute/relu/seed_1 --anchors-file1 data/anchors/CarRacing-v2-camera_far/rgb_ppo_transitions_green_obs.pkl --anchors-file2 data/anchors/CarRacing-v2/rgb_ppo_transitions_green_obs.pkl --anchors-alpha None --anchors-method fps --render-mode human
 """ camera_far (policy no_noop_4as) """
 # python src/zeroshotrl/stitching_test.py --stitching-mode translate --env-id CarRacing-v2-no_noop_4as --env-seed 1 --background-color green --encoder-dir models/CarRacing-v2-camera_far/rgb/green/ppo/absolute/relu/seed_1 --policy-dir models/CarRacing-v2-no_noop_4as/rgb/green/ppo/absolute/relu/seed_1 --anchors-file1 data/anchors/CarRacing-v2-camera_far/rgb_ppo_transitions_green_obs.pkl --anchors-file2 data/anchors/CarRacing-v2/rgb_ppo_transitions_green_obs.pkl --anchors-alpha None --anchors-method fps --zoom 2.7 --render-mode human
-
+""" standard bus """
+# python src/zeroshotrl/stitching_test.py --stitching-mode absolute --env-id CarRacing-v2-bus --env-seed 0 --background-color green --encoder-dir models/CarRacing-v2-bus/rgb/green/ppo/absolute/relu/seed_1 --policy-dir models/CarRacing-v2-bus/rgb/green/ppo/absolute/relu/seed_1
 
 """ ATARI Breakout """
 """ abs/transl """
@@ -147,7 +148,7 @@ cust_seed = args.env_seed
 
 """ Parameters to change for single test """
 model_color_1 = args.background_color
-model_color_2 = "green"  # args.policy_color
+model_color_2 = "--" # args.policy_color
 
 model_algo_1 = "ppo"
 model_algo_2 = "ppo"
@@ -208,6 +209,7 @@ elif args.use_resnet:
 
     encoder1 = FeatureExtractorResNet().to(device)
 else:
+    print('enc1')
     encoder1 = load_encoder_from_path(
         path1_enc,
         encoder_instance,
@@ -228,6 +230,7 @@ if args.use_resnet:
         device=device,
     )
 else:
+    print('pol2')
     encoder2, policy2, agent2 = load_model_from_path(
         path2_enc,
         path2_pol,
@@ -252,6 +255,7 @@ if stitching_md == "translate":
 
     obs_set_1 = pickle.load(Path(args.anchors_file1).open("rb"))  # [30:2000]
     obs_set_2 = pickle.load(Path(args.anchors_file2).open("rb"))  # [30:2000]
+    
     print("\n#####\nObs loaded\n#####\n")
     # subset_indices = np.random.randint(0, len(obs_set_1), 5000)
     obs_set_1 = obs_set_1  # [:4000]
@@ -263,6 +267,23 @@ if stitching_md == "translate":
     obs_set_2 = torch.tensor(np.array(obs_set_2), dtype=torch.float32)
     print("Done converting obs to torch tensor\n#####\n")
 
+    import matplotlib.pyplot as plt
+
+    i = 400
+    def plot_ith_image(obs_set_1, obs_set_2, i):
+        fig, axes = plt.subplots(1, 2, figsize=(10, 5))
+        axes[0].imshow(obs_set_1[i].permute(1, 2, 0).cpu().numpy())
+        axes[0].set_title(f'obs_set_1[{i}]')
+        axes[0].axis('off')
+        
+        axes[1].imshow(obs_set_2[i].permute(1, 2, 0).cpu().numpy())
+        axes[1].set_title(f'obs_set_2[{i}]')
+        axes[1].axis('off')
+        
+        plt.show()
+
+    plot_ith_image(obs_set_1, obs_set_2, 0)  # Change the index as needed
+    exit(3)
     # obs_set_1 = torch.cat([obs_set_1, obs_set_2], dim=0)  # [anch_indices
     # obs_set_2 = obs_set_1
 
@@ -278,20 +299,20 @@ if stitching_md == "translate":
     from collections import namedtuple
 
     Space = namedtuple("Space", ["name", "vectors"])
-    space1 = Space(name=model_color_1, vectors=space1)
-    space2 = Space(name=model_color_2, vectors=space2)
+    # space1 = Space(name=model_color_1, vectors=space1)
+    # space2 = Space(name=model_color_2, vectors=space2)
 
-    space1_vectors = space1.vectors
-    space2_vectors = space2.vectors
+    # space1_vectors = space1.vectors
+    # space2_vectors = space2.vectors
 
-    space1_anchors = space1_vectors[:]
-    space2_anchors = space2_vectors[:]
+    space1_anchors = space1 # space1_vectors[:]
+    space2_anchors = space2 # space2_vectors[:]
 
     # compute mean distance between anchors
     diff = space1_anchors - space2_anchors
     print("mean distance between anchors: ", diff.mean())
 
-    from utils.anchoring_methods import get_anchors
+    from zeroshotrl.utils.anchoring_methods import get_anchors
 
     """ CHANGE ANCHOR SAMPLING METHOD HERE """
     # if not os.path.exists(f"alignment_indices/{env_id}/{env_info}"):
@@ -307,8 +328,8 @@ if stitching_md == "translate":
 
     num_anchors = 3136  # len(space1_anchors) # 3136
     space1_anchors, space2_anchors = get_anchors(
-        space1_vectors,
-        space2_vectors,
+        space1,
+        space2,
         num_anchors,
         subset_indices,
         anchoring_method,
@@ -316,14 +337,30 @@ if stitching_md == "translate":
         device,
     )
 
+    from latentis.estimate.linear import LSTSQEstimator
+    import latentis
+
+    # translation = LatentTranslator(
+    #     random_seed=42,
+    #     estimator=SVDEstimator(
+    #         dim_matcher=ZeroPadding()
+    #     ),  # SGDAffineTranslator(),#SVDEstimator(dim_matcher=ZeroPadding()),
+    #     source_transforms=[latentis.transform.StandardScaling()],
+    #     target_transforms=[latentis.transform.StandardScaling()],
+    # )
+
+
+
     translation = LatentTranslator(
-        random_seed=42,
-        estimator=SVDEstimator(
-            dim_matcher=ZeroPadding()
-        ),  # SGDAffineTranslator(),#SVDEstimator(dim_matcher=ZeroPadding()),
-        source_transforms=None,  # [transforms.StandardScaling()],
-        target_transforms=None,  # [transforms.StandardScaling()],
-    )
+    random_seed=42,
+    estimator=LSTSQEstimator(),
+    # estimator=SVDEstimator(
+    #     dim_matcher=ZeroPadding()
+    # ),  # SGDAffineTranslator(),#SVDEstimator(dim_matcher=ZeroPadding()),
+    source_transforms=[latentis.transform.StandardScaling()], # [latentis.transform.Centering()], # [latentis.transform.StandardScaling()], #None
+    target_transforms=[latentis.transform.StandardScaling()], # [latentis.transform.Centering()], # [latentis.transform.StandardScaling()],
+)
+
     # translation = LatentTranslation(
     #     seed=42,
     #     translator=SVDTranslator(),
@@ -332,15 +369,49 @@ if stitching_md == "translate":
     # )
     space1_anchors = space1_anchors.to(device)  # [:3136]
     space2_anchors = space2_anchors.to(device)  # [:3136]
-    space1 = LatentSpace(vectors=space1_anchors, name="space1")
-    space2 = LatentSpace(vectors=space2_anchors, name="space2")
+    # space1 = LatentSpace(vectors=space1_anchors, name="space1")
+    # space2 = LatentSpace(vectors=space2_anchors, name="space2")
+    
+    # print mse and cosine similarity between the two spaces
+    mse = torch.nn.MSELoss()
+    cos = torch.nn.CosineSimilarity()
+    print(
+        f"mean squared error between the two spaces: {mse(space1_anchors, space2_anchors)}"
+    )
+    print(
+        f"cosine similarity between the two spaces: {cos(space1_anchors, space2_anchors).mean()}"
+    )
+    
     print("\n##############################################\n")
     print(
         f"fitting translation layer between {model_color_1} and {model_color_2} spaces..."
     )
-    translation.fit(source_data=space1, target_data=space2)
+    translation.fit(source_data=space1_anchors, target_data=space2_anchors)
     print("done.\n\n")
-    print(translation(space1))
+
+    space1 = space1[:900]
+    space2 = space2[:900]
+
+    translated_space1 = translation(space1)
+    print("Computing avg pairwise distances between space1 and space2...")
+    print(torch.cdist(space1, space2, p=2).mean())
+
+    print("\n##############################################\n")
+    print("Computing avg pairwise distances between translated space1 and space2...")
+    pairwise_dist_translated = torch.cdist(translated_space1, space2, p=2).mean()
+    print(pairwise_dist_translated)
+
+    # print cosine similarities between space1 and space2, and translated space1 and space2
+    cos = torch.nn.CosineSimilarity(dim=1)
+    cos_sim = cos(space1, space2)
+    print("cosine similarity between space1 and space2: ", cos_sim.mean())
+
+    cos = torch.nn.CosineSimilarity(dim=1)
+    cos_sim = cos(translated_space1, space2)
+    print(
+        "cosine similarity between translated space1 and space2: ",
+        cos_sim.mean(),
+    )
 # agent = Agent(encoder1, policy2, translation=translation).to(device)
 if args.use_resnet:
     from rl_agents.ppo.ppo_resnet import AgentResNet

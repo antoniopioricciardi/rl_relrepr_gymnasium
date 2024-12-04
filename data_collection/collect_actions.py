@@ -1,3 +1,4 @@
+import os
 import torch
 import numpy as np
 
@@ -11,7 +12,7 @@ import tqdm
 # from rl_agents.ddqn import FeatureExtractorDDQN, PolicyDDQN, AgentDDQN
 # from rl_agents.ppo import FeatureExtractor, Policy, Agent
 # from rl_agents.ppo.ppo_end_to_end_relu_stack import FeatureExtractor, Policy, Agent
-from utils.models import load_model, get_algo_instance, get_algo_instance_bw
+from zeroshotrl.utils.models import load_model, get_algo_instance, get_algo_instance_bw, load_model_from_path
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -32,6 +33,12 @@ parser.add_argument(
     type=str,
     default="plain",
     help="background type: plain, green, red, blue, yellow",
+)
+parser.add_argument(
+    "--model-dir",
+    type=str,
+    default="data/ppo_models",
+    help="path to the directory containing the encoder and policy models",
 )
 parser.add_argument(
     "--render-mode", type=str, default="rgb_array", help="render mode: human, rgb_array"
@@ -82,9 +89,9 @@ if env_info == "bw":
     )
 else:
     encoder_instance, policy_instance, agent_instance = get_algo_instance(
-        encoder_algo, policy_algo
+        encoder_algo, policy_algo, use_resnet=False
     )
-from utils.env_initializer import init_env
+from zeroshotrl.utils.env_initializer import init_env
 
 env = init_env(
     args.env_id,
@@ -95,33 +102,56 @@ env = init_env(
     render_md=args.render_mode,
 )
 
+encoder_path = os.path.join(
+    args.model_dir, "encoder.pt"
+)
+policy_path = os.path.join(
+    args.model_dir, "policy.pt"
+)
+
+encoder, policy, agent = load_model_from_path(
+    encoder_path,
+    policy_path,
+    env.single_action_space.n,
+    FeatureExtractor=encoder_instance,
+    Policy=policy_instance,
+    Agent=agent_instance,
+    encoder_eval=True,
+    policy_eval=True,
+    is_relative=False,
+    is_pretrained=False,
+    anchors_alpha=None,
+    device=device
+    )
+    
+
 # encoder, policy, agent = load_model_from_path(
 #     path_enc, path_pol, envs.single_action_space.n,
 #     encoder_instance, policy_instance, agent_instance, is_relative=False, is_pretrained=False, device=device
 #     )
 
-encoder, policy, agent = load_model(
-    env_id,
-    env_info,
-    relative,
-    background_color,
-    encoder_algo,
-    encoder_activation,
-    background_color,
-    policy_algo,
-    policy_activation,
-    env.single_action_space.n,
-    pretrained,
-    FeatureExtractor=encoder_instance,
-    Policy=policy_instance,
-    Agent=agent_instance,
-    anchors_alpha=encoder_alpha,
-    encoder_seed=encoder_seed,
-    policy_seed=policy_seed,
-    encoder_eval=True,
-    policy_eval=True,
-    device=device,
-)
+# encoder, policy, agent = load_model(
+#     env_id,
+#     env_info,
+#     relative,
+#     background_color,
+#     encoder_algo,
+#     encoder_activation,
+#     background_color,
+#     policy_algo,
+#     policy_activation,
+#     env.single_action_space.n,
+#     pretrained,
+#     FeatureExtractor=encoder_instance,
+#     Policy=policy_instance,
+#     Agent=agent_instance,
+#     anchors_alpha=encoder_alpha,
+#     encoder_seed=encoder_seed,
+#     policy_seed=policy_seed,
+#     encoder_eval=True,
+#     policy_eval=True,
+#     device=device,
+# )
 
 # from natural_rl_environment.natural_env import NaturalEnv
 
@@ -168,7 +198,7 @@ for i in tqdm.tqdm(range(num_steps)):
             scores.append(score)
             score = 0
             seed += 1
-            obs = env.reset(seed)
+            obs, _ = env.reset(seed=seed)
         else:
             # print number of lives using vectorized env
             print("episode finished, score: ", score)

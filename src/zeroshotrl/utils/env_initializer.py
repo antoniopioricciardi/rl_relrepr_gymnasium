@@ -89,6 +89,17 @@ def make_env_atari(
             shape = env.observation_space.shape
             # env = ReshapeObservation(env, (3, 96, 96)) # replace with env.observation_space.shape[1],
             env = ReshapeObservation(env, (shape[2], shape[0], shape[1]))
+            import matplotlib.pyplot as plt
+
+            print(env.reset()[0].shape)
+            
+            # Plot the observations
+            plt.figure(figsize=(10, 5))
+            plt.subplot(1, 1, 1)
+            plt.imshow(env.reset()[0])#.transpose(1, 2, 0))
+            plt.axis('off')
+            plt.show()
+            exit(2)
         if not rgb:
             # env = gym.wrappers.ResizeObservation(env, (84, 84))
             env = gym.wrappers.GrayScaleObservation(env)
@@ -99,6 +110,7 @@ def make_env_atari(
         # env.seed(seed)
         env.action_space.seed(seed)
         env.observation_space.seed(seed)
+        exit(2)
         return env
 
     return thunk
@@ -207,20 +219,20 @@ def init_carracing_env(
     num_envs=1,
 ):
     if car_mode == "slow":
-        from envs.carracing.car_racing_slow import CarRacing
+        from zeroshotrl.envs.carracing.car_racing_slow import CarRacing
     # elif car_mode == "no_noop":
-    # from envs.carracing.car_racing_nonoop import CarRacing
+    # from zeroshotrl.envs.carracing.car_racing_nonoop import CarRacing
     elif car_mode == "no_noop_4as":
-        from envs.carracing.car_racing_nonoop_4as import CarRacing
+        from zeroshotrl.envs.carracing.car_racing_nonoop_4as import CarRacing
     elif car_mode == "scrambled":
-        from envs.carracing.car_racing_scrambled import CarRacing
+        from zeroshotrl.envs.carracing.car_racing_scrambled import CarRacing
     elif car_mode == "noleft":
-        from envs.carracing.car_racing_noleft import CarRacing
+        from zeroshotrl.envs.carracing.car_racing_noleft import CarRacing
     # elif car_mode == "heavy":
-    #     from envs.carracing.car_racing_heavy import CarRacing
+    #     from zeroshotrl.envs.carracing.car_racing_heavy import CarRacing
     elif car_mode == "camera_far":
         zoom = 1
-        from envs.carracing.car_racing_camera_far import CarRacing
+        from zeroshotrl.envs.carracing.car_racing_camera_far import CarRacing
     # elif car_mode == "multicolor":
     #     from envs.carracing.car_racing_multicolor import CarRacing
     elif car_mode == "bus":
@@ -242,7 +254,7 @@ def init_carracing_env(
         # env = CustomCarRacing(vehicle_class=custom_car, continuous=False,
         #                       background=background_color, zoom=zoom, render_mode=render_md)
     else:
-        from envs.carracing.car_racing import CarRacing
+        from zeroshotrl.envs.carracing.car_racing import CarRacing
     if car_mode in ["bus", "tuktuk", "street_car"]:
         env = CustomCarRacing(vehicle_class=custom_car, continuous=False,
                               background=background_color, zoom=zoom, render_mode=render_md)

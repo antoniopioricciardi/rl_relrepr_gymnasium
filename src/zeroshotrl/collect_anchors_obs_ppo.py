@@ -50,7 +50,7 @@ args = parser.parse_args()
 # else:
 #     instantiate_env(env_id=args.env_id, num_envs=1, env_variation=args.background, env_seed=args.seed, num_stack=3, num_no_op=30, action_repeat=3, max_frames=False, episodic_life=True, render_mode=args.render_mode, image_path=None)
 
-from utils.env_initializer import init_env
+from zeroshotrl.utils.env_initializer import init_env
 
 env = init_env(
     args.env_id,
@@ -141,8 +141,9 @@ for i in range(len(actions_list)):
             print("episode finished, score: ", score)
             scores.append(score[0])
             score = 0
+            seed += 1
             obs, _ = (
-                env.reset()
+                env.reset(seed=seed)
             )  # shouldn't call this. Vectorized env handles this. If I remove this, need to collect ALL data again
         # elif info["lives"] == 0:
         #     print('episode finished, score: ', score)

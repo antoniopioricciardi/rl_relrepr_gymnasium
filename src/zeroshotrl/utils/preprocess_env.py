@@ -251,7 +251,7 @@ class RepeatAction(gym.Wrapper):
         total_reward = 0.0
         done = False
         for i in range(self.repeat):
-            obs, reward, done, info = self.env.step(action)
+            obs, reward, truncated, terminated, info = self.env.step(action)
             if self.clip_rewards:
                 # clip the reward in -1, 1, then take first element (we need the scalar, not an array)
                 reward = np.sign(reward)  # np.clip(np.array([reward]), -1, 1)[0]
@@ -259,15 +259,15 @@ class RepeatAction(gym.Wrapper):
             total_reward += reward
             if done:
                 break
-        return obs, total_reward, done, info
+        return obs, total_reward, truncated, terminated, info
 
-    def reset(self):
-        obs = self.env.reset()
+    def reset(self, **kwargs):
+        obs, info = self.env.reset(**kwargs)
         if self.fire_first:
             # get_action_meanings returns a list of strings (['NOOP', 'FIRE', 'RIGHT', 'LEFT', 'RIGHTFIRE', 'LEFTFIRE'])
             fire_act_idx = self.env.unwrapped.get_action_meanings().index("FIRE")
             obs, _, _, _ = self.env.step(fire_act_idx)
-        return obs
+        return obs, info
 
 
 ############### old normalization methods

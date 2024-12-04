@@ -57,7 +57,7 @@ class FeatureExtractor(nn.Module):
             # self.set_anchors()
 
     def _compute_relative_representation(self, hidden):
-        assert self.obs_anchors is not None, "You must set the anchors first. Use set_anchors() method."
+        # assert self.obs_anchors is not None, "You must set the anchors first. Use set_anchors() method."
         return self.projector(x=hidden, anchors=self.anchors)  # .vectors
 
     def forward(self, x):
@@ -88,12 +88,12 @@ class FeatureExtractor(nn.Module):
         return self.network(x)
 
 
-    @torch.no_grad()
-    def set_anchors(self, obs_anchors):
-        self.obs_anchors = obs_anchors
-        anchors = self.network(obs_anchors)
-        self.anchors = anchors
-        # self.register_buffer("anchors", anchors)
+    # @torch.no_grad()
+    # def set_anchors(self, obs_anchors):
+    #     self.obs_anchors = obs_anchors
+    #     anchors = self.network(obs_anchors)
+    #     self.anchors = anchors
+    #     # self.register_buffer("anchors", anchors)
 
     @torch.no_grad()
     def update_anchors(self):
@@ -106,8 +106,11 @@ class FeatureExtractor(nn.Module):
     def save_anchors_buffer(self):
         self.register_buffer("saved_anchors", self.anchors)
 
-    def load_anchors_buffer(self):
-        self.anchors = self.saved_anchors
+    # def load_anchors_buffer(self):
+    #     self.anchors = self.saved_anchors
+    @torch.no_grad()
+    def set_anchors(self, anchors):
+        self.anchors = anchors
 
 class Policy(nn.Module):
     def __init__(self, num_actions, stack_n: int = 4) -> None:

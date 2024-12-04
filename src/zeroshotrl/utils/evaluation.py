@@ -102,8 +102,19 @@ def evaluate_vec_env(
         )
         e_dones = np.logical_or(terminated, truncated)
         eval_lengths[dds == 0] += 1
-
         e_obs = torch.Tensor(e_next_obs).to(device)
+        # plot e_obs with matplotlib
+        import matplotlib.pyplot as plt
+
+        print(e_obs[0].shape)
+        # Plot the observations
+        plt.figure(figsize=(10, 5))
+        plt.subplot(1, 1, 1)
+        plt.imshow(e_obs[0][0].cpu().numpy().transpose(1, 2, 0))
+        plt.axis('off')
+        plt.show()
+
+
         # Only print when at least 1 env is done
         if "final_info" not in e_info:
             continue

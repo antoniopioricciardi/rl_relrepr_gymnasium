@@ -1,3 +1,8 @@
+# EXAMPLE:
+# sh collect_data.sh --env-id CarRacing-v2 --num-steps 4000 --collect-actions --generate-anchors-indices --backgrounds green red blue
+# sh collect_data.sh --env-id CarRacing-v2 --num-steps 4000 --backgrounds multicolor
+
+
 # Set default values for arguments
 env_id="CarRacing-v2"
 num_steps=4000
