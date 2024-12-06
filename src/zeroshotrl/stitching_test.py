@@ -267,23 +267,6 @@ if stitching_md == "translate":
     obs_set_2 = torch.tensor(np.array(obs_set_2), dtype=torch.float32)
     print("Done converting obs to torch tensor\n#####\n")
 
-    import matplotlib.pyplot as plt
-
-    i = 400
-    def plot_ith_image(obs_set_1, obs_set_2, i):
-        fig, axes = plt.subplots(1, 2, figsize=(10, 5))
-        axes[0].imshow(obs_set_1[i].permute(1, 2, 0).cpu().numpy())
-        axes[0].set_title(f'obs_set_1[{i}]')
-        axes[0].axis('off')
-        
-        axes[1].imshow(obs_set_2[i].permute(1, 2, 0).cpu().numpy())
-        axes[1].set_title(f'obs_set_2[{i}]')
-        axes[1].axis('off')
-        
-        plt.show()
-
-    plot_ith_image(obs_set_1, obs_set_2, 0)  # Change the index as needed
-    exit(3)
     # obs_set_1 = torch.cat([obs_set_1, obs_set_2], dim=0)  # [anch_indices
     # obs_set_2 = obs_set_1
 

@@ -112,12 +112,12 @@ class ReshapeObservation(
             dtype=env.observation_space.dtype,
         )
         self.shape = shape
-
         gym.utils.RecordConstructorArgs.__init__(self, shape=shape)
         TransformObservation.__init__(
             self,
             env=env,
-            func=lambda obs: np.reshape(obs, shape),
+            # func=lambda obs: np.reshape(obs, shape),
+            func=lambda obs: np.transpose(obs, (2,0,1)),
             observation_space=new_observation_space,
         )
 

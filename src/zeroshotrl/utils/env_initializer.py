@@ -86,20 +86,10 @@ def make_env_atari(
         env = RescaleObservation(env, value=255.0)
         if rgb:
             #     env = PreprocessFrameRGB((84, 84, 3), env)  #
-            shape = env.observation_space.shape
             # env = ReshapeObservation(env, (3, 96, 96)) # replace with env.observation_space.shape[1],
-            env = ReshapeObservation(env, (shape[2], shape[0], shape[1]))
-            import matplotlib.pyplot as plt
-
-            print(env.reset()[0].shape)
             
-            # Plot the observations
-            plt.figure(figsize=(10, 5))
-            plt.subplot(1, 1, 1)
-            plt.imshow(env.reset()[0])#.transpose(1, 2, 0))
-            plt.axis('off')
-            plt.show()
-            exit(2)
+            # env = ReshapeObservation(env, (shape[2], shape[0], shape[1]))
+            env = ReshapeObservation(env, (3, 84, 84))
         if not rgb:
             # env = gym.wrappers.ResizeObservation(env, (84, 84))
             env = gym.wrappers.GrayScaleObservation(env)
@@ -110,7 +100,6 @@ def make_env_atari(
         # env.seed(seed)
         env.action_space.seed(seed)
         env.observation_space.seed(seed)
-        exit(2)
         return env
 
     return thunk

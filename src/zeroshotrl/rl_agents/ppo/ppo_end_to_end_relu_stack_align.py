@@ -65,7 +65,6 @@ class FeatureExtractor(nn.Module):
         x = x.view(
             x.shape[0] * x.shape[1], x.shape[2], x.shape[3], x.shape[4]
         )  # (batch_size * stack, 3, 84, 84)
-
         if self.pretrained:
             # TODO: se uso pretrained ricorda model.eval()
             with torch.no_grad():
