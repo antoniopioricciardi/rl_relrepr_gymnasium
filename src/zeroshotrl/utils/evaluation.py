@@ -89,7 +89,7 @@ def evaluate_vec_env(
     while not_d:  # not np.all(eval_dones):
         with torch.no_grad():
             if algorithm == "ppo":
-                action, logprob, _, value = agent.get_action_and_value(e_obs)
+                action, logprob, _, value = agent.get_action_and_value_deterministic(e_obs)
             elif algorithm == "ddqn":
                 q_values = agent(e_obs)
                 action = torch.argmax(q_values, dim=1)  # .cpu().numpy()
