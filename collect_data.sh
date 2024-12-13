@@ -9,7 +9,6 @@ num_steps=4000
 collect_actions=false
 generate_anchors_indices=false
 backgrounds=("green" "red" "blue")
-actions_path="data/actions_lists/${env_id}_actions_${num_steps}.pkl"
 
 # Usage function
 usage() {
@@ -66,6 +65,9 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
+
+# default value
+actions_path="data/actions_lists/${env_id}_actions_${num_steps}.pkl"
 
 # print env_id, num_steps, actions_path, collect_actions
 echo "env_id: $env_id"

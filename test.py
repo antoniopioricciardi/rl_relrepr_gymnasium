@@ -1,6 +1,23 @@
-import torch
+from zeroshotrl.envs.lunarlander.lunar_lander_rgb import LunarLanderRGB
+import numpy as np
 
-# load the following torch model: "models/CarRacing-v2/rgb/green/ppo/relative/relu/alpha_0_999/seed_1/encoder.pt" and bring it to cpu
-encoder = torch.load("models/CarRacing-v2/rgb/green/ppo/relative/relu/alpha_0_999/seed_1/encoder.pt", map_location=torch.device('cpu'))
+env = LunarLanderRGB(render_mode="rgb_array", color="red")
+# env = ScreenObsWrapper(env)
+env.reset()
 
-print(encoder["obs_anchors_filename"])
+# obs = env.render()
+
+# print("Observation shape:", obs.shape)
+# print("Observation dtype:", obs.dtype)
+
+score = 0
+# training loop sampling random actions. Render it
+for i in range(100):
+    action = env.action_space.sample()
+    obs, reward, truncated, terminated, info = env.step(action)
+    score += reward
+    done = np.logical_or(truncated, terminated)
+    if done:
+        env.reset()
+
+print(score, i)

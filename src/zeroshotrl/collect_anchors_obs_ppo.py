@@ -2,16 +2,11 @@ import numpy as np
 import torch
 import pickle
 
-# set command line arguments
 import argparse
-# parse arguments
-
-# from rl_agents.ddqn import FeatureExtractorDDQN, PolicyDDQN, AgentDDQN
-# from rl_agents.ppo import FeatureExtractor, Policy, Agent
-
 
 device = "cpu"
 
+# set command line arguments
 parser = argparse.ArgumentParser()
 parser.add_argument(
     "--env-id", type=str, default="BreakoutNoFrameskip-v4", help="Environment id"
@@ -19,7 +14,7 @@ parser.add_argument(
 parser.add_argument("--seed", type=int, default=40, help="Random seed")
 
 # parse arguments
-bg_colors_allowed = ["plain", "green", "red", "blue", "violet", "yellow"]
+bg_colors_allowed = ["plain", "green", "red", "blue", "violet", "yellow", "white"]
 # parser = argparse.ArgumentParser()
 # parser.add_argument("--background-type", type=str, default="plain", choices=["plain", "color", "image", "video"],
 #                     help="background type: plain, color, image, video")
@@ -42,7 +37,7 @@ parser.add_argument(
 parser.add_argument(
     "--actions-path", type=str, default="", required=True, help="path to actions list"
 )
-
+# parse arguments
 args = parser.parse_args()
 
 # if args.env_id.startswith("CarRacing-v2"):
