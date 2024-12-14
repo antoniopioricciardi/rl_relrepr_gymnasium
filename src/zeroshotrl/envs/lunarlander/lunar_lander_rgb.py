@@ -495,7 +495,6 @@ class LunarLanderRGB(gym.Env, EzPickle):
 
     def step(self, action):
         assert self.lander is not None
-
         # Update wind and apply to the lander
         assert self.lander is not None, "You forgot to call reset()"
         if self.enable_wind and not (
