@@ -141,8 +141,8 @@ class Policy(nn.Module):
         probs = Categorical(logits=logits)
         if action is None:
             # action = probs.sample()
-            # take maximum likelihood action
-            action = probs.probs.argmax(dim=1, keepdim=True)[0]
+            # take maximum likelihood action, unwrap from [[a0], [a1], ...] to [a0, a1, ...]
+            action = probs.probs.argmax(dim=1, keepdim=True).squeeze()
         return action, probs.log_prob(action), probs.entropy(), self.critic(x)
 
 
