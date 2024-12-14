@@ -100,7 +100,6 @@ def make_env_atari(
         # env.seed(seed)
         env.action_space.seed(seed)
         env.observation_space.seed(seed)
-        print(env.reset()[0].shape)
         return env
 
     return thunk
