@@ -296,6 +296,32 @@ def init_env(
             render_md=render_md,
             num_envs=num_envs,
         )
+    elif env_id.startswith("LunarLander"):
+        from zeroshotrl.envs.lunarlander.lunar_lander_rgb import LunarLanderRGB
+
+        env = LunarLanderRGB(render_mode=render_md, color=background_color)
+        nv = gym.vector.SyncVectorEnv(
+            [
+                make_env_atari(
+                    env,
+                    seed=cust_seed,
+                    rgb=True,
+                    stack=4,
+                    no_op=0,
+                    action_repeat=4,
+                    max_frames=False,
+                    episodic_life=False,
+                    clip_reward=False,
+                    check_fire=False,
+                    idx=i,
+                    capture_video=False,
+                    run_name="test",
+                )
+                for i in range(1)
+
+                
+            ]
+        )
     elif env_id.startswith("Wolfenstein"):
         lvl = env_id.split("-")[-1]
         from wolfenstein_rl.wolfenstein_env import Wolfenstein
