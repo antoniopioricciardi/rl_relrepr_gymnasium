@@ -55,6 +55,7 @@ def make_env_atari(
     clip_reward=False,
     check_fire=True,
     filter_dict=None,
+    time_limit: int = 0,
     idx=0,
     capture_video=False,
     run_name="",
@@ -97,6 +98,8 @@ def make_env_atari(
         # env = gym.wrappers.GrayScaleObservation(env)
         if stack > 1:
             env = gym.wrappers.FrameStack(env, stack)  # (4, 3, 84, 84)
+        if time_limit > 0:
+            env = gym.wrappers.TimeLimit(env, max_episode_steps=time_limit)
         # env.seed(seed)
         env.action_space.seed(seed)
         env.observation_space.seed(seed)
