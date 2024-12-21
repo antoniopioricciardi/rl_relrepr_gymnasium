@@ -150,7 +150,7 @@ if __name__ == "__main__":
                 episodic_life=False,
                 clip_reward=False,
                 check_fire=False,
-                time_limit=1000,
+                #time_limit=1000,
                 idx=i,
                 capture_video=False,
                 run_name=run_name,

@@ -330,6 +330,7 @@ class LunarLanderRGB(gym.Env, EzPickle):
             self.action_space = spaces.Discrete(4)
 
         self.render_mode = render_mode
+        self.step_cnt = 0
 
     def _destroy(self):
         if not self.moon:
@@ -469,6 +470,7 @@ class LunarLanderRGB(gym.Env, EzPickle):
 
         if self.render_mode == "human":
             self.render()
+        self.step_cnt = 0
         return self.step(np.array([0, 0]) if self.continuous else 0)[0], {}
 
     def _create_particle(self, mass, x, y, ttl):
@@ -676,6 +678,7 @@ class LunarLanderRGB(gym.Env, EzPickle):
         )  # less fuel spent is better, about -30 for heuristic landing
         reward -= s_power * 0.03
 
+        self.step_cnt += 1
         terminated = False
         if self.game_over or abs(state[0]) >= 1.0:
             terminated = True
@@ -683,6 +686,9 @@ class LunarLanderRGB(gym.Env, EzPickle):
         if not self.lander.awake:
             terminated = True
             reward = +100
+        if self.step_cnt >= 1000:
+            terminated = True
+            # reward = -100
 
         if self.render_mode == "human":
             self.render()
