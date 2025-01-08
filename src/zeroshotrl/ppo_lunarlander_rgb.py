@@ -129,8 +129,8 @@ if __name__ == "__main__":
     
     from zeroshotrl.envs.lunarlander.lunar_lander_rgb import LunarLanderRGB
 
-    env = LunarLanderRGB(render_mode="rgb_array", color=args.color, gravity=args.gravity)
-    eval_env = LunarLanderRGB(render_mode="rgb_array", color=args.color, gravity=args.gravity)
+    env = LunarLanderRGB(render_mode="rgb_array", color=args.background, gravity=args.gravity)
+    eval_env = LunarLanderRGB(render_mode="rgb_array", color=args.background, gravity=args.gravity)
     
     num_eval_envs = args.num_eval_envs
 
