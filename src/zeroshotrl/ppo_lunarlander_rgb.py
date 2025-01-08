@@ -32,7 +32,7 @@ seed_everything(42)
 def parse_env_specific_args(parser):
     # env specific arguments
     parser.add_argument(
-        "--color",
+        "--background",
         type=str,
         default="green",
         help="the color of the rocks at the base"
