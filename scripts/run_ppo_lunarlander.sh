@@ -1,9 +1,9 @@
 #!/bin/sh
 #
-# bash scripts/run_ppo_lunarlander.sh --run-mode ppo --env-id LunarLander --background white --gravity -10
-# bash scripts/run_ppo_lunarlander.sh --run-mode ppo --env-id LunarLander --background white --gravity -3
-# bash scripts/run_ppo_lunarlander.sh --run-mode ppo --env-id LunarLander --background red --gravity -10
-# bash scripts/run_ppo_lunarlander.sh --run-mode ppo --env-id LunarLander --background red --gravity -3
+# bash scripts/run_ppo_lunarlander.sh --run-mode ppo --env-id LunarLanderRGB --background white --gravity -10 --anchors-alpha 0
+# bash scripts/run_ppo_lunarlander.sh --run-mode ppo --env-id LunarLanderRGB --background white --gravity -3 --anchors-alpha 0
+# bash scripts/run_ppo_lunarlander.sh --run-mode ppo --env-id LunarLanderRGB --background red --gravity -10 --anchors-alpha 0
+# bash scripts/run_ppo_lunarlander.sh --run-mode ppo --env-id LunarLanderRGB --background red --gravity -3 --anchors-alpha 0
 
 #!/bin/bash
 
@@ -22,7 +22,7 @@ usage() {
 
 # default values
 run_mode="ppo"
-env_id="LunarLander"
+env_id="LunarLanderRGB"
 background="white"
 gravity="-10"
 anchors_alpha=0
