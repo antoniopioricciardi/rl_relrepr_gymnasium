@@ -2,6 +2,10 @@
 # sh collect_data.sh --env-id CarRacing-v2 --num-steps 4000 --collect-actions --generate-anchors-indices --backgrounds green red blue
 # sh collect_data.sh --env-id CarRacing-v2 --num-steps 4000 --backgrounds multicolor
 
+# LUNARALANDER
+# sh collect_data.sh --env-id LunarLanderRGB --num-steps 4000 --collect-actions --generate-anchors-indices --backgrounds white red --model-color white
+
+
 
 # Set default values for arguments
 env_id="CarRacing-v2"
@@ -9,6 +13,7 @@ num_steps=4000
 collect_actions=false
 generate_anchors_indices=false
 backgrounds=("green" "red" "blue")
+model_color="green"
 
 # Usage function
 usage() {
@@ -59,6 +64,10 @@ while [[ $# -gt 0 ]]; do
                 shift 1
             done
             ;;
+        --model-color)
+            model_color="$2"
+            shift 2
+            ;;
         *)
             echo "Invalid argument: $2"
             exit 1
@@ -73,6 +82,7 @@ actions_path="data/actions_lists/${env_id}_actions_${num_steps}.pkl"
 echo "env_id: $env_id"
 echo "num_steps: $num_steps"
 echo "backgrounds: ${backgrounds[@]}"
+echo "model_color: $model_color"
 echo "actions_path: $actions_path"
 echo "collect_actions: $collect_actions"
 echo "generate_anchors_indices: $generate_anchors_indices"
@@ -98,10 +108,10 @@ fi
 if [ "$collect_actions" = true ]; then
     echo "collecting actions list"
     # build path to the model file to follow this format: --encoder-dir models/CarRacing-v2/rgb/green/ppo/absolute/relu/seed_1 --policy-dir models/CarRacing-v2/rgb/green/ppo/absolute/relu/seed_1
-    model_dir="models/${env_id}/rgb/green/ppo/absolute/relu/seed_1"
+    model_dir="models/${env_id}/rgb/${model_color}/ppo/absolute/relu/seed_1"
     # policy_dir="models/${env_id}/rgb/green/ppo/absolute/relu/seed_1"
 
-    python data_collection/collect_actions.py --env-id "$env_id" --seed 1 --model-seed 1 --num-steps "$num_steps" --background green --render-mode rgb_array --model-dir $model_dir
+    python data_collection/collect_actions.py --env-id "$env_id" --seed 1 --model-seed 1 --num-steps "$num_steps" --background "$model_color" --render-mode rgb_array --model-dir $model_dir
 fi
 
 
