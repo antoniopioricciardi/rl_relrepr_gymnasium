@@ -828,8 +828,7 @@ class LunarLanderRGB(gym.Env, EzPickle):
 
     def close(self):
         if self.screen is not None:
-            import pygame
-
+            # import pygame
             pygame.display.quit()
             pygame.quit()
             self.isopen = False

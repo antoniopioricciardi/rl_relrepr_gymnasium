@@ -83,7 +83,7 @@ def evaluate_vec_env(
 
     # ALGO LOGIC: action logic
     # loop until all eval_dones are True
-
+    score = 0
     not_d = True
     # while not all envs are done
     while not_d:  # not np.all(eval_dones):
@@ -100,10 +100,12 @@ def evaluate_vec_env(
         e_next_obs, e_reward, terminated, truncated, e_info = env.step(
             action.cpu().numpy()
         )
+        # sss += e_reward
         e_dones = np.logical_or(terminated, truncated)
         eval_lengths[dds == 0] += 1
         e_obs = torch.Tensor(e_next_obs).to(device)
-
+        score += e_reward
+        # print("r:", e_reward)
         # Only print when at least 1 env is done
         if "final_info" not in e_info:
             continue
@@ -128,6 +130,7 @@ def evaluate_vec_env(
     print(
         f"Eval episode: {episode_n}, Eval avg reward: {eval_avg_reward}, Eval avg length: {eval_avg_length}"
     )
+    # print("score:", score)
     if writer is not None:
         writer.add_scalar("charts/eval_score", eval_avg_reward, global_step)
     if logger is not None:

@@ -300,9 +300,12 @@ def init_env(
             num_envs=num_envs,
         )
     elif env_id.startswith("LunarLander"):
+        gravity = -10
+        if "-" in env_id:
+            gravity = -int(env_id.split("-")[-1])
         from zeroshotrl.envs.lunarlander.lunar_lander_rgb import LunarLanderRGB
-
-        env = LunarLanderRGB(render_mode=render_md, color=background_color)
+        print("Gravity:", gravity)
+        env = LunarLanderRGB(render_mode=render_md, color=background_color, gravity=gravity)
         nv = gym.vector.SyncVectorEnv(
             [
                 make_env_atari(
@@ -311,7 +314,7 @@ def init_env(
                     rgb=True,
                     stack=4,
                     no_op=0,
-                    action_repeat=4,
+                    action_repeat=0,
                     max_frames=False,
                     episodic_life=False,
                     clip_reward=False,
