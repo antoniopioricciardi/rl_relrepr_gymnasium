@@ -1,8 +1,10 @@
 #!/bin/sh
 #
-# bash scripts/run_ppo_carracing.sh --run-mode ppo --env-id CarRacing-v2 --background green --gravity standard --anchors-alpha 0
-# bash scripts/run_ppo_carracing.sh --run-mode ppo-rel --env-id CarRacing-v2 --background multicolor --gravity standard --anchors-alpha 0.999
-# bash scripts/run_ppo_carracing.sh --run-mode ppo_resnet --env-id CarRacing-v2 --gravity standard --background green
+# bash scripts/run_ppo_lunarlander.sh --run-mode ppo --env-id LunarLander --background white --gravity -10
+# bash scripts/run_ppo_lunarlander.sh --run-mode ppo --env-id LunarLander --background white --gravity -3
+# bash scripts/run_ppo_lunarlander.sh --run-mode ppo --env-id LunarLander --background red --gravity -10
+# bash scripts/run_ppo_lunarlander.sh --run-mode ppo --env-id LunarLander --background red --gravity -3
+
 #!/bin/bash
 
 # usage function
