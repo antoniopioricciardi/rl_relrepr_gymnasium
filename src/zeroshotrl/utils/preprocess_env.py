@@ -255,8 +255,9 @@ class RepeatAction(gym.Wrapper):
             if self.clip_rewards:
                 # clip the reward in -1, 1, then take first element (we need the scalar, not an array)
                 reward = np.sign(reward)  # np.clip(np.array([reward]), -1, 1)[0]
-
             total_reward += reward
+
+            done = truncated or terminated
             if done:
                 break
         return obs, total_reward, truncated, terminated, info
