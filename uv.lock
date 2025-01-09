@@ -1320,6 +1320,20 @@ wheels = [
 ]
 
 [[package]]
+name = "miniworld"
+version = "2.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "gymnasium", marker = "python_full_version == '3.9.18'" },
+    { name = "numpy", marker = "python_full_version == '3.9.18'" },
+    { name = "pyglet", marker = "python_full_version == '3.9.18'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/94/7b/f5ade6af01328701a82cd4dd1039090739d23b3d80b05a0a54eb25516e21/miniworld-2.0.0.tar.gz", hash = "sha256:4cf8e7bec00db9936808c4b35453d6ec0dcfed25e0283e1edbbf6012111c61f5", size = 38655807 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/5f/44/2b5aab45aa377e3dfdbfa37ac334a1aefe00fa0202a6fae0cc1d5de10854/miniworld-2.0.0-py3-none-any.whl", hash = "sha256:d2d0a8722b4495f9de75846651668751ba17e5f15169d93ee78fd14dea66c38d", size = 39429805 },
+]
+
+[[package]]
 name = "more-itertools"
 version = "10.5.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2039,6 +2053,15 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/9a/2f/8458240c8908a550254c80b64f8c03d6d46156664df3515a1331ae730b4e/pygame-2.6.1-pp39-pypy39_pp73-macosx_10_15_x86_64.whl", hash = "sha256:bbb7167c92103a2091366e9af26d4914ba3776666e8677d3c93551353fffa626", size = 12782440 },
     { url = "https://files.pythonhosted.org/packages/b8/a5/ef76a85da2cb7bc6b9fc54b0a56cf75f244c8adcd16bab8d0d9d7398bfed/pygame-2.6.1-pp39-pypy39_pp73-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:17498a2b043bc0e795faedef1b081199c688890200aef34991c1941caa2d2c89", size = 14182026 },
     { url = "https://files.pythonhosted.org/packages/8b/11/5519d3dfc8046822289dbd8ffde407e30ddb56b6f4a78ca39121a545a322/pygame-2.6.1-pp39-pypy39_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:7103c60939bbc1e05cfc7ba3f1d2ad3bbf103b7828b82a7166a9ab6f51950146", size = 13869271 },
+]
+
+[[package]]
+name = "pyglet"
+version = "1.5.27"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/44/34/c11af4ae44bdd601e7d837add3d5c11451fe10f8f3d364f0b3ec19dd5f6b/pyglet-1.5.27.zip", hash = "sha256:4d00e067451f3b10fd51b69764fddab65444372a2da344ee2b35f0a8e6ebf005", size = 6978692 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e0/da/259b29659834f31f90b326b0f21466dc332eba9d5b89f6dbd849eabf9bc7/pyglet-1.5.27-py3-none-any.whl", hash = "sha256:7ce2eb5a299cda92fcc099f533520cdaa2f157a175d6c1442a2ae4d769284d2d", size = 1135252 },
 ]
 
 [[package]]
@@ -2982,6 +3005,7 @@ dependencies = [
     { name = "gymnasium", extra = ["box2d"], marker = "python_full_version == '3.9.18'" },
     { name = "ipykernel", marker = "python_full_version == '3.9.18'" },
     { name = "latentis", marker = "python_full_version == '3.9.18'" },
+    { name = "miniworld", marker = "python_full_version == '3.9.18'" },
     { name = "numpy", marker = "python_full_version == '3.9.18'" },
     { name = "opencv-python", marker = "python_full_version == '3.9.18'" },
     { name = "plotly", marker = "python_full_version == '3.9.18'" },
@@ -3005,6 +3029,7 @@ requires-dist = [
     { name = "gymnasium", extras = ["box2d"], specifier = ">=0.29.1" },
     { name = "ipykernel", specifier = ">=6.29.5" },
     { name = "latentis", specifier = "==0.0.7" },
+    { name = "miniworld", specifier = ">=2.0.0" },
     { name = "numpy", specifier = "==1.26.4" },
     { name = "opencv-python", specifier = ">=4.10.0.84" },
     { name = "plotly", specifier = "==5.24.1" },
