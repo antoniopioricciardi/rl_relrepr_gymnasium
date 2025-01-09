@@ -24,7 +24,7 @@ from zeroshotrl.utils.argparser import *
 
 seed_everything(42)
 
-""" MINIGRID """
+""" MINIWORLD """
 """  """
 # python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name test --env-id Miniworld --seed 1 --num-envs 8 --num-eval-envs 1 --background white --gravity -10 --stack-n 4 --total-timesteps 25000000
 
