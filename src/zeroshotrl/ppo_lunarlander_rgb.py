@@ -26,8 +26,7 @@ seed_everything(42)
 
 """ LUNAR LANDER """
 """ white: abs, rel """
-# python src/zeroshotrl/ppo_lunarlander_rgb.py --track --wandb-project-name rlrepr_ppo_lunarlander --exp-name white_rgb --env-id LunarLanderRGB --seed 1 --num-envs 8 --num-eval-envs 1 --color white --gravity -10 --stack-n 4 --total-timesteps 5000000
-
+# python src/zeroshotrl/ppo_lunarlander_rgb.py --track --wandb-project-name rlrepr_ppo_lunarlander --exp-name " -10_white_rgb --env-id LunarLanderRGB --seed 5 --num-envs 16 --background white --gravity -10 --stack-n 4 --total-timesteps 25000000
 
 def parse_env_specific_args(parser):
     # env specific arguments
