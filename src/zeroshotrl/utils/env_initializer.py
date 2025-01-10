@@ -328,6 +328,30 @@ def init_env(
                 
             ]
         )
+    elif env_id.startswith("MiniWorld"):
+        # lvl = env_id.split("-")[-1]
+        import miniworld
+        env = env.make(env_id, render_mode=render_md)
+        nv = gym.vector.AsyncVectorEnv(
+            [
+                make_env_atari(
+                    env,
+                    seed=cust_seed,
+                    rgb=True,
+                    stack=4,
+                    no_op=0,
+                    action_repeat=0,
+                    max_frames=False,
+                    episodic_life=False,
+                    clip_reward=False,
+                    check_fire=False,
+                    idx=i,
+                    capture_video=False,
+                    run_name="test",
+                )
+                for i in range(1)
+            ]
+        )
     elif env_id.startswith("Wolfenstein"):
         lvl = env_id.split("-")[-1]
         from wolfenstein_rl.wolfenstein_env import Wolfenstein

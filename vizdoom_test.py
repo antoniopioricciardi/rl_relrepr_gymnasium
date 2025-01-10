@@ -1,6 +1,6 @@
 import gymnasium
 from vizdoom import gymnasium_wrapper # This import will register all the environments
-import vizdoom.gymnasium_wrapper.gymnasium_env_defns as env_defns
+# import vizdoom.gymnasium_wrapper.gymnasium_env_defns as env_defns
 # env = gymnasium.make("VizdoomBasic-v0", render_mode="human") # or any other environment id
 
 
@@ -25,11 +25,11 @@ import os
 
 from gymnasium.utils import EzPickle
 
-from vizdoom import scenarios_path
+# from vizdoom import scenarios_path
 from vizdoom.gymnasium_wrapper.base_gymnasium_env import VizdoomEnv
 
 
-class VizdoomScenarioEnv(VizdoomEnv, EzPickle):
+class CustomVizdoomScenarioEnv(VizdoomEnv, EzPickle):
     """Basic ViZDoom environments which reside in the `scenarios` directory"""
 
     def __init__(
@@ -39,17 +39,30 @@ class VizdoomScenarioEnv(VizdoomEnv, EzPickle):
             self, scenario_file, frame_skip, max_buttons_pressed, render_mode
         )
         super().__init__(
-            os.path.join(scenarios_path, scenario_file),
+            # os.path.join(scenario_file),
+            scenario_file,
             frame_skip,
             max_buttons_pressed,
             render_mode,
         )
 
 
+env = CustomVizdoomScenarioEnv("vizdoom_scenarios/my_way_home.cfg", render_mode="human")
 
-env = env_defns.VizdoomScenarioEnv("basic.cfg", render_mode="human")
+# env = VizdoomScenarioEnv("basic_test.cfg", render_mode="human")
 env.reset()
 done = False
+
+while not done:
+    action = env.action_space.sample()
+    observation, reward, terminated, truncated, info = env.step(action)
+    done = terminated or truncated
+    
+    print("Reward:", reward)
+    # print("Observation:", observation)
+    print("Done:", done)
+    print("Info:", info)
+    print("=====================")
 
 
 

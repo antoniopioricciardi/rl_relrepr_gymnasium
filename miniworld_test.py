@@ -1,7 +1,7 @@
 import gymnasium as gym
 import miniworld
-env = gym.make("MiniWorld-OneRoom-v0", render_mode="human")
-observation, info = env.reset(seed=42)
+env = gym.make("MiniWorld-RoomObjects-v0", render_mode="human")
+observation, info = env.reset(seed=0)
 score = 0   
 for _ in range(1000):
     # action = policy(observation)  # User-defined policy function

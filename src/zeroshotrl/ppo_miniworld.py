@@ -112,11 +112,11 @@ if __name__ == "__main__":
 
     zoom = 2.7
     
-    import gymnasium as gym
     import miniworld
 
-    env = gym.make("MiniWorld-OneRoom-v0", render_mode="rgb_array")
-    eval_env = gym.make("MiniWorld-OneRoom-v0", render_mode="rgb_array")
+    # env = gym.make("MiniWorld-OneRoom-v0", render_mode="rgb_array")
+    env = gym.make(f"MiniWorld-{args.env_id}", render_mode="rgb_array")
+    eval_env = gym.make(f"MiniWorld-{args.env_id}", render_mode="rgb_array")
     
     num_eval_envs = args.num_eval_envs
 
