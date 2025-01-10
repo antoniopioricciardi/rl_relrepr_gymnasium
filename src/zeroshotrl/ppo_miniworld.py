@@ -153,7 +153,7 @@ if __name__ == "__main__":
                 rgb=True,
                 stack=args.stack_n,
                 no_op=0,
-                action_repeat=0,
+                action_repeat=4,
                 max_frames=False,
                 episodic_life=False,
                 clip_reward=False,
