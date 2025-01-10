@@ -26,7 +26,7 @@ seed_everything(42)
 
 """ MINIWORLD """
 """  """
-# python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name test --env-id Miniworld --seed 1 --num-envs 8 --num-eval-envs 1 --background white --gravity -10 --stack-n 4 --total-timesteps 25000000
+# python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name test --env-id Miniworld --seed 1 --num-envs 8 --num-eval-envs 1 --background white --gravity -10 --stack-n 4 --total-timesteps 5000000
 
 
 def parse_env_specific_args(parser):
@@ -115,15 +115,15 @@ if __name__ == "__main__":
     import gymnasium as gym
     import miniworld
 
-    env = gym.make("MiniWorld-OneRoom-v0", render_mode="rgb_array")
-    eval_env = gym.make("MiniWorld-OneRoom-v0", render_mode="rgb_array")
+    env = gym.make("MiniWorld-FourRooms-v0", render_mode="rgb_array")
+    eval_env = gym.make("MiniWorld-FourRooms-v0", render_mode="rgb_array")
     
     num_eval_envs = args.num_eval_envs
 
     # env setup
     from zeroshotrl.utils.env_initializer import make_env_atari
 
-    envs = gym.vector.AsyncVectorEnv(
+    envs = gym.vector.SyncVectorEnv(
         [
             make_env_atari(
                 env,
@@ -145,7 +145,7 @@ if __name__ == "__main__":
         ]
     )
 
-    eval_envs = gym.vector.AsyncVectorEnv(
+    eval_envs = gym.vector.SyncVectorEnv(
         [
             make_env_atari(
                 eval_env,
