@@ -8,6 +8,61 @@ from gymnasium.core import ActType, ObsType, WrapperObsType
 from typing import Optional, Union, Tuple
 
 
+
+import numpy as np
+from gymnasium import ObservationWrapper
+from gymnasium.spaces import Box
+
+class ColorTransformObservation(ObservationWrapper):
+    def __init__(self, env, color="green"):
+        """
+        Observation wrapper to apply a color tint over image observations.
+
+        Args:
+            env: The environment to wrap.
+            color (str): The tint color to apply. Options: "green", "red", "blue".
+        """
+        super().__init__(env)
+        assert color in ["standard", "green", "red", "blue"], "Color must be 'green', 'red', or 'blue'."
+        self.color = color
+        
+        # Ensure the observation space is an image space
+        assert isinstance(self.observation_space, Box), "Observation space must be a Box space."
+        assert len(self.observation_space.shape) == 3, "Observations must be 3D images (H, W, C)."
+        assert self.observation_space.shape[2] == 3, "Observations must have 3 channels (RGB)."
+        
+        # Keep observation space unchanged
+        self.observation_space = env.observation_space
+    
+    def observation(self, obs):
+        """
+        Modify the observation by applying the color tint.
+
+        Args:
+            obs (np.ndarray): Original observation.
+
+        Returns:
+            np.ndarray: Observation with the color tint applied.
+        """
+        # Create a tint mask based on the selected color
+        tint = np.zeros_like(obs, dtype=np.float32)
+        if self.color == "red":
+            tint[:, :, 0] = 1.0
+        elif self.color == "green":
+            tint[:, :, 1] = 1.0
+        elif self.color == "blue":
+            tint[:, :, 2] = 1.0
+        elif self.color == "standard":
+            # No tint
+            return obs
+        
+        # Apply the tint with a blending factor
+        blend_factor = 0.2
+        obs_tinted = (1 - blend_factor) * obs + blend_factor * tint * 255
+        return np.clip(obs_tinted, 0, 255).astype(np.uint8)
+
+
+
 class TransformObservation(
     gym.ObservationWrapper[WrapperObsType, ActType, ObsType],
     gym.utils.RecordConstructorArgs,
@@ -148,7 +203,7 @@ class RescaleObservation(
     """
 
     # shape: int | tuple[int, ...]):
-    def __init__(self, env: gym.Env[ObsType, ActType], value=255.0):
+    def __init__(self, env: gym.Env[ObsType, ActType], rescale_value=255.0):
         """Constructor for env with ``Box`` observation space that has a shape product equal to the new shape product.
 
         Args:
@@ -170,8 +225,8 @@ class RescaleObservation(
         # self.shape = shape
 
         new_observation_space = spaces.Box(
-            low=env.observation_space.low / value,
-            high=env.observation_space.high / value,
+            low=env.observation_space.low / rescale_value,
+            high=env.observation_space.high / rescale_value,
             shape=env.observation_space.shape,
             dtype=np.float32,
         )
@@ -179,7 +234,7 @@ class RescaleObservation(
         TransformObservation.__init__(
             self,
             env=env,
-            func=lambda obs: obs / value,
+            func=lambda obs: obs / rescale_value,
             observation_space=new_observation_space,
         )
 
