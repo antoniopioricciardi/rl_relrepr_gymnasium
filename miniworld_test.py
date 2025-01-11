@@ -1,6 +1,10 @@
 import gymnasium as gym
 import miniworld
-env = gym.make("MiniWorld-RoomObjects-v0", render_mode="human")
+from zeroshotrl.utils.preprocess_env import ColorTransformObservation
+
+
+env = gym.make("MiniWorld-OneRoom-v0", render_mode="human")
+env = ColorTransformObservation(env, color="standard")
 observation, info = env.reset(seed=0)
 score = 0   
 for _ in range(1000):
