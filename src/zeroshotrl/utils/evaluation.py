@@ -68,6 +68,7 @@ def evaluate_vec_env(
     algorithm="ppo",
     episode_length_limit=-1,
     seed=0,
+    forced_render=False,
 ):
     if (not isinstance(env, gym.vector.AsyncVectorEnv)) and (
         not isinstance(env, gym.vector.SyncVectorEnv)
@@ -87,6 +88,8 @@ def evaluate_vec_env(
     not_d = True
     # while not all envs are done
     while not_d:  # not np.all(eval_dones):
+        if forced_render:
+            env.envs[0].render()
         with torch.no_grad():
             if algorithm == "ppo":
                 action, logprob, _, value = agent.get_action_and_value_deterministic(e_obs)

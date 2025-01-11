@@ -109,6 +109,11 @@ def parse_args():
 # python src/zeroshotrl/stitching_test.py --stitching-mode absolute --env-id LunarLanderRGB --env-seed 1 --background-color white --encoder-dir models/LunarLanderRGB/rgb/white/ppo/absolute/relu/seed_1 --policy-dir models/LunarLanderRGB/rgb/white/ppo/absolute/relu/seed_1
 # python src/zeroshotrl/stitching_test.py --stitching-mode translate --env-id LunarLanderRGB --env-seed 1 --background-color white --encoder-dir models/LunarLanderRGB/rgb/white/ppo/absolute/relu/seed_1 --policy-dir models/LunarLanderRGB/rgb/red/ppo/absolute/relu/seed_1 --anchors-file1 data/anchors/LunarLanderRGB/rgb_ppo_transitions_white_obs.pkl --anchors-file2 data/anchors/LunarLanderRGB/rgb_ppo_transitions_red_obs.pkl --anchors-alpha None --anchors-method random --render-mode human
 
+
+""" Miniworld """
+""" abs/transl/relative (standard/red) """
+# python src/zeroshotrl/stitching_test.py --stitching-mode absolute --env-id MiniWorld-OneRoom-v0 --env-seed 1 --background-color standard --encoder-dir models/MiniWorld-OneRoom-v0/rgb/standard/ppo/absolute/relu/seed_1 --policy-dir models/MiniWorld-OneRoom-v0/rgb/standard/ppo/absolute/relu/seed_1
+
 args = parse_args()
 if args.stitching_mode == "translate":
     assert (
@@ -421,6 +426,9 @@ else:
 
 # env_type = "tanh_rgb_nostack"
 
+forced_render = False
+if env_id.startswith("MiniWorld") and render_md == "human":
+    forced_render = True
 test_rel_repr_vec(
     envs,
     agent,
@@ -429,5 +437,6 @@ test_rel_repr_vec(
     device=device,
     seed=args.env_seed,
     num_envs=num_envs,
+    forced_render=forced_render,
 )
 # test_rel_repr(envs, agent)

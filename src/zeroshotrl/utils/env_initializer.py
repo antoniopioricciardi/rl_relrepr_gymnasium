@@ -4,6 +4,7 @@ from zeroshotrl.utils.preprocess_env import (
     RescaleObservation,
     ReshapeObservation,
     FilterFromDict,
+    ColorTransformObservation
 )
 
 from stable_baselines3.common.atari_wrappers import (  # isort:skip
@@ -54,6 +55,7 @@ def make_env_atari(
     episodic_life=False,
     clip_reward=False,
     check_fire=True,
+    color_transform="standard",
     filter_dict=None,
     time_limit: int = 0,
     idx=0,
@@ -84,7 +86,9 @@ def make_env_atari(
         if filter_dict:
             env = FilterFromDict(env, filter_dict)
         env = gym.wrappers.ResizeObservation(env, (84, 84))
-        env = RescaleObservation(env, value=255.0)
+        env = RescaleObservation(env, rescale_value=255.0)
+        if color_transform != "standard":
+            env = ColorTransformObservation(env, color=color_transform)
         if rgb:
             #     env = PreprocessFrameRGB((84, 84, 3), env)  #
             # env = ReshapeObservation(env, (3, 96, 96)) # replace with env.observation_space.shape[1],
@@ -331,8 +335,8 @@ def init_env(
     elif env_id.startswith("MiniWorld"):
         # lvl = env_id.split("-")[-1]
         import miniworld
-        env = env.make(env_id, render_mode=render_md)
-        nv = gym.vector.AsyncVectorEnv(
+        env = gym.make(env_id, render_mode="human")
+        nv = gym.vector.SyncVectorEnv(
             [
                 make_env_atari(
                     env,
@@ -345,6 +349,7 @@ def init_env(
                     episodic_life=False,
                     clip_reward=False,
                     check_fire=False,
+                    color_transform=background_color,
                     idx=i,
                     capture_video=False,
                     run_name="test",
@@ -358,7 +363,7 @@ def init_env(
 
         use_rgb = True if env_info == "rgb" else False
         env = Wolfenstein(level=lvl, render_mode="human").env
-        nv = gym.vector.AsyncVectorEnv(
+        nv = gym.vector.SyncVectorEnv(
             [
                 make_env_atari(
                     env,
@@ -378,35 +383,35 @@ def init_env(
                 for i in range(1)
             ]
         )
-    else:
-        from natural_rl_environment.natural_env import NaturalEnvWrapper
+    # else:
+    #     from zeroshotrl.natural_rl_environment.natural_env import NaturalEnvWrapper
 
-        if background_color == "plain":
-            imgsource = "plain"
-            env = gym.make(env_id, render_mode=render_md)
-        else:
-            imgsource = "color"
-            env = NaturalEnvWrapper(
-                env_id, imgsource, render_mode=render_md, color=background_color
-            )
-        nv = gym.vector.SyncVectorEnv(
-            [
-                make_env_atari(
-                    env,
-                    seed=cust_seed,
-                    rgb=True,
-                    stack=4,
-                    no_op=0,
-                    action_repeat=4,
-                    max_frames=False,
-                    episodic_life=True,
-                    clip_reward=False,
-                    idx=i,
-                    capture_video=False,
-                    run_name="test",
-                )
-                # make_env_atari(env, stack, env_seed, i, capture_video=False, run_name="test")
-                for i in range(1)
-            ]
-        )
+    #     if background_color == "plain":
+    #         imgsource = "plain"
+    #         env = gym.make(env_id, render_mode=render_md)
+    #     else:
+    #         imgsource = "color"
+    #         env = NaturalEnvWrapper(
+    #             env_id, imgsource, render_mode=render_md, color=background_color
+    #         )
+    #     nv = gym.vector.SyncVectorEnv(
+    #         [
+    #             make_env_atari(
+    #                 env,
+    #                 seed=cust_seed,
+    #                 rgb=True,
+    #                 stack=4,
+    #                 no_op=0,
+    #                 action_repeat=4,
+    #                 max_frames=False,
+    #                 episodic_life=True,
+    #                 clip_reward=False,
+    #                 idx=i,
+    #                 capture_video=False,
+    #                 run_name="test",
+    #             )
+    #             # make_env_atari(env, stack, env_seed, i, capture_video=False, run_name="test")
+    #             for i in range(1)
+    #         ]
+    #     )
     return nv

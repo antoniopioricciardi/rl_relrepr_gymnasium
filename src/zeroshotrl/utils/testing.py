@@ -53,7 +53,7 @@ from zeroshotrl.utils.evaluation import evaluate_vec_env
 
 
 def test_rel_repr_vec(
-    env, agent, policy_algo, limit_episode_length=-1, device="cpu", seed=0, num_envs=1
+    env, agent, policy_algo, limit_episode_length=-1, device="cpu", seed=0, num_envs=1, forced_render=False
 ):
     eval_rewards, eval_lengths, eval_avg_reward = evaluate_vec_env(
         agent=agent,
@@ -67,6 +67,7 @@ def test_rel_repr_vec(
         algorithm=policy_algo,
         episode_length_limit=limit_episode_length,
         seed=seed,
+        forced_render=forced_render,
     )
     print(
         f"episode done, score: {eval_rewards}, avg: {eval_avg_reward} - Episode Length: {eval_lengths} steps"
