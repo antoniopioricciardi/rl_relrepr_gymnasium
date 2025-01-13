@@ -2,8 +2,14 @@ import gymnasium as gym
 import miniworld
 from zeroshotrl.utils.preprocess_env import ColorTransformObservation
 
+"""
+WARN: env.render_top_view to get variables from other wrappers is deprecated and will be removed in v1.0,
+to get this variable you can do `env.unwrapped.render_top_view` for environment variables or `env.get_wrapper_attr('render_top_view')`
+that will search the reminding wrappers.
+"""
 
-env = gym.make("MiniWorld-OneRoom-v0", render_mode="human")
+# env = gym.make("MiniWorld-OneRoom-v0", render_mode="human")
+env = gym.make("MiniWorld-RoomObjects-v0", render_mode="human")
 env = ColorTransformObservation(env, color="standard")
 observation, info = env.reset(seed=0)
 score = 0   
