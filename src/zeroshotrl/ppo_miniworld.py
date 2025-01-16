@@ -21,6 +21,11 @@ from pytorch_lightning import seed_everything
 from zeroshotrl.utils.argparser import *
 
 
+import platform
+if platform.system() == "Linux":
+    os.environ['PYOPENGL_PLATFORM'] = 'egl'
+
+
 # import matplotlib.pyplot as plt
 # from pyvirtualdisplay import Display
 # display = Display(visible=0, size=(1400, 900))
