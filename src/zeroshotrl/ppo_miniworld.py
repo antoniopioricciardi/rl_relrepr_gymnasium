@@ -20,23 +20,6 @@ from zeroshotrl.logger import CustomLogger
 from pytorch_lightning import seed_everything
 from zeroshotrl.utils.argparser import *
 
-
-import platform
-if platform.system() == "Linux":
-    os.environ['PYOPENGL_PLATFORM'] = 'egl'
-
-
-# import matplotlib.pyplot as plt
-# from pyvirtualdisplay import Display
-# display = Display(visible=0, size=(1400, 900))
-# display.start()
-
-# is_ipython = 'inline' in plt.get_backend()
-# if is_ipython:
-#     from IPython import display
-
-# plt.ion()
-
 seed_everything(42)
 
 """ MINIWORLD """
@@ -124,8 +107,6 @@ if __name__ == "__main__":
     torch.backends.cudnn.deterministic = args.torch_deterministic
 
     device = torch.device("cuda" if torch.cuda.is_available() and args.cuda else "cpu")
-
-    zoom = 2.7
     
     import miniworld
 
