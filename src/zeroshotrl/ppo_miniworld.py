@@ -21,16 +21,16 @@ from pytorch_lightning import seed_everything
 from zeroshotrl.utils.argparser import *
 
 
-import matplotlib.pyplot as plt
-from pyvirtualdisplay import Display
-display = Display(visible=0, size=(1400, 900))
-display.start()
+# import matplotlib.pyplot as plt
+# from pyvirtualdisplay import Display
+# display = Display(visible=0, size=(1400, 900))
+# display.start()
 
-is_ipython = 'inline' in plt.get_backend()
-if is_ipython:
-    from IPython import display
+# is_ipython = 'inline' in plt.get_backend()
+# if is_ipython:
+#     from IPython import display
 
-plt.ion()
+# plt.ion()
 
 seed_everything(42)
 
@@ -122,7 +122,7 @@ if __name__ == "__main__":
 
     zoom = 2.7
     
-    # import miniworld
+    import miniworld
 
     # env = gym.make("MiniWorld-OneRoom-v0", render_mode="rgb_array")
     env = gym.make(f"MiniWorld-{args.env_id}", render_mode="rgb_array")
