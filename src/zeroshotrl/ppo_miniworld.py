@@ -21,7 +21,16 @@ from pytorch_lightning import seed_everything
 from zeroshotrl.utils.argparser import *
 
 
-os.environ["SDL_VIDEODRIVER"] = "dummy"
+import matplotlib.pyplot as plt
+from pyvirtualdisplay import Display
+display = Display(visible=0, size=(1400, 900))
+display.start()
+
+is_ipython = 'inline' in plt.get_backend()
+if is_ipython:
+    from IPython import display
+
+plt.ion()
 
 seed_everything(42)
 
