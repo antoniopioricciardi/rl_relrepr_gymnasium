@@ -21,6 +21,7 @@ from pytorch_lightning import seed_everything
 from zeroshotrl.utils.argparser import *
 
 
+os.environ["SDL_VIDEODRIVER"] = "dummy"
 
 seed_everything(42)
 
