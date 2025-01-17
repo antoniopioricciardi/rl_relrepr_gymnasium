@@ -27,6 +27,7 @@ dependencies = [
     "tyro==0.5.10",
     "miniworld>=2.0.0",
     "dvc>=3.59.0",
+    "dvc-gdrive>=3.0.1",
 ]
 
 # [tool.uv.sources]
