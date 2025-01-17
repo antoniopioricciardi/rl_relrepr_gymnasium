@@ -44,5 +44,6 @@ current_time = time.strftime("%Y-%m-%d_%H-%M", t)
 text = ""
 for item in anchor_indices:
     text += str(item) + "\n"
-with open(f"data/anchor_indices/{filename}_{current_time}", "w") as f:
+print('Saving anchor indices to file: ', f"data/anchor_indices/{filename}")
+with open(f"data/anchor_indices/{filename}", "w") as f:
     f.write(text)
