@@ -26,6 +26,7 @@ dependencies = [
     "configspace>=1.2.1",
     "tyro==0.5.10",
     "miniworld>=2.0.0",
+    "dvc>=3.59.0",
 ]
 
 # [tool.uv.sources]
