@@ -73,7 +73,7 @@ def init_stuff_ppo(
         # encoder.fit(obs_anchors=obs_set)
 
     if args.use_relative:
-        encoder.set_anchors(obs_anchors=obs_set)
+        encoder.set_obs_anchors(obs_anchors=obs_set)
 
     # if we are using a pretrained encoder, load its params into our encoder
     if args.pretrained:

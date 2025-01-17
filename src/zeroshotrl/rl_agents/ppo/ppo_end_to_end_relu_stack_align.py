@@ -87,12 +87,12 @@ class FeatureExtractor(nn.Module):
         return self.network(x)
 
 
-    # @torch.no_grad()
-    # def set_anchors(self, obs_anchors):
-    #     self.obs_anchors = obs_anchors
-    #     anchors = self.network(obs_anchors)
-    #     self.anchors = anchors
-    #     # self.register_buffer("anchors", anchors)
+    @torch.no_grad()
+    def set_obs_anchors(self, obs_anchors):
+        self.obs_anchors = obs_anchors
+        anchors = self.network(obs_anchors)
+        self.anchors = anchors
+        # self.register_buffer("anchors", anchors)
 
     @torch.no_grad()
     def update_anchors(self):
