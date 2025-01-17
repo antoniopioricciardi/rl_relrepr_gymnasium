@@ -21,3 +21,4 @@ env = LunarLanderRGB(render_mode="rgb_array", color="red")
 #         env.reset()
 
 # print(score, i)
+
