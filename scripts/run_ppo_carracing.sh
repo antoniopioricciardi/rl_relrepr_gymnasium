@@ -1,8 +1,9 @@
 #!/bin/sh
 #
 # bash scripts/run_ppo_carracing.sh --run-mode ppo --env-id CarRacing-v2 --background green --car-mode standard --anchors-alpha 0
-# bash scripts/run_ppo_carracing.sh --run-mode ppo-rel --env-id CarRacing-v2 --background multicolor --car-mode standard --anchors-alpha 0.999
+# bash scripts/run_ppo_carracing.sh --run-mode ppo-rel --env-id CarRacing-v2 --background green --car-mode standard --anchors-alpha 0.999
 # bash scripts/run_ppo_carracing.sh --run-mode ppo_resnet --env-id CarRacing-v2 --car-mode standard --background green
+# bash scripts/run_ppo_carracing.sh --run-mode ppo --env-id CarRacing-v2 --background multicolor --car-mode standard --anchors-alpha 0
 #!/bin/bash
 
 # usage function
