@@ -201,9 +201,13 @@ class PPOTrainer_vec:
                         eval_best_score = eval_avg_reward
                         # best_score = eval_avg_reward
                         if not self.pretrained:
-                            best_model_params["encoder"] = (
-                                self.agent.encoder.state_dict()
-                            )
+                            best_model_params["encoder"] = self.agent.encoder.state_dict()
+                            if self.use_relative:
+                                # save anchors buffer and then upload the model to wandb.
+                                # this is to ensure that the model is saved with the updated anchors just once
+                                # to avoid saving heavy models with anchors at each evaluation
+                                self.agent.encoder.save_anchors_buffer()
+
                         best_model_params["policy"] = self.agent.policy.state_dict()
                     print(
                         "Current eval_avg_reward: ",
@@ -217,12 +221,12 @@ class PPOTrainer_vec:
                         # make sure to tune `CHECKPOINT_FREQUENCY`
                         # so models are not saved too frequently
                         # if update % CHECKPOINT_FREQUENCY == 0:
-                        save_model(
-                            wandb=self.wandb,
-                            log_path=self.log_path,
-                            model_params_dict=best_model_params,
-                            save_wandb=self.track,
-                        )
+                        # save_model(
+                        #     wandb=self.wandb,
+                        #     log_path=self.log_path,
+                        #     model_params_dict=best_model_params,
+                        #     save_wandb=self.track,
+                        # )
                         upload_csv_wandb(self.wandb, self.eval_csv_file_path)
                         upload_csv_wandb(self.wandb, self.csv_file_path)
                 """ END OF EVALUATION """
@@ -453,12 +457,12 @@ class PPOTrainer_vec:
             eval_best_score = eval_avg_reward
             # best_score = eval_avg_reward
             if not self.pretrained:
+                best_model_params["encoder"] = self.agent.encoder.state_dict()
                 if self.use_relative:
                     # save anchors buffer and then upload the model to wandb.
                     # this is to ensure that the model is saved with the updated anchors just once
                     # to avoid saving heavy models with anchors at each evaluation
                     self.agent.encoder.save_anchors_buffer()
-                best_model_params["encoder"] = self.agent.encoder.state_dict()
             best_model_params["policy"] = self.agent.policy.state_dict()
         print(
             "Current eval_avg_reward: ",
