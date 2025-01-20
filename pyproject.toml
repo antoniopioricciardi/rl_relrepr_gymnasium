@@ -28,6 +28,7 @@ dependencies = [
     "miniworld>=2.0.0",
     "dvc>=3.59.0",
     "dvc-gdrive>=3.0.1",
+    "seaborn>=0.13.2",
 ]
 
 # [tool.uv.sources]

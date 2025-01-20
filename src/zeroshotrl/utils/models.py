@@ -215,10 +215,9 @@ def load_encoder_from_path(
 
     encoder.load_state_dict(encoder_params, strict=False)
     encoder.to(device)
-    print(encoder_params.keys())
-    exit(2)
+
     if is_relative:
-        anchors = encoder_params["anchors"]
+        anchors = encoder_params["saved_anchors"]
         encoder.set_anchors(anchors)  # update_anchors()
 
     if encoder_eval:
