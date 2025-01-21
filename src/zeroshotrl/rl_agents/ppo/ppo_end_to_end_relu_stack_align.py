@@ -23,12 +23,16 @@ class FeatureExtractor(nn.Module):
         # obs_anchors_filename=None,
         # obs_anchors=None,
         anchors_alpha=0.99,
+        anchors_alpha_min=0.01,
+        anchors_alpha_max=0.999,
         device="cpu",
     ):  # , anchors_std=None):
         super().__init__()
         self.use_relative = use_relative
         self.pretrained = pretrained
         self.anchors_alpha = anchors_alpha
+        self.anchors_alpha_min = anchors_alpha_min
+        self.anchors_alpha_max = anchors_alpha_max
         self.obs_anchors = None
         # self.obs_anchors_filename = None
         # self.anchors = None # to be computed
@@ -96,12 +100,19 @@ class FeatureExtractor(nn.Module):
 
     @torch.no_grad()
     def update_anchors(self):
-        """ TO BE CALLED DURING TRAINING """
-        new_anchors = self.network(self.obs_anchors)
-        self.anchors = (
-            self.anchors_alpha * self.anchors + (1 - self.anchors_alpha) * new_anchors
-        )  # keep % of the old anchors # 0.99 and 0.999
-    
+        # use simple moving average to update the anchors
+        if self.anchors_alpha == -1:
+            """ TO BE CALLED DURING TRAINING """
+            new_anchors = self.network(self.obs_anchors)
+            feature_variance = self.compute_feature_variance(new_anchors)
+            dynamic_alpha = self.adapt_anchors_alpha(feature_variance)
+            self.anchors = dynamic_alpha * self.anchors + (1 - dynamic_alpha) * new_anchors
+        else:
+            new_anchors = self.network(self.obs_anchors)
+            self.anchors = (
+                self.anchors_alpha * self.anchors + (1 - self.anchors_alpha) * new_anchors
+            )  # keep % of the old anchors # 0.99 and 0.999
+
     def save_anchors_buffer(self):
         self.register_buffer("saved_anchors", self.anchors)
 
@@ -110,6 +121,27 @@ class FeatureExtractor(nn.Module):
     @torch.no_grad()
     def set_anchors(self, anchors):
         self.anchors = anchors
+
+
+    """ DYNAMIC ANCHOR UPDATING (variance based) """
+    @torch.no_grad()
+    def compute_feature_variance(self, features):
+        variance = torch.var(features, dim=0, unbiased=False).mean()
+        print(f"Feature Variance: {variance.item()}")  # Logging the variance
+        return variance
+
+    @torch.no_grad()
+    def adapt_anchors_alpha(self, feature_variance, var_min=0.001, var_max=0.1):
+        """Scale anchors_alpha dynamically based on feature variance."""
+        alpha = self.anchors_alpha_min + (feature_variance - var_min) * (
+            (self.anchors_alpha_max - self.anchors_alpha_min) / (var_max - var_min)
+        )
+        alpha = torch.clamp(alpha, self.anchors_alpha_min, self.anchors_alpha_max)
+        print(f"Dynamic Alpha: {alpha.item()}")  # Logging the dynamic alpha
+        return alpha
+
+
+        
 
 class Policy(nn.Module):
     def __init__(self, num_actions, stack_n: int = 4) -> None:
