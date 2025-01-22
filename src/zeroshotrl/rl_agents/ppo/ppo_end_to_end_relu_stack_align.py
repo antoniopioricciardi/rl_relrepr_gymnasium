@@ -34,6 +34,9 @@ class FeatureExtractor(nn.Module):
         self.anchors_alpha_min = anchors_alpha_min
         self.anchors_alpha_max = anchors_alpha_max
         self.obs_anchors = None
+        
+        self.dynamic_alpha = 0
+        self.feature_variance = 0
         # self.obs_anchors_filename = None
         # self.anchors = None # to be computed
         # self.anchors_mean = None # to be computer
@@ -104,9 +107,9 @@ class FeatureExtractor(nn.Module):
         if self.anchors_alpha == -1:
             """ TO BE CALLED DURING TRAINING """
             new_anchors = self.network(self.obs_anchors)
-            feature_variance = self.compute_feature_variance(new_anchors)
-            dynamic_alpha = self.adapt_anchors_alpha(feature_variance)
-            self.anchors = dynamic_alpha * self.anchors + (1 - dynamic_alpha) * new_anchors
+            self.feature_variance = self.compute_feature_variance(new_anchors)
+            self.dynamic_alpha = self.adapt_anchors_alpha(self.feature_variance)
+            self.anchors = self.dynamic_alpha * self.anchors + (1 - self.dynamic_alpha) * new_anchors
         else:
             new_anchors = self.network(self.obs_anchors)
             self.anchors = (
@@ -127,7 +130,7 @@ class FeatureExtractor(nn.Module):
     @torch.no_grad()
     def compute_feature_variance(self, features):
         variance = torch.var(features, dim=0, unbiased=False).mean()
-        print(f"Feature Variance: {variance.item()}")  # Logging the variance
+        # print(f"Feature Variance: {variance.item()}")  # Logging the variance
         return variance
 
     @torch.no_grad()
@@ -137,7 +140,7 @@ class FeatureExtractor(nn.Module):
             (self.anchors_alpha_max - self.anchors_alpha_min) / (var_max - var_min)
         )
         alpha = torch.clamp(alpha, self.anchors_alpha_min, self.anchors_alpha_max)
-        print(f"Dynamic Alpha: {alpha.item()}")  # Logging the dynamic alpha
+        # print(f"Dynamic Alpha: {alpha.item()}")  # Logging the dynamic alpha
         return alpha
 
 
