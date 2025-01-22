@@ -1,0 +1,4 @@
+We use the exponential moving average (ema) to avoid changing the anchors too quickly, preserving part of the old anchors:
+\begin{equation}
+    \phi (\textbf{A}_t) = \alpha \textbf{A}_t + (1 - \alpha) \phi (\textbf{A}_{t-1})
+\end{equation}

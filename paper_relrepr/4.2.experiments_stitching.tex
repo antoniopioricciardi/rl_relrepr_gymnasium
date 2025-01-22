@@ -1,0 +1,158 @@
+\subsection{End-to-end performance}\label{sec:exp-end-to-end-performance}
+\paragraph{Relative representations}\label{subsec:relrepr-end-to-end}
+\Cref{fig:rel-carracing-training_comparison} shows the training curves for CarRacing variations, comparing \emph{E. Abs.} to \emph{E. Rel.} (\textbf{ours}) under different conditions. The curves are generated using evaluation scores obtained during training, averaged over four different seeds. Solid lines represent the mean values, and shaded areas indicate the standard deviation. The training stability with relative representations is comparable to that of standard (absolute) training.
+Furthermore, the results in \Cref{tab:relative-carracing-no_stitching} demonstrate that the end-to-end performance of agents is generally comparable to those of absolute models, except for the model trained on the slow task. This table also includes a reference baseline of a model trained on all color variations simultaneously.
+
+
+\paragraph{Finding the best value for ema}
+We trained models on CarRacing to find the best $\alpha$ for the exponential moving average function. Figure blabla shows a comparison for different values for $\alpha$.
+\begin{figure}[!t]
+        \centering
+        \includegraphics[width=0.5\textwidth]{res/plots/CarRacing-v2_green_ema-comparison_smooth4.pdf}
+        \caption{Comparison of evaluation scores over training frames using different values of the exponential moving average coefficient ($\alpha$). Solid lines represent mean evaluation scores, shaded regions indicate standard deviations, and the dashed red line denotes the absolute evaluation score.}
+        \label{subfig:training-carracing-ema}
+\end{figure}
+
+
+%Training curves comparing \emph{E. Abs.} to \emph{E. Rel.} for the CarRacing environment with different variations. (a) Standard is the environment with no variations. (b) far camera zoom, a different visual variation. (c) The task is to drive slowly to avoid penalties. Relative and absolute training exhibit comparable performance.
+\begin{figure}[t!]
+    \centering
+    \begin{subfigure}[b]{0.3\textwidth} % Adjust the width as needed
+        \centering
+        \includegraphics[width=\textwidth]{res/experiments/relative/training/CarRacing-v2_green_eval_meanreward_smooth4.pdf}
+        \caption{CarRacing (standard)}
+        \label{subfig:training-carracing-standard}
+    \end{subfigure}
+    \hspace{1mm}
+    %\hfill % Add some space between the subfigures
+    \begin{subfigure}[b]{0.3\textwidth} % Adjust the width as needed
+        \centering
+        \includegraphics[width=\textwidth]{res/experiments/relative/training/CarRacing-v2_green_slow_eval_meanreward_smooth4.pdf}
+        \caption{CarRacing (camera far)}
+        \label{subfig:training-carracing-camera_far}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.3\textwidth} % Adjust the width as needed
+        \centering
+        \includegraphics[width=\textwidth]{res/experiments/relative/training/CarRacing-v2_green_camera_far_eval_meanreward_smooth4.pdf}
+        \caption{CarRacing (slow)}
+        \label{subfig:training-carracing-slow}
+    \end{subfigure}
+    \caption{Comparison of E. Abs and E. Rel. training curves. We report three different Car Racing environment variations, noting that in all the training the convergence follows similar tendencies for the two methods and that the relative encoding is not cause of training instability.}
+    \label{fig:rel-carracing-training_comparison}
+\end{figure}
+
+\begin{table}[t!]
+\caption{Mean scores for models trained end-to-end, without stitching. Models trained using relative representations (\textit{Rel}) have comparable performance, with small performance loss on average. Scores are computed over four training seeds and, for each combination, over ten distinct track seeds.}
+\label{tab:relative-carracing-no_stitching}
+\centering
+\begin{subtable}{0.48\textwidth}
+    \resizebox{\linewidth}{!}{%
+    \begin{tabular}{lcccc}
+    \toprule
+    & \texttt{green} & \texttt{red} & \texttt{blue} & \texttt{far (green)} \\
+    \midrule
+    \textit{E. Abs} & 829 $\pm$ 54 & 854 $\pm$ 26 & 852 $\pm$ 48 & 872 $\pm$ 35 \\
+    \textit{E. Rel} (ours) & 832 $\pm$ 54 & 797 $\pm$ 86 & 811 $\pm$ 21 & 820 $\pm$ 22 \\
+    \bottomrule
+    \end{tabular}
+    }
+    \caption{Visual variations}
+    \label{tab:relative-carracing-task}
+\end{subtable}
+\hfill
+\begin{subtable}{0.48\textwidth}
+    \resizebox{\linewidth}{!}{%
+    \begin{tabular}{lccc}
+    \toprule
+    & \texttt{slow} & \texttt{scrambled} & \texttt{no idle} \\
+    \midrule
+    \textit{E. Abs} & 996 $\pm$ 6 & 879 $\pm$ 42 & 889 $\pm$ 19 \\
+    \textit{E. Rel} (ours) & 624 $\pm$ 125 & 874 $\pm$ 20 & 862 $\pm$ 69 \\
+    \bottomrule
+    \end{tabular}
+    }
+    \caption{Task variations}
+    \label{tab:relative-carracing-task}
+\end{subtable}
+\end{table}
+
+
+% Our tests show that relative representations do not impact training stability, with evaluation performance that is comparable, generally.
+
+% cosi?
+These results show that relative representations do not impact training stability and that evaluation performance remains generally comparable. Refer to \Cref{appendix:end-to-end} for end-to-end tests for some games in the Atari game suite.
+
+\subsection{Zero-shot stitching}\label{sec:zero-shot-stitching}
+The advantage of relative representations become most apparent when creating new agents by composing encoders and controllers in a zero-shot fashion, which allows these new agents to operate in environments they have never encountered during training. Indeed, as shown in \Cref{sec:analysis}, models trained with different seeds or under different settings develop distinct latent representations, making it impossible to naively stitch together independently trained encoders and controllers.
+
+
+\Cref{tab:carracing-stitching_performance} presents the zero-shot stitching performance between encoders and controllers across seed, visual, and task variations. Each component is trained with a unique seed. When \textbf{Encoder} and \textbf{Controller} variations are the same (e.g., green-green), we only consider the performance of stitching between different seeds. Visual and task variations are analyzed independently; hence, the \textit{Task Variations (green)} columns only consider controllers originally trained on a green background, while they are stitched to encoders trained on different background colors.
+
+Both latent communication methodologies significantly outperform the naive baseline, which, to our knowledge, is the only baseline capable of zero-shot generalization to novel environments without further fine-tuning, changes to the agents' architecture or the observations  seen during training. Interestingly, agents trained with relative representations maintain high performance when visual variations are the only source of variation. However, there is a marked performance decline with the \textit{slow} task variation. Surprisingly, agents stitched using latent translation exhibit performance comparable to the original ad-hoc end-to-end models across all visual variations and tasks.
+
+In summary, these findings indicate that latent translation is a promising technique for assembling agents capable of operating in novel environment variations. Again, stitching results for the Atari suite can be seen in \Cref{appendix:stitching-atari}.
+ 
+\iffalse
+\subsection{Latent Alignment}\label{sec:alignment}
+%\AR{questo va $\rightarrow$}Given that this method only requires translating from one layer to another, it can be used with any policy or neural architecture. Moreover, it can surely be extended to include other source of variations, tasks, or environments.\AR{$\leftarrow$ in conclusions?}
+\subsubsection{Training}\label{sec:alignment_training}
+The advantage of using latent alignment over relative representations, is that we do not need to train new models to project the latents in a new space. Instead, since we map directly from one space to another, we can take any previously trained model and perform latent alignment. So, we use our Absolute models as a base.
+
+
+
+
+
+\begin{table}[ht]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{ccccc|ccc}
+\toprule
+%& & \textbf{Visual variations} & & & & \textbf{Task variations} & \\
+ & & \multicolumn{2}{c}{\texttt{Visual variations}} & & \multicolumn{3}{c}{\texttt{Task variations}} \\
+%& & \multicolumn{2}{c}{\texttt{standard (same color and seed)}} & \multicolumn{2}{c}{\texttt{slow}} & \multicolumn{2}{c}{\texttt{scrambled}} & \multicolumn{2}{c}{\texttt{no idle}} \\
+& \texttt{green} & \texttt{red} & \texttt{blue} & \texttt{far (green)} & \texttt{slow} & \texttt{scrambled} & \texttt{no idle} \\
+\midrule
+\textit{E. Abs} & - $\pm$ - & - $\pm$ - & - $\pm$ - & - $\pm$ - & - $\pm$ - & - $\pm$ - & - $\pm$ - \\
+\textit{E. Rel} (ours) & - $\pm$ - & - $\pm$ - & - $\pm$ - & - $\pm$ - & - $\pm$ - & - $\pm$ - & - $\pm$ - \\
+\bottomrule
+\end{tabular}
+}
+\caption{Mean scores for models trained end-to-end, without stitching. Models trained using relative representations (\textit{Rel}) have comparable performance, with small performance loss on average. Scores are computed over four training seeds and, for each combination, over ten distinct track seeds.}
+\label{tab:align-carracing-no_stitching}
+\end{table}
+
+
+
+
+
+Here's the table with all the numbers removed:
+\paragraph{Zero-shot stitching performance}
+
+
+\begin{table}[ht]
+\centering
+%\tiny
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{cccccccccc}
+\toprule
+& & \multicolumn{8}{c}{\textbf{Encoder}} \\
+\cmidrule{3-4} \cmidrule{5-6} \cmidrule{7-8} \cmidrule{9-10}
+& & \multicolumn{2}{c}{\texttt{green}} & \multicolumn{2}{c}{\texttt{red}} & \multicolumn{2}{c}{\texttt{blue}} & \multicolumn{2}{c}{\texttt{far (green)}} \\
+\cmidrule{3-4} \cmidrule{5-6} \cmidrule{7-8} \cmidrule{9-10}
+& & \textit{S. Abs} & \textit{S. Rel} & \textit{S. Abs} & \textit{S. Rel} & \textit{S. Abs} & \textit{S. Rel} & \textit{S. Abs} & \textit{S. Rel} \\
+\midrule
+\multirow{6}{*}{\rotatebox{90}{\textbf{Controller}}}& \texttt{green} & - $\pm$ - & \textbf{-} $\pm$ - & - $\pm$ - & \textbf{-} $\pm$ - & - $\pm$ - & \textbf{-} $\pm$ - & - $\pm$ - & \textbf{-} $\pm$ -\\me
+& \texttt{red} & - $\pm$ - & \textbf{-} $\pm$ - & - $\pm$ - & \textbf{-} $\pm$ - & - $\pm$ - & \textbf{-} $\pm$ - & - $\pm$ - & \textbf{-} $\pm$ - \\
+& \texttt{blue} & - $\pm$ - & \textbf{-} $\pm$ - & - $\pm$ - & \textbf{-} $\pm$ - & - $\pm$ - & \textbf{-} $\pm$ - & - $\pm$ - & \textbf{-} $\pm$ - \\
+\cmidrule{2-10}
+& \texttt{slow} & - $\pm$ - & \textbf{-} $\pm$ - & - $\pm$ - & \textbf{-} $\pm$ - & - $\pm$ - & \textbf{-} $\pm$ - & - $\pm$ - & \textbf{-} $\pm$ - \\
+& \texttt{scrambled} & - $\pm$ - & \textbf{-} $\pm$ - & - $\pm$ - & \textbf{-} $\pm$ - & - $\pm$ - & \textbf{-} $\pm$ - & - $\pm$ - & \textbf{-} $\pm$ - \\
+& \texttt{no idle} & - $\pm$ - & \textbf{-} $\pm$ - & - $\pm$ - & \textbf{-} $\pm$ - & - $\pm$ - & \textbf{-} $\pm$ - & - $\pm$ - & \textbf{-} $\pm$ - \\
+\bottomrule
+\end{tabular}
+}
+\caption{Mean score of new agents created via zero-shot stitching, combining encoders and controller trained with different visual-task variations or training seeds. The original domain for the encoders and the controllers is listed in the columns and rows, respectively. Stitching via relative representations greatly outperforms the absolute baseline.}
+\label{tab:align-carracing-stitching_performance}
+\end{table}
+
+\fi

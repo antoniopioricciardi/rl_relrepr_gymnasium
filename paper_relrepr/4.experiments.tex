@@ -1,0 +1,74 @@
+\section{Experiments}\label{sec:experiments}
+\paragraph{DA AGGIUNGERE} immagini per stitching. Chiarire che possiamo calcolare relative su modelli esistenti, ma per addestrare i controller dobbiamo rifare training di tutto.
+Spiegare/mostrare perché facciamo stitching dopo l'encoder. Sostituire car speed with "a specific car"?
+
+
+In this Section, we assess the zero-shot performance of stitched policies on novel visual-task variations combinations.
+In \Cref{sec:analysis} we employ relative representations to study the latent space similarity, providing a qualitative analysis of the projected spaces and showing that aligned frames with different visual variations exhibit similar latent representations.
+In \Cref{sec:end-to-end-performance} we first show how relative models train when compared to standard (absolute models) and then compare their performance when no stitching is applied.
+Finally, in \Cref{sec:zero-shot-stitching} we perform a quantitative analysis comparing zero-shot stitching performance for models in a \textit{naive} approach (no latent communication technique applied), and stitching models that employ relative representations.
+
+\paragraph{Notation}
+We refer to standard, end-to-end policies using \textit{absolute} representations as \emph{E. Abs}, and to \emph{E. Rel} for end-to-end policies trained using relative representations.
+We will use \emph{S. Abs}, and to \emph{S. Rel} to instead refer to policies created with zero-shot-stitching through relative representations, where encoders and controllers variations can include seed, background colors and tasks.
+Unlike end-to-end models, stitched agent modules come from encoders and controllers trained independently and assembled as detailed in \Cref{sec:method-relative} and \Cref{sec:method-alignment}.
+
+\paragraph{Environment}
+For the following experiments, we consider the CarRacing \citep{klimov2016carracing} environment, which simulates driving a car from a 2D top-down perspective around a randomly generated track, focusing on speed while staying on the track. It provides RGB image observations, and uses a discretized action space with five options: steer left, steer right, accelerate, brake, and idle. The agent earns rewards for progress and penalties for going off-track. We modified the environment to enable visual changes (e.g, grass color or camera zoom) and task alterations (e.g., speed limits or different action spaces).
+The possible visual variations are: background (grass) colors \textit{green}, \textit{red}, \textit{blue} and \textit{far camera zoom}, while tasks are divided in: \textit{standard} and \textit{slow} car dynamics and different action spaces, such as \textit{scrambled}, which use a different action space and therefore a different output order for the car commands, and \textit{no idle}, which removes the \say{idle} action.
+Please refer to \Cref{appendix:atari} for the implementation and tests with another environment.
+
+\paragraph{Training procedures}
+We train policies using the PPO implementation provided in the CleanRL library \citep{huang2022cleanrl} with default hypermarameters for both absolute and relative representations.
+
+\paragraph{Zero-Shot Stitching Procedure.}
+\paragraph{QUALE DISTANCE FUNCTION USIAMO?}
+In \Cref{sec:method-relative} and \Cref{sec:method-alignment}, we outlined the methodologies for stitching modules together using relative representations and semantic alignment, respectively. 
+% In practice, both methodologies require performing an additional computation right in between the encoder and the controller modules. 
+% Relative representations compute the similarities between the input observation embeddings and the anchor embeddings set to project the space to a common space, while latent alignment directly maps from one latent space to another.
+We consider the \textit{encoder} to be the group of convolutional layers up to the first flatten layer, while the \textit{controller} is everything that comes immediately after, that is a succession of linear layers and activation functions.
+Once diverse policies are trained under various visual and task variations, at test time we can generate new policies by assembling independently trained encoders and controllers through zero-shot stitching, to play on new visual-task variation never-before-seen \textit{together} during training.
+
+The training variations for these individual components are tailored to the requirements of each experimental section; nevertheless, the zero-shot stitching performance evaluation is always on visual-task variation not seen during training.
+%
+% After training different agents on different visual and task variations in the environment, we freeze the encoders and the controllers of each agent and evaluate their zero-shot stitching performance, connecting modules to form a new policy able to play on a specific visual-task variation never-before-seen during training. 
+% Importantly, the encoders and controllers are always chosen according to the visual or task variation they were trained on, respectively. For example, if we are working with a green background, we use an encoder trained on that variation. Similarly, if the task requires driving a car slowly, use a controller trained for that task.
+% 
+It is crucial to select encoders and controllers that correspond to the specific visual or task variations they were trained on. For instance, when operating within an environment featuring a green background, an encoder trained on that specific visual variation should be utilized. Similarly, for tasks that involve driving a car at low speeds, a controller trained for that specific driving condition must be employed.
+
+
+
+\paragraph{Computing relative representations} We use the cosine distance to compute the relative representations. Please note that relative representations can be computed starting from already existing models.
+However, to train the controllers to use the new representations, we need to train the entire pipeline. In \Cref{sec:exp-analysis} we compute relative representations starting from an absolute model to show how they enhance latent space similarities.
+In \Cref{sec:exp-end-to-end-performance} we compare the performance of models trained end-to-end with absolute and relative representations.
+
+
+
+\iffalse
+\subsection{Experimental Setup}
+This section outlines our experimental framework, including notation, how we give decoders context beyond a single image through relative representations, and the tested environments.
+
+\paragraph{Zero-Shot Stitching Procedure.}
+In \Cref{sec:relative} and \Cref{sec:alignment}, we outlined the methodologies for for stitching modules together using relative representations and semantic alignment, respectively. In practice, both methodologies require integrating an additional layer right between the encoder and the controller modules. For relative repr, The purpose of this layer is to compute the relative representations between the current input observation embeddings and the anchor embeddings set.
+For semantic alignment, instead, ...
+We consider the encoder to be the group of convolutional layers up to the first flatten layer, while the controller is everything that comes immediately after, that is a succession of linear layers and activation functions. \AR{una ref in appendice per spiegare l'architettura?} 
+Therefore, once diverse policies are trained under various conditions, we can generate new policies by assembling independently trained encoders and controllers through zero-shot stitching. The training variations for these individual components are tailored to the requirements of each experimental section.\AR{Completa}
+
+\paragraph{Observations}
+To make informed predictions, a controller often needs more context than a single image. For example, understanding a ball's trajectory in Pong requires observing at least two frames. Hence, the choice of anchors for our relative representations must be adapted to deal with frame stacks, as opposed to single images. A simple and effective solution is to decompose the stack, calculate relative representations for each frame, and recombine them back into a stack, giving the controller the needed observation context. \AR{rivedi, forse non necessario, forse usa immagine}
+
+\paragraph{Environment}
+For the following experiments, we consider the CarRacing \citep{klimov2016carracing} environment, while we refer to \Cref{sec:atari} for experiments on the Atari game suite.
+Car Racing simulates driving a car from a 2D top-down perspective around a randomly generated track, focusing on speed while staying on the track. It provides RGB image observations, and uses a discretized action space with five options: steer left, steer right, accelerate, brake, and idle. The agent earns rewards for progress and penalties for going off-track. We modified the environment to enable visual changes (e.g, grass color or camera zoom) and task alterations (e.g., speed limits or scrambled action space).\AR{Dovrebbe andar bene, ma rivedi (e inserisci atari nei test?)} 
+
+\paragraph{Training procedures}
+We train policies using the PPO implementation provided in the CleanRL library \citep{huang2022cleanrl} with default hypermarameters for both absolute and relative representations.
+
+
+\paragraph{Evaluating zero-shot stitching}
+% \subsubsection{CarRacing}
+After training different agents on different visual and task variations in the modified Car Racing environment, we freeze the encoders and the controllers of each agent and evaluate their zero-shot stitching performance, connecting modules to form a new policy able to play on a specific visual-task variation never-before-seen during training. Encoders and controllers are always chosen according to the visual or task variation they were trained on, respectively. For example, if we are working with a green background, we use an encoder trained on that variation. Similarly, if the task requires driving a car slowly, use a controller trained for that task.
+
+The possible visual variations are: background (grass) colors \textit{green}, \textit{red}, \textit{blue} and \textit{far camera zoom}, while tasks are divided in: \textit{standard} and \textit{slow} car dynamics and different action spaces, such as \textit{scrambled}, which use a different action space and therefore a different output order for the car commands, and \textit{no idle}, which removes the ``idle'' action.
+Results in \Cref{tab} ..... report the mean scores obtained over ten track seeds, with each seed generating a different track for the agent to drive. \AR{completa i results}
+\fi

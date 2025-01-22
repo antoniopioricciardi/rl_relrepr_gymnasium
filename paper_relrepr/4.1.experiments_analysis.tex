@@ -1,0 +1,37 @@
+\begin{figure}[t!]
+    \centering
+    \begin{subfigure}[b]{0.6\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{res/experiments/relative/Carracing_sim_plot_matrix.pdf}
+        \caption{}
+        \label{fig:matrix-sim}
+    \end{subfigure}%
+    \begin{subfigure}[b]{0.4\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{res/experiments/relative/Carracing_sim_plot_frames.pdf}
+        \caption{}
+        \label{fig:frames-sim}
+    \end{subfigure}
+    \caption{(a) Comparison between absolute (left) and relative (right) representations produced by the same model. Rows and columns show the cosine similarity between the latent spaces coming from frames of the CarRacing environment with different visual variations (i.e., green and red grass color). Relative representations let similarities emerge not only along the diagonal, where frames are aligned, but also off-diagonal, highlighting similarities between different parts of the track.
+    (b) We report qualitative examples by visualizing frame pairs associated to high similarity regions in (a) (denoted by the frame number). Each pair is semantically similar, even though not in direct correspondence.}
+    \label{fig:matrix-frames-sim}
+\end{figure}
+
+\subsection{Latent space analysis}\label{sec:exp-analysis}
+% \AR{in appendice piu comparisons, e.g. same seed, atari ecc}
+We analyze the latent spaces  produced by the encoders of two different models trained in the CarRacing environment with different grass colors and seeds. 
+To compare the similarity of the latent spaces of frames with two different backgrounds, we collect observations for green and red backgrounds in a smilar manner of what we did in \Cref{sec:datacollection} to collect the anchors, to ensure that the frames are aligned, by playing the same sequence of actions in both environments.
+%
+In \Cref{fig:matrix-sim}, we report the pairwise cosine similarities of the first $\sim 800$ frames between the two latent spaces. Therefore, the diagonal shows the similarity between two perfectly aligned frames where the only difference is the grass color. 
+%
+As anticipated, the absolute similarities are consistently low, even for the frames along the diagonal. This is expected because the two spaces are not directly comparable. However, when we unify the spaces using relative representations, we observe a strong similarity on the diagonal, along with some similarities off-diagonal. In \Cref{fig:frames-sim}, we present the frames associated with high similarity points in the relative space. Although these points are off-diagonal and not in direct correspondence, they are semantically similar. This shows the effectiveness of relative representations in capturing semantic relationships across different spaces.
+
+In summary, this analysis demonstrates that different policies trained in the Visual RL context exhibit emerging similarities in their latent representations.
+
+% \Cref{fig:matrix-sim} shows the cosine similarity of the latent space between green and red colors for the absolute and relative spaces, respectively, while
+% \Cref{fig:frames-sim} shows the frames associated to high similarity points in the relative space. This analysis proves that relative representations enhance latent similarity between semantically similar frames.
+
+
+%Figure \ref{ppo_abs_rel} performs the same comparison but with model trained using different seeds, hence having different starting weights. It is easy to notice that the absolute representations are even less similar in this setting, while the relative ones maintain their similarity. If we were to rerun the tests in Table \ref{stitching_quantitative} using a models trained on a different seed for each color, we would probably see even worse performance when using absolute representations.
+
+%Finally, Figure \ref{ddqn_ppo_rel} shows comparison on green (\ref{ddqn_ppo_rel}.a) and red (\ref{ddqn_ppo_rel}.b) backgrounds, between relative encoders trained using two different RL algorithms: DDQN and PPO. Surprisingly, the representations produced by the two encoders are similar, indicating that encoders tend to learn the same features regardless of the underlying learning algorithm.

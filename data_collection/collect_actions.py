@@ -22,7 +22,7 @@ parser.add_argument("--seed", type=int, default=1, help="Random seed")
 parser.add_argument(
     "--model-seed",
     type=int,
-    default=39,
+    default=40,
     help="training seed for the model to be loaded",
 )
 parser.add_argument(
