@@ -275,7 +275,7 @@ class PPOTrainer_vec:
                             log("episode_length", info["episode"]["l"])
                             log("total_time", info["episode"]["t"])
                             log("fps", steps_per_second)
-                            log("encoder_alpha", self.encoder.alpha)
+                            log("encoder_alpha", self.encoder.dynamic_alpha)
                             log("feature_variance", self.encoder.feature_variance)
                             # log('episode', global_episode)
                             # log('buffer_size', len(replay_storage))
