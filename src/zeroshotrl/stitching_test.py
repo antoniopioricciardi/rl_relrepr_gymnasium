@@ -85,7 +85,7 @@ def parse_args():
 """ standard bus (absolute/translate/relative) """
 # python src/zeroshotrl/stitching_test.py --stitching-mode absolute --env-id CarRacing-v2-bus --env-seed 1 --background-color green --encoder-dir models/CarRacing-v2-bus/rgb/green/ppo/absolute/relu/seed_1 --policy-dir models/CarRacing-v2-bus/rgb/green/ppo/absolute/relu/seed_1
 # python src/zeroshotrl/stitching_test.py --stitching-mode translate --env-id CarRacing-v2-bus --env-seed 1 --background-color red --encoder-dir models/CarRacing-v2-bus/rgb/green/ppo/absolute/relu/seed_1 --policy-dir models/CarRacing-v2/rgb/red/ppo/absolute/relu/seed_1 --anchors-file1 data/anchors/CarRacing-v2-bus/rgb_ppo_transitions_green_obs.pkl --anchors-file2 data/anchors/CarRacing-v2/rgb_ppo_transitions_red_obs.pkl --anchors-alpha None --anchors-method random --render-mode human
-
+# python src/zeroshotrl/stitching_test.py --stitching-mode relative --env-id CarRacing-v2-bus --env-seed 1 --background-color green --encoder-dir models/CarRacing-v2/rgb/green/ppo/relative/relu/alpha_0_999/seed_1 --policy-dir models/CarRacing-v2-bus/rgb/green/ppo/relative/relu/alpha_0_999/seed_1 --anchors-alpha None --anchors-method random --render-mode human
 """ ATARI Breakout """
 """ abs/transl """
 # python src/zeroshotrl/stitching_test.py --stitching-mode absolute --env-id BreakoutNoFrameskip-v4 --env-seed 1 --background-color plain --encoder-dir models/BreakoutNoFrameskip-v4/rgb/plain/ppo/absolute/relu/seed_1 --policy-dir models/BreakoutNoFrameskip-v4/rgb/plain/ppo/absolute/relu/seed_1
