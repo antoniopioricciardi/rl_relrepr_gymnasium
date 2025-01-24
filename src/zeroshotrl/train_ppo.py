@@ -302,14 +302,7 @@ class PPOTrainer_vec:
                                 },
                                 step=global_step,
                             )
-                            # log the dynamic alpha and feature variance
-                            self.wandb.log(
-                                {
-                                    "dynamic_alpha": self.encoder.dynamic_alpha,
-                                    "feature_variance": self.encoder.feature_variance,
-                                },
-                                step=global_step,
-                            )
+
                             # compute mse between anchors and previous anchors
                             # mse = np.mean(np.square(curr_anchors - previous_anchors))
                             # wandb.log({"anchors_mse": mse}, step=global_step)
@@ -441,6 +434,14 @@ class PPOTrainer_vec:
             # print("SPS:", int(global_step / (time.time() - start_time)))
             print("SPS:", steps_per_second)
             self.writer.add_scalar("charts/SPS", steps_per_second, global_step)
+
+            # log the dynamic alpha and feature variance
+            self.writer.add_scalar(
+                "anchors/dynamic_alpha", self.agent.encoder.dynamic_alpha, global_step
+            )
+            self.writer.add_scalar(
+                "anchors/feature_variance", self.agent.encoder.feature_variance, global_step
+            )
 
         """ EVALUATION """
         # eval and save model
