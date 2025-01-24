@@ -302,8 +302,14 @@ class PPOTrainer_vec:
                                 },
                                 step=global_step,
                             )
-                            self.wandb.log("encoder_alpha", self.encoder.dynamic_alpha)
-                            self.wandb.log("feature_variance", self.encoder.feature_variance)
+                            # log the dynamic alpha and feature variance
+                            self.wandb.log(
+                                {
+                                    "dynamic_alpha": self.encoder.dynamic_alpha,
+                                    "feature_variance": self.encoder.feature_variance,
+                                },
+                                step=global_step,
+                            )
                             # compute mse between anchors and previous anchors
                             # mse = np.mean(np.square(curr_anchors - previous_anchors))
                             # wandb.log({"anchors_mse": mse}, step=global_step)
