@@ -103,9 +103,10 @@ class FeatureExtractor(nn.Module):
 
     @torch.no_grad()
     def update_anchors(self):
+        print(self.anchors_alpha)
+        """ TO BE CALLED DURING TRAINING """
         # use simple moving average to update the anchors
         if self.anchors_alpha == -1:
-            """ TO BE CALLED DURING TRAINING """
             new_anchors = self.network(self.obs_anchors)
             self.feature_variance = self.compute_feature_variance(new_anchors)
             self.dynamic_alpha = self.adapt_anchors_alpha(self.feature_variance)
