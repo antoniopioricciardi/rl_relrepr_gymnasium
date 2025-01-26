@@ -5,6 +5,9 @@
 # bash scripts/run_ppo_lunarlander.sh --run-mode ppo --env-id LunarLanderRGB --background red --gravity -10 --anchors-alpha 0
 # bash scripts/run_ppo_lunarlander.sh --run-mode ppo --env-id LunarLanderRGB --background red --gravity -3 --anchors-alpha 0
 
+# RELATIVE
+# bash scripts/run_ppo_lunarlander.sh --run-mode ppo-rel --env-id LunarLanderRGB --background white --gravity -10 --anchors-alpha 0.999
+
 #!/bin/bash
 
 # usage function
@@ -89,6 +92,15 @@ then
     python src/zeroshotrl/ppo_lunarlander_rgb.py --track --wandb-project-name rlrepr_ppo_lunarlander --exp-name "rel_ $gravity"_"$background"_rgb --env-id LunarLanderRGB --seed 3 --num-envs 16 --background $background --gravity " $gravity" --stack-n 4 --use-relative --anchors-path data/anchors/"$env_id"/rgb_ppo_transitions_"$background"_obs.pkl --anchors-indices-path data/anchor_indices/"$env_id"_3136_anchor_indices_from_4000.txt --total-timesteps 25000000 --anchors-alpha $anchors_alpha
 
     python src/zeroshotrl/ppo_lunarlander_rgb.py --track --wandb-project-name rlrepr_ppo_lunarlander --exp-name "rel_ $gravity"_"$background"_rgb --env-id LunarLanderRGB --seed 4 --num-envs 16 --background $background --gravity " $gravity" --stack-n 4 --use-relative --anchors-path data/anchors/"$env_id"/rgb_ppo_transitions_"$background"_obs.pkl --anchors-indices-path data/anchor_indices/"$env_id"_3136_anchor_indices_from_4000.txt --total-timesteps 25000000 --anchors-alpha $anchors_alpha
+elif [ $run_mode == "ppo-rel-augmented" ]
+then
+    python src/zeroshotrl/ppo_lunarlander_rgb.py --track --wandb-project-name rlrepr_ppo_lunarlander --exp-name "rel_ $gravity"_"$background"_rgb --env-id LunarLanderRGB --seed 1 --num-envs 16 --background $background --gravity " $gravity" --stack-n 4 --use-relative --anchors-path data/anchors/"$env_id"/rgb_ppo_transitions_"$background"_obs_augmented.pkl --anchors-indices-path data/anchor_indices/"$env_id"_3136_anchor_indices_from_4000.txt --total-timesteps 25000000 --anchors-alpha $anchors_alpha
+
+    python src/zeroshotrl/ppo_lunarlander_rgb.py --track --wandb-project-name rlrepr_ppo_lunarlander --exp-name "rel_ $gravity"_"$background"_rgb --env-id LunarLanderRGB --seed 2 --num-envs 16 --background $background --gravity " $gravity" --stack-n 4 --use-relative --anchors-path data/anchors/"$env_id"/rgb_ppo_transitions_"$background"_obs_augmented.pkl --anchors-indices-path data/anchor_indices/"$env_id"_3136_anchor_indices_from_4000.txt --total-timesteps 25000000 --anchors-alpha $anchors_alpha
+
+    python src/zeroshotrl/ppo_lunarlander_rgb.py --track --wandb-project-name rlrepr_ppo_lunarlander --exp-name "rel_ $gravity"_"$background"_rgb --env-id LunarLanderRGB --seed 3 --num-envs 16 --background $background --gravity " $gravity" --stack-n 4 --use-relative --anchors-path data/anchors/"$env_id"/rgb_ppo_transitions_"$background"_obs_augmented.pkl --anchors-indices-path data/anchor_indices/"$env_id"_3136_anchor_indices_from_4000.txt --total-timesteps 25000000 --anchors-alpha $anchors_alpha
+
+    python src/zeroshotrl/ppo_lunarlander_rgb.py --track --wandb-project-name rlrepr_ppo_lunarlander --exp-name "rel_ $gravity"_"$background"_rgb --env-id LunarLanderRGB --seed 4 --num-envs 16 --background $background --gravity " $gravity" --stack-n 4 --use-relative --anchors-path data/anchors/"$env_id"/rgb_ppo_transitions_"$background"_obs_augmented.pkl --anchors-indices-path data/anchor_indices/"$env_id"_3136_anchor_indices_from_4000.txt --total-timesteps 25000000 --anchors-alpha $anchors_alpha
 elif [ $run_mode == "ppo_resnet" ]
 then
     python src/zeroshotrl/ppo_lunarlander_rgb.py --track --wandb-project-name rlrepr_ppo_lunarlander --exp-name "resnet_ $gravity"_"$background"_rgb --env-id LunarLanderRGB --seed 1 --num-envs 16 --background $background --gravity " $gravity" --stack-n 4 --total-timesteps 25000000 --use-resnet
