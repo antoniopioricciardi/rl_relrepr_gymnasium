@@ -116,6 +116,46 @@ class FeatureExtractor(nn.Module):
                 self.anchors_alpha * self.anchors + (1 - self.anchors_alpha) * new_anchors
             )  # keep % of the old anchors # 0.99 and 0.999
 
+
+    @torch.no_grad()
+    def update_anchors(self, step=None, decay_rate=0.99):
+        """
+        Update the anchors during training with exponential growth if anchors_alpha == -2.
+
+        Arguments:
+        - step: Current training step (required for exponential growth).
+        - decay_rate: Controls the rate of growth of alpha.
+        """
+        if self.anchors_alpha == -2:
+            assert step is not None, "Step must be provided for exponential growth."
+
+            # Compute growing alpha: starts at anchors_alpha_min and approaches anchors_alpha_max
+            exp_growth_alpha = self.anchors_alpha_min + \
+                            (self.anchors_alpha_max - self.anchors_alpha_min) * (1 - decay_rate ** step)
+            
+            exp_growth_alpha = min(exp_growth_alpha, self.anchors_alpha_max)  # Clamp to max value
+
+            # Update anchors using the growing alpha
+            new_anchors = self.network(self.obs_anchors)
+            self.anchors = (
+                exp_growth_alpha * self.anchors + (1 - exp_growth_alpha) * new_anchors
+            )
+        elif self.anchors_alpha == -1:
+            # Dynamic alpha based on feature variance
+            new_anchors = self.network(self.obs_anchors)
+            self.feature_variance = self.compute_feature_variance(new_anchors)
+            self.dynamic_alpha = self.adapt_anchors_alpha(self.feature_variance)
+            self.anchors = (
+                self.dynamic_alpha * self.anchors + (1 - self.dynamic_alpha) * new_anchors
+            )
+        else:
+            # Fixed alpha
+            new_anchors = self.network(self.obs_anchors)
+            self.anchors = (
+                self.anchors_alpha * self.anchors + (1 - self.anchors_alpha) * new_anchors
+            )
+
+
     def save_anchors_buffer(self):
         self.register_buffer("saved_anchors", self.anchors)
 

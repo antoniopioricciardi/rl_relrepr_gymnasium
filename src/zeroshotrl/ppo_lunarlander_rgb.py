@@ -27,6 +27,10 @@ seed_everything(42)
 """ LUNAR LANDER """
 """ white: abs, rel """
 # python src/zeroshotrl/ppo_lunarlander_rgb.py --track --wandb-project-name rlrepr_ppo_lunarlander --exp-name " -10_white_rgb" --env-id LunarLanderRGB --seed 1 --num-envs 16 --background white --gravity -10 --stack-n 4 --total-timesteps 25000000
+# python src/zeroshotrl/ppo_lunarlander_rgb.py --track --wandb-project-name rlrepr_ppo_lunarlander --exp-name "rel_ -10_white_rgb" --env-id LunarLanderRGB --seed 1 --num-envs 16 --background white --gravity -10 --stack-n 4 --use-relative --anchors-path data/anchors/LunarLanderRGB/rgb_ppo_transitions_white_obs.pkl --anchors-indices-path data/anchor_indices/LunarLanderRGB_3136_anchor_indices_from_4000.txt --total-timesteps 25000000 --anchors-alpha 0.999
+""" rel augmented"""
+# python src/zeroshotrl/ppo_lunarlander_rgb.py --track --wandb-project-name rlrepr_ppo_lunarlander --exp-name "rel_augmented_ -10_white_rgb" --env-id LunarLanderRGB --seed 2 --num-envs 16 --background white --gravity -10 --stack-n 4 --use-relative --anchors-path data/anchors/LunarLanderRGB/rgb_ppo_transitions_white_obs_augmented.pkl --anchors-indices-path data/anchor_indices/LunarLanderRGB_3136_anchor_indices_from_4000.txt --total-timesteps 25000000 --anchors-alpha 0.999
+
 
 def parse_env_specific_args(parser):
     # env specific arguments

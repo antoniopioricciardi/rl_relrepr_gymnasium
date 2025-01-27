@@ -344,10 +344,12 @@ class PPOTrainer_vec:
             b_inds = np.arange(self.batch_size)
             clipfracs = []
             for epoch in range(self.update_epochs):
+                if self.use_relative and not self.pretrained:
+                    self.agent.encoder.update_anchors()
                 np.random.shuffle(b_inds)
                 for start in range(0, self.batch_size, self.minibatch_size):
-                    if self.use_relative and not self.pretrained:
-                        self.agent.encoder.update_anchors()
+                    # if self.use_relative and not self.pretrained:
+                    #     self.agent.encoder.update_anchors()
                     end = start + self.minibatch_size
                     mb_inds = b_inds[start:end]
 
