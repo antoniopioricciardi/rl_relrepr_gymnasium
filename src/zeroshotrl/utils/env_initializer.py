@@ -86,9 +86,9 @@ def make_env_atari(
         if filter_dict:
             env = FilterFromDict(env, filter_dict)
         env = gym.wrappers.ResizeObservation(env, (84, 84))
-        env = RescaleObservation(env, rescale_value=255.0)
         if color_transform != "standard":
             env = ColorTransformObservation(env, color=color_transform)
+        env = RescaleObservation(env, rescale_value=255.0)
         if rgb:
             #     env = PreprocessFrameRGB((84, 84, 3), env)  #
             # env = ReshapeObservation(env, (3, 96, 96)) # replace with env.observation_space.shape[1],
