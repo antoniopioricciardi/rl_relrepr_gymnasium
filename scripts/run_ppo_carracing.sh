@@ -15,6 +15,7 @@ usage() {
     echo "  --background   Set the background color (default: green)"
     echo "  --car-mode     Set the car mode (default: standard)"
     echo "  --anchors-alpha Set the alpha value for the relative representation (default: 0)"
+    echo "  --total-timesteps Set the total timesteps (default: 5000000)"
     exit 0
 }
 
@@ -25,6 +26,7 @@ env_id="CarRacing-v2"
 background="green"
 car_mode="standard"
 anchors_alpha=0
+total_timesteps=5000000
 
 # parse command line arguments
 # if argument is usage, print usage and exit
@@ -55,6 +57,10 @@ while [[ $# -gt 0 ]]; do
             anchors_alpha="$2"
             shift 2
             ;;
+        --total-timesteps)
+            total_timesteps="$2"
+            shift 2
+            ;;
         *)
             echo "Invalid argument: $2"
             exit 1
@@ -68,43 +74,44 @@ echo "Environment ID: $env_id"
 echo "Background: $background"
 echo "Car Mode: $car_mode"
 echo "Anchors Alpha: $anchors_alpha"
+echo "Total Timesteps: $total_timesteps"
 # if [ "$1" == "ppo" ]
 if [ $run_mode == "ppo" ]
 then
-    python src/zeroshotrl/ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name "$car_mode"_"$background"_rgb --env-id CarRacing-custom --seed 1 --num-envs 16 --background $background --car-mode $car_mode --stack-n 4 --total-timesteps 5000000
+    python src/zeroshotrl/ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name "$car_mode"_"$background"_rgb --env-id CarRacing-custom --seed 1 --num-envs 16 --background $background --car-mode $car_mode --stack-n 4 --total-timesteps $total_timesteps
 
-    python src/zeroshotrl/ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name "$car_mode"_"$background"_rgb --env-id CarRacing-custom --seed 2 --num-envs 16 --background $background --car-mode $car_mode --stack-n 4 --total-timesteps 5000000
+    python src/zeroshotrl/ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name "$car_mode"_"$background"_rgb --env-id CarRacing-custom --seed 2 --num-envs 16 --background $background --car-mode $car_mode --stack-n 4 --total-timesteps $total_timesteps
 
-    python src/zeroshotrl/ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name "$car_mode"_"$background"_rgb --env-id CarRacing-custom --seed 3 --num-envs 16 --background $background --car-mode $car_mode --stack-n 4 --total-timesteps 5000000
+    python src/zeroshotrl/ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name "$car_mode"_"$background"_rgb --env-id CarRacing-custom --seed 3 --num-envs 16 --background $background --car-mode $car_mode --stack-n 4 --total-timesteps $total_timesteps
 
-    python src/zeroshotrl/ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name "$car_mode"_"$background"_rgb --env-id CarRacing-custom --seed 4 --num-envs 16 --background $background --car-mode $car_mode --stack-n 4 --total-timesteps 5000000
+    python src/zeroshotrl/ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name "$car_mode"_"$background"_rgb --env-id CarRacing-custom --seed 4 --num-envs 16 --background $background --car-mode $car_mode --stack-n 4 --total-timesteps $total_timesteps
 elif [ $run_mode == "ppo-rel" ]
 then
-    python src/zeroshotrl/ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name "rel_$car_mode"_"$background"_rgb --env-id CarRacing-custom --seed 1 --num-envs 16 --background $background --car-mode $car_mode --stack-n 4 --use-relative --anchors-path data/anchors/"$env_id"/rgb_ppo_transitions_"$background"_obs.pkl --anchors-indices-path data/anchor_indices/"$env_id"_3136_anchor_indices_from_4000.txt --total-timesteps 5000000 --anchors-alpha $anchors_alpha
+    python src/zeroshotrl/ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name "rel_$car_mode"_"$background"_rgb --env-id CarRacing-custom --seed 1 --num-envs 16 --background $background --car-mode $car_mode --stack-n 4 --use-relative --anchors-path data/anchors/"$env_id"/rgb_ppo_transitions_"$background"_obs.pkl --anchors-indices-path data/anchor_indices/"$env_id"_3136_anchor_indices_from_4000.txt --total-timesteps $total_timesteps --anchors-alpha $anchors_alpha
 
-    python src/zeroshotrl/ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name "rel_$car_mode"_"$background"_rgb --env-id CarRacing-custom --seed 2 --num-envs 16 --background $background --car-mode $car_mode --stack-n 4 --use-relative --anchors-path data/anchors/"$env_id"/rgb_ppo_transitions_"$background"_obs.pkl --anchors-indices-path data/anchor_indices/"$env_id"_3136_anchor_indices_from_4000.txt --total-timesteps 5000000 --anchors-alpha $anchors_alpha
+    python src/zeroshotrl/ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name "rel_$car_mode"_"$background"_rgb --env-id CarRacing-custom --seed 2 --num-envs 16 --background $background --car-mode $car_mode --stack-n 4 --use-relative --anchors-path data/anchors/"$env_id"/rgb_ppo_transitions_"$background"_obs.pkl --anchors-indices-path data/anchor_indices/"$env_id"_3136_anchor_indices_from_4000.txt --total-timesteps $total_timesteps --anchors-alpha $anchors_alpha
 
-    python src/zeroshotrl/ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name "rel_$car_mode"_"$background"_rgb --env-id CarRacing-custom --seed 3 --num-envs 16 --background $background --car-mode $car_mode --stack-n 4 --use-relative --anchors-path data/anchors/"$env_id"/rgb_ppo_transitions_"$background"_obs.pkl --anchors-indices-path data/anchor_indices/"$env_id"_3136_anchor_indices_from_4000.txt --total-timesteps 5000000 --anchors-alpha $anchors_alpha
+    python src/zeroshotrl/ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name "rel_$car_mode"_"$background"_rgb --env-id CarRacing-custom --seed 3 --num-envs 16 --background $background --car-mode $car_mode --stack-n 4 --use-relative --anchors-path data/anchors/"$env_id"/rgb_ppo_transitions_"$background"_obs.pkl --anchors-indices-path data/anchor_indices/"$env_id"_3136_anchor_indices_from_4000.txt --total-timesteps $total_timesteps --anchors-alpha $anchors_alpha
 
-    python src/zeroshotrl/ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name "rel_$car_mode"_"$background"_rgb --env-id CarRacing-custom --seed 4 --num-envs 16 --background $background --car-mode $car_mode --stack-n 4 --use-relative --anchors-path data/anchors/"$env_id"/rgb_ppo_transitions_"$background"_obs.pkl --anchors-indices-path data/anchor_indices/"$env_id"_3136_anchor_indices_from_4000.txt --total-timesteps 5000000 --anchors-alpha $anchors_alpha
+    python src/zeroshotrl/ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name "rel_$car_mode"_"$background"_rgb --env-id CarRacing-custom --seed 4 --num-envs 16 --background $background --car-mode $car_mode --stack-n 4 --use-relative --anchors-path data/anchors/"$env_id"/rgb_ppo_transitions_"$background"_obs.pkl --anchors-indices-path data/anchor_indices/"$env_id"_3136_anchor_indices_from_4000.txt --total-timesteps $total_timesteps --anchors-alpha $anchors_alpha
 elif [ $run_mode == "ppo-rel-single-anchors" ]
 then
-    python src/zeroshotrl/ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name "rel_unified_$car_mode"_"$background"_rgb --env-id CarRacing-custom --seed 1 --num-envs 16 --background $background --car-mode $car_mode --stack-n 4 --use-relative --anchors-path data/anchors/CarRacing-v2-unified/rgb_ppo_transitions_red_green_bus_tuktuk_obs.pkl --anchors-indices-path data/anchor_indices/"$env_id"_3136_anchor_indices_from_4000.txt --total-timesteps 5000000 --anchors-alpha $anchors_alpha
+    python src/zeroshotrl/ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name "rel_unified_$car_mode"_"$background"_rgb --env-id CarRacing-custom --seed 1 --num-envs 16 --background $background --car-mode $car_mode --stack-n 4 --use-relative --anchors-path data/anchors/CarRacing-v2-unified/rgb_ppo_transitions_red_green_bus_tuktuk_obs.pkl --anchors-indices-path data/anchor_indices/"$env_id"_3136_anchor_indices_from_4000.txt --total-timesteps $total_timesteps --anchors-alpha $anchors_alpha
 
-    python src/zeroshotrl/ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name "rel_unified_$car_mode"_"$background"_rgb --env-id CarRacing-custom --seed 2 --num-envs 16 --background $background --car-mode $car_mode --stack-n 4 --use-relative --anchors-path data/anchors/CarRacing-v2-unified/rgb_ppo_transitions_red_green_bus_tuktuk_obs.pkl --anchors-indices-path data/anchor_indices/"$env_id"_3136_anchor_indices_from_4000.txt --total-timesteps 5000000 --anchors-alpha $anchors_alpha
+    python src/zeroshotrl/ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name "rel_unified_$car_mode"_"$background"_rgb --env-id CarRacing-custom --seed 2 --num-envs 16 --background $background --car-mode $car_mode --stack-n 4 --use-relative --anchors-path data/anchors/CarRacing-v2-unified/rgb_ppo_transitions_red_green_bus_tuktuk_obs.pkl --anchors-indices-path data/anchor_indices/"$env_id"_3136_anchor_indices_from_4000.txt --total-timesteps $total_timesteps --anchors-alpha $anchors_alpha
 
-    python src/zeroshotrl/ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name "rel_unified_$car_mode"_"$background"_rgb --env-id CarRacing-custom --seed 3 --num-envs 16 --background $background --car-mode $car_mode --stack-n 4 --use-relative --anchors-path data/anchors/CarRacing-v2-unified/rgb_ppo_transitions_red_green_bus_tuktuk_obs.pkl --anchors-indices-path data/anchor_indices/"$env_id"_3136_anchor_indices_from_4000.txt --total-timesteps 5000000 --anchors-alpha $anchors_alpha
+    python src/zeroshotrl/ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name "rel_unified_$car_mode"_"$background"_rgb --env-id CarRacing-custom --seed 3 --num-envs 16 --background $background --car-mode $car_mode --stack-n 4 --use-relative --anchors-path data/anchors/CarRacing-v2-unified/rgb_ppo_transitions_red_green_bus_tuktuk_obs.pkl --anchors-indices-path data/anchor_indices/"$env_id"_3136_anchor_indices_from_4000.txt --total-timesteps $total_timesteps --anchors-alpha $anchors_alpha
 
-    python src/zeroshotrl/ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name "rel_unified_$car_mode"_"$background"_rgb --env-id CarRacing-custom --seed 4 --num-envs 16 --background $background --car-mode $car_mode --stack-n 4 --use-relative --anchors-path data/anchors/CarRacing-v2-unified/rgb_ppo_transitions_red_green_bus_tuktuk_obs.pkl --anchors-indices-path data/anchor_indices/"$env_id"_3136_anchor_indices_from_4000.txt --total-timesteps 5000000 --anchors-alpha $anchors_alpha
+    python src/zeroshotrl/ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name "rel_unified_$car_mode"_"$background"_rgb --env-id CarRacing-custom --seed 4 --num-envs 16 --background $background --car-mode $car_mode --stack-n 4 --use-relative --anchors-path data/anchors/CarRacing-v2-unified/rgb_ppo_transitions_red_green_bus_tuktuk_obs.pkl --anchors-indices-path data/anchor_indices/"$env_id"_3136_anchor_indices_from_4000.txt --total-timesteps $total_timesteps --anchors-alpha $anchors_alpha
 elif [ $run_mode == "ppo-resnet" ]
 then
-    python src/zeroshotrl/ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name "resnet_$car_mode"_"$background"_rgb --env-id CarRacing-custom --seed 1 --num-envs 16 --background $background --car-mode $car_mode --stack-n 4 --total-timesteps 5000000 --use-resnet
+    python src/zeroshotrl/ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name "resnet_$car_mode"_"$background"_rgb --env-id CarRacing-custom --seed 1 --num-envs 16 --background $background --car-mode $car_mode --stack-n 4 --total-timesteps $total_timesteps --use-resnet
 
-    python src/zeroshotrl/ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name "resnet_$car_mode"_"$background"_rgb --env-id CarRacing-custom --seed 2 --num-envs 16 --background $background --car-mode $car_mode --stack-n 4 --total-timesteps 5000000 --use-resnet
+    python src/zeroshotrl/ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name "resnet_$car_mode"_"$background"_rgb --env-id CarRacing-custom --seed 2 --num-envs 16 --background $background --car-mode $car_mode --stack-n 4 --total-timesteps $total_timesteps --use-resnet
 
-    python src/zeroshotrl/ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name "resnet_$car_mode"_"$background"_rgb --env-id CarRacing-custom --seed 3 --num-envs 16 --background $background --car-mode $car_mode --stack-n 4 --total-timesteps 5000000 --use-resnet
+    python src/zeroshotrl/ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name "resnet_$car_mode"_"$background"_rgb --env-id CarRacing-custom --seed 3 --num-envs 16 --background $background --car-mode $car_mode --stack-n 4 --total-timesteps $total_timesteps --use-resnet
 
-    python src/zeroshotrl/ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name "resnet_$car_mode"_"$background"_rgb --env-id CarRacing-custom --seed 4 --num-envs 16 --background $background --car-mode $car_mode --stack-n 4 --total-timesteps 5000000 --use-resnet
+    python src/zeroshotrl/ppo_carracing_discrete_rgb_relrepr_end_to_end.py --track --wandb-project-name rlrepr_ppo_carracing_discrete --exp-name "resnet_$car_mode"_"$background"_rgb --env-id CarRacing-custom --seed 4 --num-envs 16 --background $background --car-mode $car_mode --stack-n 4 --total-timesteps $total_timesteps --use-resnet
 else
     echo "Invalid argument"
 fi

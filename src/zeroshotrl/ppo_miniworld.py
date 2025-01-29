@@ -24,7 +24,9 @@ seed_everything(42)
 
 """ MINIWORLD """
 """  """
-# python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name test --env-id Miniworld --seed 1 --num-envs 8 --num-eval-envs 1 --background white --gravity -10 --stack-n 4 --total-timesteps 5000000
+# python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name test --env-id Miniworld --seed 1 --num-envs 8 --num-eval-envs 1 --background standard --stack-n 4 --total-timesteps 200000
+
+# python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name OneRoom-v0_standard_rgb --env-id OneRoom-v0 --seed 1 --num-envs 8 --background standard --stack-n 4 --total-timesteps 200000 --num-eval-eps 30 --num-eval-envs 3
 
 
 def parse_env_specific_args(parser):
@@ -35,14 +37,6 @@ def parse_env_specific_args(parser):
         default="green",
         help="the color of the rocks at the base"
     )
-
-    parser.add_argument(
-        "--gravity",
-        type=int,
-        default=-10,
-        help="the gravity for the simulation"
-    )
-
     return parser
 
 
@@ -119,7 +113,7 @@ if __name__ == "__main__":
     # env setup
     from zeroshotrl.utils.env_initializer import make_env_atari
 
-    envs = gym.vector.SyncVectorEnv(
+    envs = gym.vector.AsyncVectorEnv(
         [
             make_env_atari(
                 env,
@@ -141,7 +135,7 @@ if __name__ == "__main__":
         ]
     )
 
-    eval_envs = gym.vector.SyncVectorEnv(
+    eval_envs = gym.vector.AsyncVectorEnv(
         [
             make_env_atari(
                 eval_env,
