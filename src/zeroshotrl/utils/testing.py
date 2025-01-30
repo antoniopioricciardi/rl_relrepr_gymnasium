@@ -167,8 +167,6 @@ def stitching_test_quantitative(
 
     for enc_bg in encoder_backgrounds:
         for pol_bg in policy_backgrounds:
-            print(pol_bg)
-            exit(2)
             for enc_seed in encoder_seeds:
                 for pol_seed in policy_seeds:
                     # print('----------------------------------')
@@ -424,7 +422,6 @@ def stitching_test_quantitative(
                         # score, max_ep_score, ep_length = test_rel_repr_vec(env_controller, agent, policy_algo, limit_episode_length, device=device)#, cust_seed=1)
                         print(f"Episode finished: {score} points, {ep_length} steps")
                         print(clustering_time)
-
                         df = pd.concat(
                             [
                                 df,
