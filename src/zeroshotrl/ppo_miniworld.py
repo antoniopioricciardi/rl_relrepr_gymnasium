@@ -130,6 +130,7 @@ if __name__ == "__main__":
                 idx=i,
                 capture_video=False,
                 run_name=run_name,
+                color_transform=args.background,
             )
             for i in range(args.num_envs)
         ]

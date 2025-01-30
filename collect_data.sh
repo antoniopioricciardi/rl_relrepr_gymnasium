@@ -5,7 +5,8 @@
 # LUNARALANDER
 # sh collect_data.sh --env-id LunarLanderRGB --num-steps 4000 --collect-actions --generate-anchors-indices --backgrounds white red --model-color white
 
-
+# MINIWORLD
+# sh collect_data.sh --env-id MiniWorld-OneRoom-v0 --num-steps 4000 --collect-actions --generate-anchors-indices --backgrounds standard --model-color standard
 
 # Set default values for arguments
 env_id="CarRacing-v2"

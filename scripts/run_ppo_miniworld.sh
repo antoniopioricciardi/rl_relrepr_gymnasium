@@ -3,6 +3,9 @@
 # bash scripts/run_ppo_miniworld.sh --run-mode ppo --env-id OneRoom-v0 --background standard 
 # bash scripts/run_ppo_miniworld.sh --run-mode ppo --env-id OneRoom-v0 --background standard --total-timesteps 200000 --num-eval-eps 30
 
+# FOUR ROOMS
+# bash scripts/run_ppo_miniworld.sh --run-mode ppo --env-id FourRooms-v0 --background standard --total-timesteps 200000 --num-eval-eps 30
+
 # usage function
 usage() {
     echo "Usage: $0 [--run-mode RUN_MODE] [--env-id ENV_ID] [--background BACKGROUND] [--car-mode CAR_MODE]"

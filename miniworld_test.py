@@ -17,6 +17,7 @@ for _ in range(1000):
     # action = policy(observation)  # User-defined policy function
     action = env.action_space.sample()
     observation, reward, terminated, truncated, info = env.step(action)
+    print(observation)
     env.render()
 
     td_v = env.render_top_view()
