@@ -1,7 +1,8 @@
 #!/bin/sh
 #
-# bash scripts/run_ppo_miniworld.sh --run-mode ppo --env-id OneRoom-v0 --background standard 
-# bash scripts/run_ppo_miniworld.sh --run-mode ppo --env-id OneRoom-v0 --background standard --total-timesteps 200000 --num-eval-eps 30
+# bash scripts/run_ppo_miniworld.sh --run-mode ppo --env-id MiniWorld-OneRoom-v0 --background standard 
+# bash scripts/run_ppo_miniworld.sh --run-mode ppo --env-id MiniWorld-OneRoom-v0 --background standard --total-timesteps 200000 --num-eval-eps 30
+# bash scripts/run_ppo_miniworld.sh --run-mode ppo-rel --env-id MiniWorld-OneRoom-v0 --background standard --total-timesteps 200000 --num-eval-eps 30
 
 # FOUR ROOMS
 # bash scripts/run_ppo_miniworld.sh --run-mode ppo --env-id FourRooms-v0 --background standard --total-timesteps 200000 --num-eval-eps 30
@@ -11,7 +12,7 @@ usage() {
     echo "Usage: $0 [--run-mode RUN_MODE] [--env-id ENV_ID] [--background BACKGROUND] [--car-mode CAR_MODE]"
     echo "Options:"
     echo "  --run-mode     Set the run mode (default: ppo)"
-    echo "  --env-id       Set the environment ID (default: OneRoom-v0)"
+    echo "  --env-id       Set the environment ID (default: MiniWorld-OneRoom-v0)"
     echo "  --background   Set the background color (default: standard)"
     echo "  --anchors-alpha Set the alpha value for the relative representation (default: 0)"
     echo "  --total-timesteps Set the total timesteps (default: 200000)"
@@ -22,7 +23,7 @@ usage() {
 
 # default values
 run_mode="ppo"
-env_id="OneRoom-v0"
+env_id="MiniWorld-OneRoom-v0"
 background="standard"
 anchors_alpha=0
 total_timesteps=200000

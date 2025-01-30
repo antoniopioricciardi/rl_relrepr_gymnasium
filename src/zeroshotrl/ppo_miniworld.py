@@ -13,8 +13,6 @@ from torch.utils.tensorboard import SummaryWriter
 
 from zeroshotrl.init_training import init_stuff_ppo
 
-# from utils.relative import init_anchors, init_anchors_from_obs, get_obs_anchors, get_obs_anchors_totensor
-
 from zeroshotrl.logger import CustomLogger
 
 from pytorch_lightning import seed_everything
@@ -105,8 +103,8 @@ if __name__ == "__main__":
     import miniworld
 
     # env = gym.make("MiniWorld-OneRoom-v0", render_mode="rgb_array")
-    env = gym.make(f"MiniWorld-{args.env_id}", render_mode="rgb_array")
-    eval_env = gym.make(f"MiniWorld-{args.env_id}", render_mode="rgb_array")
+    env = gym.make(f"{args.env_id}", render_mode="rgb_array")
+    eval_env = gym.make(f"{args.env_id}", render_mode="rgb_array")
     
     num_eval_envs = args.num_eval_envs
 
