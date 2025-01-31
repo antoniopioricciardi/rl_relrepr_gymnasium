@@ -417,6 +417,7 @@ def stitching_test_quantitative(
                             policy_algo,
                             limit_episode_length,
                             device=device,
+                            seed=cust_seed
                         )  # , cust_seed=1)
 
                         # score, max_ep_score, ep_length = test_rel_repr_vec(env_controller, agent, policy_algo, limit_episode_length, device=device)#, cust_seed=1)
