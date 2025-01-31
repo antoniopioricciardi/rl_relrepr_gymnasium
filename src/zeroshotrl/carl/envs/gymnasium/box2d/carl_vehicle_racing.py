@@ -109,8 +109,8 @@ class CustomCarRacing(CarRacing):
         # if car is Bus, change max_steps to 2000
         if self.vehicle_class == Bus:
             self.max_steps = 2000
-        if self.vehicle_class == TukTuk:
-            self.max_steps = 1500
+        # if self.vehicle_class == TukTuk:
+        #     self.max_steps = 1500
 
     # def reset(
     #     self,
