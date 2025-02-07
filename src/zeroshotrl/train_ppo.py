@@ -117,6 +117,7 @@ class PPOTrainer_vec:
         # self.num_updates = num_updates
 
     def train(self):
+        anchors_upd_step = 0
         # ALGO Logic: Storage setup
         obs = torch.zeros(
             (self.num_steps, self.num_envs) + self.envs.single_observation_space.shape
@@ -343,7 +344,6 @@ class PPOTrainer_vec:
             # Optimizing the policy and value network
             b_inds = np.arange(self.batch_size)
             clipfracs = []
-            anchors_upd_step = 0
             for epoch in range(self.update_epochs):
                 if self.use_relative and not self.pretrained:
                     # self.agent.encoder.update_anchors()
