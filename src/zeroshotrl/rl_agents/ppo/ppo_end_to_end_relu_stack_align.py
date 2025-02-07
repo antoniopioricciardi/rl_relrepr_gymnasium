@@ -147,7 +147,7 @@ class FeatureExtractor(nn.Module):
         new_anchors = self.network(self.obs_anchors)
 
         if self.anchors_alpha == -2:
-            assert step is not None, "Step must be provided for exponential growth."
+            assert step is not None, "Step must be provided for linear growth."
             # # Compute growing alpha: starts at anchors_alpha_min and approaches anchors_alpha_max
             # exp_growth_alpha = self.anchors_alpha_min + \
             #                 (self.anchors_alpha_max - self.anchors_alpha_min) * (1 - decay_rate ** step)
@@ -168,6 +168,7 @@ class FeatureExtractor(nn.Module):
                 schedule_fraction=0.6  # ramp up fully by 80% of training
             )
             self.dynamic_alpha = alpha
+            print(alpha, self.dynamic_alpha)
             # Standard EMA update:
             #  anchors <- alpha * anchors + (1 - alpha) * new_anchors
             self.anchors = alpha * self.anchors + (1 - alpha) * new_anchors
