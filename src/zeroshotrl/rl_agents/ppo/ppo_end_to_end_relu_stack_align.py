@@ -144,6 +144,7 @@ class FeatureExtractor(nn.Module):
             progress = min(step / (0.8 * total_steps), 1.0)
             current_alpha = progress * max_alpha
             self.dynamic_alpha = current_alpha
+            print(step, total_steps, current_alpha)
 
             # EMA update: anchors = current_alpha * anchors + (1 - current_alpha) * new_anchors
             self.anchors = current_alpha * self.anchors + (1 - current_alpha) * new_anchors
