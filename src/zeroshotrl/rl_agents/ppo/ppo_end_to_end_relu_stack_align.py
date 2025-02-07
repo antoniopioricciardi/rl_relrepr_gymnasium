@@ -119,7 +119,7 @@ class FeatureExtractor(nn.Module):
     #         )  # keep % of the old anchors # 0.99 and 0.999
 
 
-    def get_alpha_linear(step, total_steps, alpha_start=0.90, alpha_end=0.999, schedule_fraction=0.8):
+    def get_alpha_linear(self, step, total_steps, alpha_start=0.90, alpha_end=0.999, schedule_fraction=0.8):
         """
         Returns a linearly scheduled alpha that:
         - starts at alpha_start when step=0
@@ -148,7 +148,6 @@ class FeatureExtractor(nn.Module):
 
         if self.anchors_alpha == -2:
             assert step is not None, "Step must be provided for exponential growth."
-            print(step, total_steps)
             # # Compute growing alpha: starts at anchors_alpha_min and approaches anchors_alpha_max
             # exp_growth_alpha = self.anchors_alpha_min + \
             #                 (self.anchors_alpha_max - self.anchors_alpha_min) * (1 - decay_rate ** step)
