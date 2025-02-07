@@ -141,7 +141,7 @@ class FeatureExtractor(nn.Module):
 
             # Compute progress through the linear schedule.
             # For the first 80% of training, we increase alpha linearly; then we keep it fixed.
-            progress = min(step / (0.8 * total_steps), 1.0)
+            progress = min(step / (0.5 * total_steps), 1.0)
             current_alpha = progress * max_alpha
             self.dynamic_alpha = current_alpha
 
