@@ -145,7 +145,7 @@ class FeatureExtractor(nn.Module):
         - decay_rate: Controls the rate of growth of alpha.
         """
         new_anchors = self.network(self.obs_anchors)
-        
+
         if self.anchors_alpha == -2:
             assert step is not None, "Step must be provided for exponential growth."
 
@@ -168,6 +168,7 @@ class FeatureExtractor(nn.Module):
                 alpha_end=0.999,    # or your chosen final alpha
                 schedule_fraction=0.6  # ramp up fully by 80% of training
             )
+            self.dynamic_alpha = alpha
             # Standard EMA update:
             #  anchors <- alpha * anchors + (1 - alpha) * new_anchors
             self.anchors = alpha * self.anchors + (1 - alpha) * new_anchors
