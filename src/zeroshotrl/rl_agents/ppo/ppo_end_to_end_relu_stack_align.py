@@ -119,8 +119,24 @@ class FeatureExtractor(nn.Module):
     #         )  # keep % of the old anchors # 0.99 and 0.999
 
 
+    def get_alpha_linear(step, total_steps, alpha_start=0.90, alpha_end=0.999, schedule_fraction=0.8):
+        """
+        Returns a linearly scheduled alpha that:
+        - starts at alpha_start when step=0
+        - reaches alpha_end by step = schedule_fraction * total_steps
+        - then stays at alpha_end afterwards
+        """
+        # By default, we let alpha ramp up during [0 ... schedule_fraction * total_steps].
+        cutoff = schedule_fraction * total_steps
+        if step >= cutoff:
+            return alpha_end  # clamp at alpha_end
+        # Otherwise, fraction of the way through the schedule
+        fraction = step / cutoff
+        alpha = alpha_start + (alpha_end - alpha_start) * fraction
+        return alpha
+
     @torch.no_grad()
-    def update_anchors(self, step=None, decay_rate=0.99):
+    def update_anchors(self, step=None, total_steps=None):
         """
         Update the anchors during training with exponential growth if anchors_alpha == -2.
 
@@ -128,23 +144,36 @@ class FeatureExtractor(nn.Module):
         - step: Current training step (required for exponential growth).
         - decay_rate: Controls the rate of growth of alpha.
         """
+        new_anchors = self.network(self.obs_anchors)
+        
         if self.anchors_alpha == -2:
             assert step is not None, "Step must be provided for exponential growth."
 
-            # Compute growing alpha: starts at anchors_alpha_min and approaches anchors_alpha_max
-            exp_growth_alpha = self.anchors_alpha_min + \
-                            (self.anchors_alpha_max - self.anchors_alpha_min) * (1 - decay_rate ** step)
+            # # Compute growing alpha: starts at anchors_alpha_min and approaches anchors_alpha_max
+            # exp_growth_alpha = self.anchors_alpha_min + \
+            #                 (self.anchors_alpha_max - self.anchors_alpha_min) * (1 - decay_rate ** step)
             
-            exp_growth_alpha = min(exp_growth_alpha, self.anchors_alpha_max)  # Clamp to max value
+            # exp_growth_alpha = min(exp_growth_alpha, self.anchors_alpha_max)  # Clamp to max value
 
-            # Update anchors using the growing alpha
-            new_anchors = self.network(self.obs_anchors)
-            self.anchors = (
-                exp_growth_alpha * self.anchors + (1 - exp_growth_alpha) * new_anchors
+            # # Update anchors using the growing alpha
+            # new_anchors = self.network(self.obs_anchors)
+            # self.anchors = (
+            #     exp_growth_alpha * self.anchors + (1 - exp_growth_alpha) * new_anchors
+            # )
+
+            alpha = self.get_alpha_linear(
+                step,
+                total_steps,
+                alpha_start=0.90,   # or your chosen starting alpha
+                alpha_end=0.999,    # or your chosen final alpha
+                schedule_fraction=0.6  # ramp up fully by 80% of training
             )
+            # Standard EMA update:
+            #  anchors <- alpha * anchors + (1 - alpha) * new_anchors
+            self.anchors = alpha * self.anchors + (1 - alpha) * new_anchors
+
         elif self.anchors_alpha == -1:
             # Dynamic alpha based on feature variance
-            new_anchors = self.network(self.obs_anchors)
             self.feature_variance = self.compute_feature_variance(new_anchors)
             self.dynamic_alpha = self.adapt_anchors_alpha(self.feature_variance)
             self.anchors = (
@@ -152,7 +181,6 @@ class FeatureExtractor(nn.Module):
             )
         else:
             # Fixed alpha
-            new_anchors = self.network(self.obs_anchors)
             self.anchors = (
                 self.anchors_alpha * self.anchors + (1 - self.anchors_alpha) * new_anchors
             )
@@ -176,7 +204,7 @@ class FeatureExtractor(nn.Module):
         return variance
 
     @torch.no_grad()
-    def adapt_anchors_alpha(self, feature_variance): # , var_min=0.001, var_max=1):
+    def adapt_anchors_alpha(self, feature_variance): # , var_min=0.001, var_max=0.1):
         """Scale anchors_alpha dynamically based on feature variance."""
         alpha = self.anchors_alpha_min + (feature_variance - self.var_min) * (
             (self.anchors_alpha_max - self.anchors_alpha_min) / (self.var_max - self.var_min)

@@ -343,9 +343,11 @@ class PPOTrainer_vec:
             # Optimizing the policy and value network
             b_inds = np.arange(self.batch_size)
             clipfracs = []
+            anchors_upd_step = 0
             for epoch in range(self.update_epochs):
                 if self.use_relative and not self.pretrained:
-                    self.agent.encoder.update_anchors()
+                    # self.agent.encoder.update_anchors()
+                    self.agent.encoder.update_anchors(anchors_upd_step, num_updates*self.update_epochs)
                 np.random.shuffle(b_inds)
                 for start in range(0, self.batch_size, self.minibatch_size):
                     # if self.use_relative and not self.pretrained:
