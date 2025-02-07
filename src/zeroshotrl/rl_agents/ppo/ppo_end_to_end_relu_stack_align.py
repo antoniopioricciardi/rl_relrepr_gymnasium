@@ -148,7 +148,7 @@ class FeatureExtractor(nn.Module):
 
         if self.anchors_alpha == -2:
             assert step is not None, "Step must be provided for exponential growth."
-
+            print(step, total_steps)
             # # Compute growing alpha: starts at anchors_alpha_min and approaches anchors_alpha_max
             # exp_growth_alpha = self.anchors_alpha_min + \
             #                 (self.anchors_alpha_max - self.anchors_alpha_min) * (1 - decay_rate ** step)
@@ -164,7 +164,7 @@ class FeatureExtractor(nn.Module):
             alpha = self.get_alpha_linear(
                 step,
                 total_steps,
-                alpha_start=0.90,   # or your chosen starting alpha
+                alpha_start=0.50,   # or your chosen starting alpha
                 alpha_end=0.999,    # or your chosen final alpha
                 schedule_fraction=0.6  # ramp up fully by 80% of training
             )
