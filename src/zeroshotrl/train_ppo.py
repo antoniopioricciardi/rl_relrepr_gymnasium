@@ -348,6 +348,7 @@ class PPOTrainer_vec:
                 if self.use_relative and not self.pretrained:
                     # self.agent.encoder.update_anchors()
                     self.agent.encoder.update_anchors(anchors_upd_step, num_updates*self.update_epochs)
+                    anchors_upd_step += 1
                 np.random.shuffle(b_inds)
                 for start in range(0, self.batch_size, self.minibatch_size):
                     # if self.use_relative and not self.pretrained:
