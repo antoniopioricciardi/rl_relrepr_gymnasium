@@ -168,6 +168,7 @@ class FeatureExtractor(nn.Module):
                 schedule_fraction=0.6  # ramp up fully by 80% of training
             )
             self.dynamic_alpha = alpha
+            print(alpha, self.dynamic_alpha)
             # Standard EMA update:
             #  anchors <- alpha * anchors + (1 - alpha) * new_anchors
             self.anchors = alpha * self.anchors + (1 - alpha) * new_anchors
