@@ -114,7 +114,7 @@ class PPOTrainer_vec:
 
         self.device = device
 
-        self.num_updates = num_updates
+        # self.num_updates = num_updates
 
     def train(self):
         # ALGO Logic: Storage setup

@@ -119,23 +119,6 @@ class FeatureExtractor(nn.Module):
     #         )  # keep % of the old anchors # 0.99 and 0.999
 
 
-    def get_alpha_linear(self, step, total_steps, alpha_start=0.90, alpha_end=0.999, schedule_fraction=0.8):
-        """
-        Returns a linearly scheduled alpha that:
-        - starts at alpha_start when step=0
-        - reaches alpha_end by step = schedule_fraction * total_steps
-        - then stays at alpha_end afterwards
-        """
-        # By default, we let alpha ramp up during [0 ... schedule_fraction * total_steps].
-        cutoff = schedule_fraction * total_steps
-        if step >= cutoff:
-            print('AH')
-            return alpha_end  # clamp at alpha_end
-        # Otherwise, fraction of the way through the schedule
-        fraction = step / cutoff
-        alpha = alpha_start + (alpha_end - alpha_start) * fraction
-        return alpha
-
     @torch.no_grad()
     def update_anchors(self, step=None, total_steps=None):
         """
@@ -148,31 +131,23 @@ class FeatureExtractor(nn.Module):
         new_anchors = self.network(self.obs_anchors)
 
         if self.anchors_alpha == -2:
-            assert step is not None, "Step must be provided for linear growth."
-            # # Compute growing alpha: starts at anchors_alpha_min and approaches anchors_alpha_max
-            # exp_growth_alpha = self.anchors_alpha_min + \
-            #                 (self.anchors_alpha_max - self.anchors_alpha_min) * (1 - decay_rate ** step)
-            
-            # exp_growth_alpha = min(exp_growth_alpha, self.anchors_alpha_max)  # Clamp to max value
-
-            # # Update anchors using the growing alpha
-            # new_anchors = self.network(self.obs_anchors)
-            # self.anchors = (
-            #     exp_growth_alpha * self.anchors + (1 - exp_growth_alpha) * new_anchors
-            # )
-
-            alpha = self.get_alpha_linear(
-                step,
-                total_steps,
-                alpha_start=0.50,   # or your chosen starting alpha
-                alpha_end=0.999,    # or your chosen final alpha
-                schedule_fraction=0.6  # ramp up fully by 80% of training
+            # Ensure we have the necessary step information.
+            assert step is not None and total_steps is not None, (
+                "Both 'step' and 'total_steps' must be provided for linear EMA scheduling."
             )
-            self.dynamic_alpha = alpha
-            print(alpha, self.dynamic_alpha)
-            # Standard EMA update:
-            #  anchors <- alpha * anchors + (1 - alpha) * new_anchors
-            self.anchors = alpha * self.anchors + (1 - alpha) * new_anchors
+
+            # Define the maximum EMA decay factor (i.e. final momentum).
+            max_alpha = 0.999  # You can adjust this final value as needed.
+
+            # Compute progress through the linear schedule.
+            # For the first 80% of training, we increase alpha linearly; then we keep it fixed.
+            progress = min(step / (0.8 * total_steps), 1.0)
+            current_alpha = progress * max_alpha
+            self.dynamic_alpha = current_alpha
+
+            # EMA update: anchors = current_alpha * anchors + (1 - current_alpha) * new_anchors
+            self.anchors = current_alpha * self.anchors + (1 - current_alpha) * new_anchors
+
 
         elif self.anchors_alpha == -1:
             # Dynamic alpha based on feature variance
