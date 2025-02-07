@@ -129,6 +129,7 @@ class FeatureExtractor(nn.Module):
         # By default, we let alpha ramp up during [0 ... schedule_fraction * total_steps].
         cutoff = schedule_fraction * total_steps
         if step >= cutoff:
+            print('AH')
             return alpha_end  # clamp at alpha_end
         # Otherwise, fraction of the way through the schedule
         fraction = step / cutoff
