@@ -22,7 +22,7 @@ seed_everything(42)
 
 """ MINIWORLD """
 """  """
-# python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name test --env-id Miniworld-OneRoom-v0 --seed 1 --num-envs 8 --num-eval-envs 1 --background standard --stack-n 4 --total-timesteps 200000
+# python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name test --env-id MiniWorld-OneRoom-v0 --seed 1 --num-envs 8 --num-eval-envs 1 --background standard --stack-n 4 --total-timesteps 200000
 
 # python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name OneRoom-v0_standard_rgb --env-id OneRoom-v0 --seed 1 --num-envs 8 --background standard --stack-n 4 --total-timesteps 200000 --num-eval-eps 30 --num-eval-envs 3
 
