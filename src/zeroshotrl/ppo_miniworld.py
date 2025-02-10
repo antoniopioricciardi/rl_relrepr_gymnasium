@@ -137,7 +137,7 @@ if __name__ == "__main__":
         ]
     )
 
-    eval_envs = gym.vector.AsyncVectorEnv(
+    eval_envs = gym.vector.SyncVectorEnv(
         [
             make_env_atari(
                 eval_env,
