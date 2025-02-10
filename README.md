@@ -19,6 +19,9 @@ if you get 'No such file or directory: 'clang': 'clang''
 apt-get -y install clang
 ```
 
+pip install dvc
+
+
 
 # ACTIVATE ENVIRONMENT
 ```bash
@@ -32,8 +35,31 @@ bash scripts/run_ppo_carracing.sh --run-mode ppo --env-id CarRacing-v2 --backgro
 ```
 
 
+# dvc: copy content of pydrive2fs from computer where you can access monitor to the computer where you can't. Paths are:
+$CACHE_HOME/pydrive2fs/{gdrive_client_id}/default.json (unless profile is specified), where the CACHE_HOME location per platform is:
+
+macOS
+~/Library/Caches	~/.cache	%CSIDL_LOCAL_APPDATA%
+
+Linux (*typical)
+~/.cache
+
+Windows
+%CSIDL_LOCAL_APPDATA%
 
 
+
+command swig failed
+## ON LINUX:
+apt-get remove swig
+apt-get install swig3.0
+ln -s /usr/bin/swig3.0 /usr/bin/swig
+
+If you get
+ImportError: libGL.so.1: cannot open shared object file: No such file or directory
+
+apt-get update
+apt-get install ffmpeg libsm6 libxext6  -y
 
 
 
@@ -83,32 +109,6 @@ relative_analysis.ipynb - read stitching results
 
 
 
-
-
-# copy content of pydrive2fs from computer where you can access monitor to the computer where you can't. Paths are:
-$CACHE_HOME/pydrive2fs/{gdrive_client_id}/default.json (unless profile is specified), where the CACHE_HOME location per platform is:
-
-macOS
-~/Library/Caches	~/.cache	%CSIDL_LOCAL_APPDATA%
-
-Linux (*typical)
-~/.cache
-
-Windows
-%CSIDL_LOCAL_APPDATA%
-
-
-command swig failed
-## ON LINUX:
-apt-get remove swig
-apt-get install swig3.0
-ln -s /usr/bin/swig3.0 /usr/bin/swig
-
-If you get
-ImportError: libGL.so.1: cannot open shared object file: No such file or directory
-
-apt-get update
-apt-get install ffmpeg libsm6 libxext6  -y
 
 
 

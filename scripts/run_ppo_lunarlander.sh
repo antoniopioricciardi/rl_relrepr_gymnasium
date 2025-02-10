@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # bash scripts/run_ppo_lunarlander.sh --run-mode ppo --env-id LunarLanderRGB --background white --gravity -10 --anchors-alpha 0
-# bash scripts/run_ppo_lunarlander.sh --run-mode ppo --env-id LunarLanderRGB --background white --gravity -3 --anchors-alpha 0
+# bash scripts/run_ppo_lunarlander.sh --run-mode ppo --env-id LunarLanderRGB --background white --gravity -3 --anchors-alpha 
 # bash scripts/run_ppo_lunarlander.sh --run-mode ppo --env-id LunarLanderRGB --background red --gravity -10 --anchors-alpha 0
 # bash scripts/run_ppo_lunarlander.sh --run-mode ppo --env-id LunarLanderRGB --background red --gravity -3 --anchors-alpha 0
 
