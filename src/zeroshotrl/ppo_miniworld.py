@@ -100,14 +100,14 @@ if __name__ == "__main__":
 
     device = torch.device("cuda" if torch.cuda.is_available() and args.cuda else "cpu")
     
-    # import miniworld
-    from zeroshotrl.envs.miniworld.oneroom import OneRoom
-    env = OneRoom()
-    eval_env = OneRoom()
+    import miniworld
+    # from zeroshotrl.envs.miniworld.oneroom import OneRoom
+    # env = OneRoom()
+    # eval_env = OneRoom()
 
     # env = gym.make("MiniWorld-OneRoom-v0", render_mode="rgb_array")
-    # env = gym.make(f"{args.env_id}", render_mode="rgb_array")
-    # eval_env = gym.make(f"{args.env_id}", render_mode="rgb_array")
+    env = gym.make(f"{args.env_id}", render_mode="rgb_array")
+    eval_env = gym.make(f"{args.env_id}", render_mode="rgb_array")
     
     num_eval_envs = args.num_eval_envs
 
