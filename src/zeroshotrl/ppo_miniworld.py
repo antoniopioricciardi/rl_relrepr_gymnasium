@@ -114,7 +114,7 @@ if __name__ == "__main__":
     # env setup
     from zeroshotrl.utils.env_initializer import make_env_atari
 
-    envs = gym.vector.AsyncVectorEnv(
+    envs = gym.vector.SyncVectorEnv(
         [
             make_env_atari(
                 env,
