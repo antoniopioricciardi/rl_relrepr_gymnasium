@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# bash scripts/run_ppo_miniworld.sh --run-mode ppo --env-id MiniWorld-OneRoom-v0 --background standard
+# bash scripts/run_ppo_miniworld.sh --run-mode ppo --env-id MiniWorld-OneRoom-v0 --background standard --topdown False
 # bash scripts/run_ppo_miniworld.sh --run-mode ppo --env-id MiniWorld-OneRoom-v0 --background standard --total-timesteps 200000 --num-eval-eps 30
 # bash scripts/run_ppo_miniworld.sh --run-mode ppo-rel --env-id MiniWorld-OneRoom-v0 --background standard --total-timesteps 200000 --num-eval-eps 30 --anchors-alpha 0.999
 
