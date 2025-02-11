@@ -1,7 +1,8 @@
 from gymnasium import spaces, utils
 
 from miniworld.entity import COLOR_NAMES, Ball, Box, Key
-from miniworld.miniworld import MiniWorldEnv
+# from miniworld.miniworld import MiniWorldEnv
+from zeroshotrl.envs.miniworld.miniworld import MiniWorldEnv
 
 
 class PickupObjects(MiniWorldEnv, utils.EzPickle):

@@ -9,7 +9,7 @@ that will search the reminding wrappers.
 """
 
 # env = gym.make("MiniWorld-OneRoom-v0", render_mode="human")
-env = gym.make("MiniWorld-RoomObjects-v0", render_mode="human")
+env = gym.make("MiniWorld-OneRoom-v0", render_mode="human")
 env = ColorTransformObservation(env, color="standard")
 observation, info = env.reset(seed=0)
 score = 0   
