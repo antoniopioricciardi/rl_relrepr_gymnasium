@@ -111,9 +111,9 @@ if __name__ == "__main__":
     env = OneRoom(render_mode="rgb_array", topdown=args.topdown)
     eval_env = OneRoom(render_mode="rgb_array", topdown=args.topdown)
 
-    # env = gym.make("MiniWorld-OneRoom-v0", render_mode="rgb_array")
-    env = gym.make(f"{args.env_id}", render_mode="rgb_array")
-    eval_env = gym.make(f"{args.env_id}", render_mode="rgb_array")
+    # # env = gym.make("MiniWorld-OneRoom-v0", render_mode="rgb_array")
+    # env = gym.make(f"{args.env_id}", render_mode="rgb_array")
+    # eval_env = gym.make(f"{args.env_id}", render_mode="rgb_array")
     
     num_eval_envs = args.num_eval_envs
 
