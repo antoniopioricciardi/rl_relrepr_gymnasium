@@ -107,9 +107,16 @@ if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() and args.cuda else "cpu")
     
     # import miniworld
-    from zeroshotrl.envs.miniworld.oneroom import OneRoom
-    env = OneRoom(render_mode="rgb_array", topdown=args.topdown)
-    eval_env = OneRoom(render_mode="rgb_array", topdown=args.topdown)
+    # split env id, level and version with "-" separator
+    env_id, level, version = args.env_id.split("-")
+    if level == "OneRoom":
+        from zeroshotrl.envs.miniworld.oneroom import OneRoom
+        env = OneRoom(render_mode="rgb_array", topdown=args.topdown)
+        eval_env = OneRoom(render_mode="rgb_array", topdown=args.topdown)
+    elif level == "FourRooms":
+        from zeroshotrl.envs.miniworld.fourrooms import FourRooms
+        env = FourRooms(render_mode="rgb_array", topdown=args.topdown)
+        eval_env = FourRooms(render_mode="rgb_array", topdown=args.topdown)
 
     # # env = gym.make("MiniWorld-OneRoom-v0", render_mode="rgb_array")
     # env = gym.make(f"{args.env_id}", render_mode="rgb_array")
