@@ -32,9 +32,15 @@ def parse_env_specific_args(parser):
     parser.add_argument(
         "--background",
         type=str,
-        default="green",
+        default="standard",
         help="the color of the rocks at the base"
     )
+    parser.add_argument(
+        "--topdown",
+        type=bool,
+        default=False,
+        help="whether to use topdown view"
+        )
     return parser
 
 
@@ -100,10 +106,10 @@ if __name__ == "__main__":
 
     device = torch.device("cuda" if torch.cuda.is_available() and args.cuda else "cpu")
     
-    import miniworld
-    # from zeroshotrl.envs.miniworld.oneroom import OneRoom
-    # env = OneRoom()
-    # eval_env = OneRoom()
+    # import miniworld
+    from zeroshotrl.envs.miniworld.oneroom import OneRoom
+    env = OneRoom(render_mode="rgb_array", topdown=args.topdown)
+    eval_env = OneRoom(render_mode="rgb_array", topdown=args.topdown)
 
     # env = gym.make("MiniWorld-OneRoom-v0", render_mode="rgb_array")
     env = gym.make(f"{args.env_id}", render_mode="rgb_array")

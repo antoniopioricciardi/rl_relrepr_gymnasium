@@ -1,7 +1,8 @@
 from gymnasium import spaces, utils
 
 from miniworld.entity import Box
-from miniworld.miniworld import MiniWorldEnv
+# from miniworld.miniworld import MiniWorldEnv
+from zeroshotrl.envs.miniworld.miniworld import MiniWorldEnv
 from miniworld.params import DEFAULT_PARAMS
 
 

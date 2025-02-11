@@ -334,8 +334,12 @@ def init_env(
         )
     elif env_id.startswith("MiniWorld"):
         # lvl = env_id.split("-")[-1]
-        import miniworld
-        env = gym.make(env_id, render_mode="human")
+        # import miniworld
+        # env = gym.make(env_id, render_mode="human")
+        # from zeroshotrl.envs.miniworld.oneroom import OneRoom
+        # env = OneRoom(render_mode="human", topdown=False)
+        from zeroshotrl.envs.miniworld.fourrooms import FourRooms
+        env = FourRooms(render_mode="human")
         nv = gym.vector.SyncVectorEnv(
             [
                 make_env_atari(

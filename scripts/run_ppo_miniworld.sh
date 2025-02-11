@@ -14,6 +14,7 @@ usage() {
     echo "  --run-mode     Set the run mode (default: ppo)"
     echo "  --env-id       Set the environment ID (default: MiniWorld-OneRoom-v0)"
     echo "  --background   Set the background color (default: standard)"
+    echo "  --topdown      Set the topdown view (default: False)"
     echo "  --anchors-alpha Set the alpha value for the relative representation (default: 0)"
     echo "  --total-timesteps Set the total timesteps (default: 200000)"
     echo "  --num-eval-eps Set the number of evaluation episodes (default: 50)"
@@ -25,6 +26,7 @@ usage() {
 run_mode="ppo"
 env_id="MiniWorld-OneRoom-v0"
 background="standard"
+topdown=False
 anchors_alpha=0
 total_timesteps=200000
 num_eval_eps=50
@@ -50,6 +52,10 @@ while [[ $# -gt 0 ]]; do
             background="$2"
             shift 2
             ;;
+        --topdown)
+            topdown="$2"
+            shift 2
+            ;;
         --anchors-alpha)
             anchors_alpha="$2"
             shift 2
@@ -73,46 +79,47 @@ done
 echo "Run Mode: $run_mode"
 echo "Environment ID: $env_id"
 echo "Background: $background"
+echo "Topdown: $topdown"
 echo "Anchors Alpha: $anchors_alpha"
 echo "Total Timesteps: $total_timesteps"
 echo "Number of Evaluation Episodes: $num_eval_eps"
 # if [ "$1" == "ppo" ]
 if [ $run_mode == "ppo" ]
 then
-    python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name "$env_id"_"$background"_rgb --env-id $env_id --seed 1 --num-envs 1 --background $background --stack-n 4 --total-timesteps $total_timesteps --num-eval-eps $num_eval_eps --num-eval-envs 1
+    python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name "$env_id"_"$background"_rgb --env-id $env_id --seed 1 --num-envs 1 --background $background --topdown $topdown --stack-n 4 --total-timesteps $total_timesteps --num-eval-eps $num_eval_eps --num-eval-envs 1
 
-    python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name "$env_id"_"$background"_rgb --env-id $env_id --seed 2 --num-envs 1 --background $background --stack-n 4 --total-timesteps $total_timesteps --num-eval-eps $num_eval_eps --num-eval-envs 1
+    python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name "$env_id"_"$background"_rgb --env-id $env_id --seed 2 --num-envs 1 --background $background --topdown $topdown --stack-n 4 --total-timesteps $total_timesteps --num-eval-eps $num_eval_eps --num-eval-envs 1
 
-    python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name "$env_id"_"$background"_rgb --env-id $env_id --seed 3 --num-envs 1 --background $background --stack-n 4 --total-timesteps $total_timesteps --num-eval-eps $num_eval_eps --num-eval-envs 1
+    python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name "$env_id"_"$background"_rgb --env-id $env_id --seed 3 --num-envs 1 --background $background --topdown $topdown --stack-n 4 --total-timesteps $total_timesteps --num-eval-eps $num_eval_eps --num-eval-envs 1
 
-    python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name "$env_id"_"$background"_rgb --env-id $env_id --seed 4 --num-envs 1 --background $background --stack-n 4 --total-timesteps $total_timesteps --num-eval-eps $num_eval_eps --num-eval-envs 1
+    python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name "$env_id"_"$background"_rgb --env-id $env_id --seed 4 --num-envs 1 --background $background --topdown $topdown --stack-n 4 --total-timesteps $total_timesteps --num-eval-eps $num_eval_eps --num-eval-envs 1
 elif [ $run_mode == "ppo-rel" ]
 then
-    python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name "rel_$env_id"_"$background"_rgb --env-id $env_id --seed 1 --num-envs 1 --background $background --stack-n 4 --use-relative --anchors-path data/anchors/"$env_id"/rgb_ppo_transitions_"$background"_obs.pkl --anchors-indices-path data/anchor_indices/"$env_id"_3136_anchor_indices_from_4000.txt --total-timesteps $total_timesteps --num-eval-eps $num_eval_eps --num-eval-envs 1 --anchors-alpha $anchors_alpha
+    python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name "rel_$env_id"_"$background"_rgb --env-id $env_id --seed 1 --num-envs 1 --background $background --topdown $topdown --stack-n 4 --use-relative --anchors-path data/anchors/"$env_id"/rgb_ppo_transitions_"$background"_obs.pkl --anchors-indices-path data/anchor_indices/"$env_id"_3136_anchor_indices_from_4000.txt --total-timesteps $total_timesteps --num-eval-eps $num_eval_eps --num-eval-envs 1 --anchors-alpha $anchors_alpha
 
-    python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name "rel_$env_id"_"$background"_rgb --env-id $env_id --seed 2 --num-envs 1 --background $background --stack-n 4 --use-relative --anchors-path data/anchors/"$env_id"/rgb_ppo_transitions_"$background"_obs.pkl --anchors-indices-path data/anchor_indices/"$env_id"_3136_anchor_indices_from_4000.txt --total-timesteps $total_timesteps --num-eval-eps $num_eval_eps --num-eval-envs 1 --anchors-alpha $anchors_alpha
+    python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name "rel_$env_id"_"$background"_rgb --env-id $env_id --seed 2 --num-envs 1 --background $background --topdown $topdown --stack-n 4 --use-relative --anchors-path data/anchors/"$env_id"/rgb_ppo_transitions_"$background"_obs.pkl --anchors-indices-path data/anchor_indices/"$env_id"_3136_anchor_indices_from_4000.txt --total-timesteps $total_timesteps --num-eval-eps $num_eval_eps --num-eval-envs 1 --anchors-alpha $anchors_alpha
 
-    python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name "rel_$env_id"_"$background"_rgb --env-id $env_id --seed 3 --num-envs 1 --background $background --stack-n 4 --use-relative --anchors-path data/anchors/"$env_id"/rgb_ppo_transitions_"$background"_obs.pkl --anchors-indices-path data/anchor_indices/"$env_id"_3136_anchor_indices_from_4000.txt --total-timesteps $total_timesteps --num-eval-eps $num_eval_eps --num-eval-envs 1 --anchors-alpha $anchors_alpha
+    python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name "rel_$env_id"_"$background"_rgb --env-id $env_id --seed 3 --num-envs 1 --background $background --topdown $topdown --stack-n 4 --use-relative --anchors-path data/anchors/"$env_id"/rgb_ppo_transitions_"$background"_obs.pkl --anchors-indices-path data/anchor_indices/"$env_id"_3136_anchor_indices_from_4000.txt --total-timesteps $total_timesteps --num-eval-eps $num_eval_eps --num-eval-envs 1 --anchors-alpha $anchors_alpha
 
-    python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name "rel_$env_id"_"$background"_rgb --env-id $env_id --seed 4 --num-envs 1 --background $background --stack-n 4 --use-relative --anchors-path data/anchors/"$env_id"/rgb_ppo_transitions_"$background"_obs.pkl --anchors-indices-path data/anchor_indices/"$env_id"_3136_anchor_indices_from_4000.txt --total-timesteps $total_timesteps --num-eval-eps $num_eval_eps --num-eval-envs 1 --anchors-alpha $anchors_alpha
+    python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name "rel_$env_id"_"$background"_rgb --env-id $env_id --seed 4 --num-envs 1 --background $background --topdown $topdown --stack-n 4 --use-relative --anchors-path data/anchors/"$env_id"/rgb_ppo_transitions_"$background"_obs.pkl --anchors-indices-path data/anchor_indices/"$env_id"_3136_anchor_indices_from_4000.txt --total-timesteps $total_timesteps --num-eval-eps $num_eval_eps --num-eval-envs 1 --anchors-alpha $anchors_alpha
 # elif [ $run_mode == "ppo-rel-single-anchors" ]
 # then
-#     python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name "rel_unified_$env_id"_"$background"_rgb --env-id $env_id --seed 1 --num-envs 1 --background $background --stack-n 4 --use-relative --anchors-path data/anchors/CarRacing-v2-unified/rgb_ppo_transitions_red_green_bus_tuktuk_obs.pkl --anchors-indices-path data/anchor_indices/"$env_id"_3136_anchor_indices_from_4000.txt --total-timesteps $total_timesteps --num-eval-eps $num_eval_eps --num-eval-envs 1 --anchors-alpha $anchors_alpha
+#     python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name "rel_unified_$env_id"_"$background"_rgb --env-id $env_id --seed 1 --num-envs 1 --background $background --topdown $topdown --stack-n 4 --use-relative --anchors-path data/anchors/CarRacing-v2-unified/rgb_ppo_transitions_red_green_bus_tuktuk_obs.pkl --anchors-indices-path data/anchor_indices/"$env_id"_3136_anchor_indices_from_4000.txt --total-timesteps $total_timesteps --num-eval-eps $num_eval_eps --num-eval-envs 1 --anchors-alpha $anchors_alpha
 
-#     python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name "rel_unified_$env_id"_"$background"_rgb --env-id $env_id --seed 2 --num-envs 1 --background $background --stack-n 4 --use-relative --anchors-path data/anchors/CarRacing-v2-unified/rgb_ppo_transitions_red_green_bus_tuktuk_obs.pkl --anchors-indices-path data/anchor_indices/"$env_id"_3136_anchor_indices_from_4000.txt --total-timesteps $total_timesteps --num-eval-eps $num_eval_eps --num-eval-envs 1 --anchors-alpha $anchors_alpha
+#     python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name "rel_unified_$env_id"_"$background"_rgb --env-id $env_id --seed 2 --num-envs 1 --background $background --topdown $topdown --stack-n 4 --use-relative --anchors-path data/anchors/CarRacing-v2-unified/rgb_ppo_transitions_red_green_bus_tuktuk_obs.pkl --anchors-indices-path data/anchor_indices/"$env_id"_3136_anchor_indices_from_4000.txt --total-timesteps $total_timesteps --num-eval-eps $num_eval_eps --num-eval-envs 1 --anchors-alpha $anchors_alpha
 
-#     python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name "rel_unified_$env_id"_"$background"_rgb --env-id $env_id --seed 3 --num-envs 1 --background $background --stack-n 4 --use-relative --anchors-path data/anchors/CarRacing-v2-unified/rgb_ppo_transitions_red_green_bus_tuktuk_obs.pkl --anchors-indices-path data/anchor_indices/"$env_id"_3136_anchor_indices_from_4000.txt --total-timesteps $total_timesteps --num-eval-eps $num_eval_eps --num-eval-envs 1 --anchors-alpha $anchors_alpha
+#     python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name "rel_unified_$env_id"_"$background"_rgb --env-id $env_id --seed 3 --num-envs 1 --background $background --topdown $topdown --stack-n 4 --use-relative --anchors-path data/anchors/CarRacing-v2-unified/rgb_ppo_transitions_red_green_bus_tuktuk_obs.pkl --anchors-indices-path data/anchor_indices/"$env_id"_3136_anchor_indices_from_4000.txt --total-timesteps $total_timesteps --num-eval-eps $num_eval_eps --num-eval-envs 1 --anchors-alpha $anchors_alpha
 
-#     python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name "rel_unified_$env_id"_"$background"_rgb --env-id $env_id --seed 4 --num-envs 1 --background $background --stack-n 4 --use-relative --anchors-path data/anchors/CarRacing-v2-unified/rgb_ppo_transitions_red_green_bus_tuktuk_obs.pkl --anchors-indices-path data/anchor_indices/"$env_id"_3136_anchor_indices_from_4000.txt --total-timesteps $total_timesteps --num-eval-eps $num_eval_eps --num-eval-envs 1 --anchors-alpha $anchors_alpha
+#     python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name "rel_unified_$env_id"_"$background"_rgb --env-id $env_id --seed 4 --num-envs 1 --background $background --topdown $topdown --stack-n 4 --use-relative --anchors-path data/anchors/CarRacing-v2-unified/rgb_ppo_transitions_red_green_bus_tuktuk_obs.pkl --anchors-indices-path data/anchor_indices/"$env_id"_3136_anchor_indices_from_4000.txt --total-timesteps $total_timesteps --num-eval-eps $num_eval_eps --num-eval-envs 1 --anchors-alpha $anchors_alpha
 elif [ $run_mode == "ppo-resnet" ]
 then
-    python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name "resnet_$env_id"_"$background"_rgb --env-id $env_id --seed 1 --num-envs 1 --background $background --stack-n 4 --total-timesteps $total_timesteps --num-eval-eps $num_eval_eps --num-eval-envs 1 --use-resnet
+    python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name "resnet_$env_id"_"$background"_rgb --env-id $env_id --seed 1 --num-envs 1 --background $background --topdown $topdown --stack-n 4 --total-timesteps $total_timesteps --num-eval-eps $num_eval_eps --num-eval-envs 1 --use-resnet
 
-    python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name "resnet_$env_id"_"$background"_rgb --env-id $env_id --seed 2 --num-envs 1 --background $background --stack-n 4 --total-timesteps $total_timesteps --num-eval-eps $num_eval_eps --num-eval-envs 1 --use-resnet
+    python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name "resnet_$env_id"_"$background"_rgb --env-id $env_id --seed 2 --num-envs 1 --background $background --topdown $topdown --stack-n 4 --total-timesteps $total_timesteps --num-eval-eps $num_eval_eps --num-eval-envs 1 --use-resnet
 
-    python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name "resnet_$env_id"_"$background"_rgb --env-id $env_id --seed 3 --num-envs 1 --background $background --stack-n 4 --total-timesteps $total_timesteps --num-eval-eps $num_eval_eps --num-eval-envs 1 --use-resnet
+    python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name "resnet_$env_id"_"$background"_rgb --env-id $env_id --seed 3 --num-envs 1 --background $background --topdown $topdown --stack-n 4 --total-timesteps $total_timesteps --num-eval-eps $num_eval_eps --num-eval-envs 1 --use-resnet
 
-    python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name "resnet_$env_id"_"$background"_rgb --env-id $env_id --seed 4 --num-envs 1 --background $background --stack-n 4 --total-timesteps $total_timesteps --num-eval-eps $num_eval_eps --num-eval-envs 1 --use-resnet
+    python src/zeroshotrl/ppo_miniworld.py --track --wandb-project-name rlrepr_ppo_miniworld --exp-name "resnet_$env_id"_"$background"_rgb --env-id $env_id --seed 4 --num-envs 1 --background $background --topdown $topdown --stack-n 4 --total-timesteps $total_timesteps --num-eval-eps $num_eval_eps --num-eval-envs 1 --use-resnet
 else
     echo "Invalid argument"
 fi
