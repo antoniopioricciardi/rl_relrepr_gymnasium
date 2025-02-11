@@ -120,6 +120,7 @@ if __name__ == "__main__":
     elif level == "PickupObjects":
         from zeroshotrl.envs.miniworld.pickupobjects import PickupObjects
         env = PickupObjects(render_mode="rgb_array", topdown=args.topdown)
+        eval_env = PickupObjects(render_mode="rgb_array", topdown=args.topdown)
 
     # # env = gym.make("MiniWorld-OneRoom-v0", render_mode="rgb_array")
     # env = gym.make(f"{args.env_id}", render_mode="rgb_array")
