@@ -136,6 +136,14 @@ def parse_args():
 # python src/zeroshotrl/stitching_test_quantitative.py --stitching-mode relative --encoder-env-id PongNoFrameskip-v4 --policy-env-id PongNoFrameskip-v4 --encoder-colors plain green red --policy-colors plain green red --env-seeds 1 --encoder-seeds 0 1 2 3 --policy-seeds 0 1 2 3  --encoder-algo ppo --policy-algo ppo --encoder-activation-func relu --policy-activation-func relu --anchors-alpha 0.999 --render-mode rgb_array
 
 
+""" LUNARLANDER """
+""" standard: abs, transl, rel """
+# python src/zeroshotrl/stitching_test_quantitative.py --stitching-mode absolute --encoder-env-id LunarLander-v2 --policy-env-id LunarLander-v2 --encoder-colors white red --policy-colors white red --env-seeds 1 2 3 4 --encoder-seeds 1 2 3 4 --policy-seeds 1 2 3 4 --encoder-algo ppo --policy-algo ppo --encoder-activation-func relu --policy-activation-func relu --render-mode rgb_array
+# python src/zeroshotrl/stitching_test_quantitative.py --stitching-mode translate --encoder-env-id LunarLander-v2 --policy-env-id LunarLander-v2 --encoder-colors white red --policy-colors white red --env-seeds 1 2 3 4 --encoder-seeds 1 2 3 4 --policy-seeds 1 2 3 4 --encoder-algo ppo --policy-algo ppo --encoder-activation-func relu --policy-activation-func relu --render-mode rgb_array
+# python src/zeroshotrl/stitching_test_quantitative.py --stitching-mode relative --encoder-env-id LunarLander-v2 --policy-env-id LunarLander-v2 --encoder-colors white red --policy-colors white red --env-seeds 1 2 3 4 --encoder-seeds 1 2 3 4 --policy-seeds 1 2 3 4 --encoder-algo ppo --policy-algo ppo --encoder-activation-func relu --policy-activation-func relu --anchors-alpha 0.999 --render-mode rgb_array
+
+""" standard: abs, transl, rel """
+
 args = parse_args()
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
