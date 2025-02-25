@@ -137,12 +137,12 @@ def parse_args():
 
 
 """ LUNARLANDER """
-""" standard: abs, transl, rel """
+""" gravity -10: abs, transl, rel """
 # python src/zeroshotrl/stitching_test_quantitative.py --stitching-mode absolute --encoder-env-id LunarLanderRGB --policy-env-id LunarLanderRGB --encoder-colors white red --policy-colors white red --env-seeds 1 2 3 4 --encoder-seeds 1 2 3 4 --policy-seeds 1 2 3 4 --encoder-algo ppo --policy-algo ppo --encoder-activation-func relu --policy-activation-func relu --render-mode rgb_array
-# python src/zeroshotrl/stitching_test_quantitative.py --stitching-mode translate --encoder-env-id LunarLanderRGB --policy-env-id LunarLanderRGB --encoder-colors white red --policy-colors white red --env-seeds 1 2 3 4 --encoder-seeds 1 2 3 4 --policy-seeds 1 2 3 4 --encoder-algo ppo --policy-algo ppo --encoder-activation-func relu --policy-activation-func relu --render-mode rgb_array
-# python src/zeroshotrl/stitching_test_quantitative.py --stitching-mode relative --encoder-env-id LunarLanderRGB --policy-env-id LunarLanderRGB --encoder-colors white red --policy-colors white red --env-seeds 1 2 3 4 --encoder-seeds 1 2 3 4 --policy-seeds 1 2 3 4 --encoder-algo ppo --policy-algo ppo --encoder-activation-func relu --policy-activation-func relu --anchors-alpha 0.999 --render-mode rgb_array
+# python src/zeroshotrl/stitching_test_quantitative.py --stitching-mode translate --encoder-env-id LunarLanderRGB --policy-env-id LunarLanderRGB --encoder-colors white red --policy-colors white red --env-seeds 1 2 3 4 --encoder-seeds 1 2 3 4 --policy-seeds 1 2 3 4 --encoder-algo ppo --policy-algo ppo --encoder-activation-func relu --policy-activation-func relu --encoder-anchors LunarLanderRGB --controller-anchors LunarLanderRGB --render-mode rgb_array
+# python src/zeroshotrl/stitching_test_quantitative.py --stitching-mode relative --encoder-env-id LunarLanderRGB --policy-env-id LunarLanderRGB --encoder-colors white red --policy-colors white red --env-seeds 1 2 3 4 --encoder-seeds 1 2 3 4 --policy-seeds 1 2 3 4 --encoder-algo ppo --policy-algo ppo --encoder-activation-func relu --policy-activation-func relu --encoder-anchors LunarLanderRGB --controller-anchors LunarLanderRGB s--anchors-alpha 0.999 --render-mode rgb_array
 
-""" standard: abs, transl, rel """
+""" gravity -3: abs, transl, rel """
 
 args = parse_args()
 
