@@ -347,7 +347,7 @@ if stitching_md == "translate":
     # ),  # SGDAffineTranslator(),#SVDEstimator(dim_matcher=ZeroPadding()),
     source_transforms=[latentis.transform.StandardScaling()], # [latentis.transform.Centering()], # [latentis.transform.StandardScaling()], #None
     target_transforms=[latentis.transform.StandardScaling()], # [latentis.transform.Centering()], # [latentis.transform.StandardScaling()],
-)
+    )
 
     # translation = LatentTranslation(
     #     seed=42,
@@ -359,6 +359,11 @@ if stitching_md == "translate":
     space2_anchors = space2_anchors.to(device)  # [:3136]
     # space1 = LatentSpace(vectors=space1_anchors, name="space1")
     # space2 = LatentSpace(vectors=space2_anchors, name="space2")
+
+    print(f"fitting translation layer between {model_color_1} and {model_color_2} spaces...")
+    translation.fit(source_data=space1_anchors, target_data=space2_anchors)
+    print("done.\n\n")
+    print("\n##############################################\n")
     
     # print mse and cosine similarity between the two spaces
     mse = torch.nn.MSELoss()
@@ -369,13 +374,6 @@ if stitching_md == "translate":
     print(
         f"cosine similarity between the two spaces: {cos(space1_anchors, space2_anchors).mean()}"
     )
-    
-    print("\n##############################################\n")
-    print(
-        f"fitting translation layer between {model_color_1} and {model_color_2} spaces..."
-    )
-    translation.fit(source_data=space1_anchors, target_data=space2_anchors)
-    print("done.\n\n")
 
     space1 = space1[:900]
     space2 = space2[:900]
