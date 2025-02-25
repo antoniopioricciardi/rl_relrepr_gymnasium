@@ -138,9 +138,9 @@ def parse_args():
 
 """ LUNARLANDER """
 """ standard: abs, transl, rel """
-# python src/zeroshotrl/stitching_test_quantitative.py --stitching-mode absolute --encoder-env-id LunarLander-v2 --policy-env-id LunarLander-v2 --encoder-colors white red --policy-colors white red --env-seeds 1 2 3 4 --encoder-seeds 1 2 3 4 --policy-seeds 1 2 3 4 --encoder-algo ppo --policy-algo ppo --encoder-activation-func relu --policy-activation-func relu --render-mode rgb_array
-# python src/zeroshotrl/stitching_test_quantitative.py --stitching-mode translate --encoder-env-id LunarLander-v2 --policy-env-id LunarLander-v2 --encoder-colors white red --policy-colors white red --env-seeds 1 2 3 4 --encoder-seeds 1 2 3 4 --policy-seeds 1 2 3 4 --encoder-algo ppo --policy-algo ppo --encoder-activation-func relu --policy-activation-func relu --render-mode rgb_array
-# python src/zeroshotrl/stitching_test_quantitative.py --stitching-mode relative --encoder-env-id LunarLander-v2 --policy-env-id LunarLander-v2 --encoder-colors white red --policy-colors white red --env-seeds 1 2 3 4 --encoder-seeds 1 2 3 4 --policy-seeds 1 2 3 4 --encoder-algo ppo --policy-algo ppo --encoder-activation-func relu --policy-activation-func relu --anchors-alpha 0.999 --render-mode rgb_array
+# python src/zeroshotrl/stitching_test_quantitative.py --stitching-mode absolute --encoder-env-id LunarLanderRGB --policy-env-id LunarLanderRGB --encoder-colors white red --policy-colors white red --env-seeds 1 2 3 4 --encoder-seeds 1 2 3 4 --policy-seeds 1 2 3 4 --encoder-algo ppo --policy-algo ppo --encoder-activation-func relu --policy-activation-func relu --render-mode rgb_array
+# python src/zeroshotrl/stitching_test_quantitative.py --stitching-mode translate --encoder-env-id LunarLanderRGB --policy-env-id LunarLanderRGB --encoder-colors white red --policy-colors white red --env-seeds 1 2 3 4 --encoder-seeds 1 2 3 4 --policy-seeds 1 2 3 4 --encoder-algo ppo --policy-algo ppo --encoder-activation-func relu --policy-activation-func relu --render-mode rgb_array
+# python src/zeroshotrl/stitching_test_quantitative.py --stitching-mode relative --encoder-env-id LunarLanderRGB --policy-env-id LunarLanderRGB --encoder-colors white red --policy-colors white red --env-seeds 1 2 3 4 --encoder-seeds 1 2 3 4 --policy-seeds 1 2 3 4 --encoder-algo ppo --policy-algo ppo --encoder-activation-func relu --policy-activation-func relu --anchors-alpha 0.999 --render-mode rgb_array
 
 """ standard: abs, transl, rel """
 

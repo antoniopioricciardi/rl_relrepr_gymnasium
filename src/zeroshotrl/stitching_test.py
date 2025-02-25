@@ -105,10 +105,15 @@ def parse_args():
 # python src/zeroshotrl/stitching_test.py --stitching-mode absolute --env-id PongNoFrameskip-v4 --env-seed 1 --background-color plain --encoder-dir models/PongNoFrameskip-v4/rgb/plain/ppo/absolute/relu/seed_1 --policy-dir models/PongNoFrameskip-v4/rgb/plain/ppo/absolute/relu/seed_1
 
 """ LunarLander """
-""" abs/transl/relative (white/red) """
+""" gravity -10: abs/transl/relative (white/red) """
 # python src/zeroshotrl/stitching_test.py --stitching-mode absolute --env-id LunarLanderRGB --env-seed 1 --background-color white --encoder-dir models/LunarLanderRGB/rgb/white/ppo/absolute/relu/seed_1 --policy-dir models/LunarLanderRGB/rgb/white/ppo/absolute/relu/seed_1
 # python src/zeroshotrl/stitching_test.py --stitching-mode translate --env-id LunarLanderRGB --env-seed 1 --background-color white --encoder-dir models/LunarLanderRGB/rgb/white/ppo/absolute/relu/seed_1 --policy-dir models/LunarLanderRGB/rgb/red/ppo/absolute/relu/seed_1 --anchors-file1 data/anchors/LunarLanderRGB/rgb_ppo_transitions_white_obs.pkl --anchors-file2 data/anchors/LunarLanderRGB/rgb_ppo_transitions_red_obs.pkl --anchors-alpha None --anchors-method random --render-mode human
 # python src/zeroshotrl/stitching_test.py --stitching-mode relative --env-id LunarLanderRGB --env-seed 1 --background-color white --encoder-dir models/LunarLanderRGB/rgb/white/ppo/relative/relu/alpha_0_999/seed_1 --policy-dir models/LunarLanderRGB/rgb/white/ppo/relative/relu/alpha_0_999/seed_1 --anchors-alpha None --anchors-method random --render-mode human
+
+""" gravity -3: abs/transl/relative (white/red) """
+# python src/zeroshotrl/stitching_test.py --stitching-mode absolute --env-id LunarLanderRGB-3 --env-seed 1 --background-color white --encoder-dir models/LunarLanderRGB-3/rgb/white/ppo/absolute/relu/seed_1 --policy-dir models/LunarLanderRGB-3/rgb/white/ppo/absolute/relu/seed_1
+# python src/zeroshotrl/stitching_test.py --stitching-mode translate --env-id LunarLanderRGB-3 --env-seed 1 --background-color white --encoder-dir models/LunarLanderRGB-3/rgb/white/ppo/absolute/relu/seed_1 --policy-dir models/LunarLanderRGB-3/rgb/red/ppo/absolute/relu/seed_1 --anchors-file1 data/anchors/LunarLanderRGB-3/rgb_ppo_transitions_white_obs.pkl --anchors-file2 data/anchors/LunarLanderRGB-3/rgb_ppo_transitions_red_obs.pkl --anchors-alpha None --anchors-method random --render-mode human
+# python src/zeroshotrl/stitching_test.py --stitching-mode relative --env-id LunarLanderRGB-3 --env-seed 1 --background-color white --encoder-dir models/LunarLanderRGB-3/rgb/white/ppo/relative/relu/alpha_0_999/seed_1 --policy-dir models/LunarLanderRGB-3/rgb/white/ppo/relative/relu/alpha_0_999/seed_1 --anchors-alpha None --anchors-method random --render-mode human
 
 """ MiniworldOneRoom """
 """ abs/transl/relative (standard/red) """
