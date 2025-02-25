@@ -328,7 +328,7 @@ if stitching_md == "translate":
         anchoring_method,
         translation_path,
         device,
-        use_saved=True,
+        # use_saved=True,
     )
 
     from latentis.estimate.linear import LSTSQEstimator
