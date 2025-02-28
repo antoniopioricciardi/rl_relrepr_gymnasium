@@ -179,14 +179,6 @@ render_md = args.render_mode
 # env_pathname = f"{env_id}"
 # env_pathname2 = f"{env_id2}"
 num_envs = 1
-if env_info == "rgb":
-    encoder_instance, policy_instance, agent_instance = get_algo_instance(
-        model_algo_1, model_algo_2, use_resnet=args.use_resnet
-    )
-else:
-    encoder_instance, policy_instance, agent_instance = get_algo_instance_bw(
-        model_algo_1, model_algo_2
-    )
 envs = init_env(
     env_id,
     env_info,
@@ -197,220 +189,231 @@ envs = init_env(
     render_md=render_md,
     num_envs=num_envs,
 )
-if not args.use_resnet:
-    path1_enc = os.path.join(args.encoder_dir, "encoder.pt")
-    path2_enc = os.path.join(args.policy_dir, "encoder.pt")
-# path1_pol = os.path.join(args.encoder_dir, "policy.pt")
-path2_pol = os.path.join(args.policy_dir, "policy.pt")
+def init_stuff():
+    if env_info == "rgb":
+        encoder_instance, policy_instance, agent_instance = get_algo_instance(
+            model_algo_1, model_algo_2, use_resnet=args.use_resnet
+        )
+    else:
+        encoder_instance, policy_instance, agent_instance = get_algo_instance_bw(
+            model_algo_1, model_algo_2
+        )
 
-random_encoder = False
-if random_encoder:
-    obs_anchors = None
-    # if is_relative:
-    #     obs_anchors = encoder_params["obs_anchors"]
-    encoder1 = FeatureExtractor(
-        use_relative=relative,
-        pretrained=False,
-        obs_anchors=obs_anchors,
-        anchors_alpha=None,
-    ).to(device)
-elif args.use_resnet:
-    from rl_agents.ppo.ppo_resnet import FeatureExtractorResNet
+    if not args.use_resnet:
+        path1_enc = os.path.join(args.encoder_dir, "encoder.pt")
+        path2_enc = os.path.join(args.policy_dir, "encoder.pt")
+    # path1_pol = os.path.join(args.encoder_dir, "policy.pt")
+    path2_pol = os.path.join(args.policy_dir, "policy.pt")
 
-    encoder1 = FeatureExtractorResNet().to(device)
-else:
-    print('enc1')
-    encoder1 = load_encoder_from_path(
-        path1_enc,
-        encoder_instance,
-        is_relative=relative,
-        is_pretrained=False,
-        anchors_alpha=None,
-        encoder_eval=True,
-        device=device,
-    )
-if args.use_resnet:
-    policy2 = load_policy_from_path(
-        path2_pol,
-        envs.single_action_space.n,
-        policy_instance,
-        policy_eval=True,
-        encoder_out_dim=encoder1.out_dim,
-        repr_dim=3136,
-        device=device,
-    )
-else:
-    print('pol2')
-    encoder2, policy2, agent2 = load_model_from_path(
-        path2_enc,
-        path2_pol,
-        envs.single_action_space.n,
-        encoder_instance,
-        policy_instance,
-        agent_instance,
-        is_relative=False,
-        is_pretrained=False,
-        device=device,
-    )
+    random_encoder = False
+    if random_encoder:
+        obs_anchors = None
+        # if is_relative:
+        #     obs_anchors = encoder_params["obs_anchors"]
+        encoder1 = FeatureExtractor(
+            use_relative=relative,
+            pretrained=False,
+            obs_anchors=obs_anchors,
+            anchors_alpha=None,
+        ).to(device)
+    elif args.use_resnet:
+        from rl_agents.ppo.ppo_resnet import FeatureExtractorResNet
 
-translation = None
-if stitching_md == "translate":
-    from latentis.space import LatentSpace
-    from latentis.utils import seed_everything
+        encoder1 = FeatureExtractorResNet().to(device)
+    else:
+        print('enc1')
+        encoder1 = load_encoder_from_path(
+            path1_enc,
+            encoder_instance,
+            is_relative=relative,
+            is_pretrained=False,
+            anchors_alpha=None,
+            encoder_eval=True,
+            device=device,
+        )
+    if args.use_resnet:
+        policy2 = load_policy_from_path(
+            path2_pol,
+            envs.single_action_space.n,
+            policy_instance,
+            policy_eval=True,
+            encoder_out_dim=encoder1.out_dim,
+            repr_dim=3136,
+            device=device,
+        )
+    else:
+        print('pol2')
+        encoder2, policy2, agent2 = load_model_from_path(
+            path2_enc,
+            path2_pol,
+            envs.single_action_space.n,
+            encoder_instance,
+            policy_instance,
+            agent_instance,
+            is_relative=False,
+            is_pretrained=False,
+            device=device,
+        )
 
-    # from latentis import transforms
-    from latentis.estimate.dim_matcher import ZeroPadding
-    from latentis.estimate.orthogonal import SVDEstimator
-    from latentis.translate.translator import LatentTranslator
+    translation = None
+    if stitching_md == "translate":
+        from latentis.space import LatentSpace
+        from latentis.utils import seed_everything
 
-    obs_set_1 = pickle.load(Path(args.anchors_file1).open("rb"))  # [30:2000]
-    obs_set_2 = pickle.load(Path(args.anchors_file2).open("rb"))  # [30:2000]
-    
-    print("\n#####\nObs loaded\n#####\n")
-    # subset_indices = np.random.randint(0, len(obs_set_1), 5000)
-    obs_set_1 = obs_set_1  # [:4000]
-    obs_set_2 = obs_set_2  # [:4000]
+        # from latentis import transforms
+        from latentis.estimate.dim_matcher import ZeroPadding
+        from latentis.estimate.orthogonal import SVDEstimator
+        from latentis.translate.translator import LatentTranslator
 
-    print("Converting obs to torch tensor")
-    # convert the (4000, 3, 84, 84) numpy array to a torch tensor
-    obs_set_1 = torch.tensor(np.array(obs_set_1), dtype=torch.float32)
-    obs_set_2 = torch.tensor(np.array(obs_set_2), dtype=torch.float32)
-    print("Done converting obs to torch tensor\n#####\n")
+        obs_set_1 = pickle.load(Path(args.anchors_file1).open("rb"))  # [30:2000]
+        obs_set_2 = pickle.load(Path(args.anchors_file2).open("rb"))  # [30:2000]
+        
+        print("\n#####\nObs loaded\n#####\n")
+        # subset_indices = np.random.randint(0, len(obs_set_1), 5000)
+        obs_set_1 = obs_set_1  # [:4000]
+        obs_set_2 = obs_set_2  # [:4000]
 
-    # obs_set_1 = torch.cat([obs_set_1, obs_set_2], dim=0)  # [anch_indices
-    # obs_set_2 = obs_set_1
+        print("Converting obs to torch tensor")
+        # convert the (4000, 3, 84, 84) numpy array to a torch tensor
+        obs_set_1 = torch.tensor(np.array(obs_set_1), dtype=torch.float32)
+        obs_set_2 = torch.tensor(np.array(obs_set_2), dtype=torch.float32)
+        print("Done converting obs to torch tensor\n#####\n")
 
-    subset_indices = np.arange(len(obs_set_1))  # [:4000]
+        # obs_set_1 = torch.cat([obs_set_1, obs_set_2], dim=0)  # [anch_indices
+        # obs_set_2 = obs_set_1
 
-    # obs_set_1 = torch.cat(obs_set_1, dim=0).cpu()  # [anch_indices]
-    # obs_set_2 = torch.cat(obs_set_2, dim=0).cpu()  # [anch_indices]
-    space1 = encoder1.forward_single(obs_set_1.to(device))#.detach().cpu()
-    space2 = encoder2.forward_single(obs_set_2.to(device))#.detach().cpu()
+        subset_indices = np.arange(len(obs_set_1))  # [:4000]
 
-    # print('AAAAA', obs_set_1.shape, obs_set_2.shape, space1.shape, space2.shape)
+        # obs_set_1 = torch.cat(obs_set_1, dim=0).cpu()  # [anch_indices]
+        # obs_set_2 = torch.cat(obs_set_2, dim=0).cpu()  # [anch_indices]
+        space1 = encoder1.forward_single(obs_set_1.to(device))#.detach().cpu()
+        space2 = encoder2.forward_single(obs_set_2.to(device))#.detach().cpu()
 
-    from collections import namedtuple
+        # print('AAAAA', obs_set_1.shape, obs_set_2.shape, space1.shape, space2.shape)
 
-    Space = namedtuple("Space", ["name", "vectors"])
-    # space1 = Space(name=model_color_1, vectors=space1)
-    # space2 = Space(name=model_color_2, vectors=space2)
+        from collections import namedtuple
 
-    # space1_vectors = space1.vectors
-    # space2_vectors = space2.vectors
+        Space = namedtuple("Space", ["name", "vectors"])
+        # space1 = Space(name=model_color_1, vectors=space1)
+        # space2 = Space(name=model_color_2, vectors=space2)
 
-    space1_anchors = space1 # space1_vectors[:]
-    space2_anchors = space2 # space2_vectors[:]
+        # space1_vectors = space1.vectors
+        # space2_vectors = space2.vectors
 
-    # compute mean distance between anchors
-    diff = space1_anchors - space2_anchors
-    print("mean distance between anchors: ", diff.mean())
+        space1_anchors = space1 # space1_vectors[:]
+        space2_anchors = space2 # space2_vectors[:]
 
-    from zeroshotrl.utils.anchoring_methods import get_anchors
+        # compute mean distance between anchors
+        diff = space1_anchors - space2_anchors
+        print("mean distance between anchors: ", diff.mean())
 
-    """ CHANGE ANCHOR SAMPLING METHOD HERE """
-    # if not os.path.exists(f"alignment_indices/{env_id}/{env_info}"):
-    #     os.makedirs(f"alignment_indices/{env_id}/{env_info}")
-    # translation_path = f'alignment_indices/{env_id}/{env_info}/{anchoring_method}_{model_color_1}_{model_seed_1}_closest.pt'#{model_color_2}_closest.pt'
+        from zeroshotrl.utils.anchoring_methods import get_anchors
 
-    align_path = os.path.join(
-        "alignment_indices", str(args.encoder_dir).replace("models/", "")
-    )
-    if not os.path.exists(align_path):
-        os.makedirs(align_path)
-    translation_path = os.path.join(align_path, f"{args.anchors_method}_closest.pt")
+        """ CHANGE ANCHOR SAMPLING METHOD HERE """
+        # if not os.path.exists(f"alignment_indices/{env_id}/{env_info}"):
+        #     os.makedirs(f"alignment_indices/{env_id}/{env_info}")
+        # translation_path = f'alignment_indices/{env_id}/{env_info}/{anchoring_method}_{model_color_1}_{model_seed_1}_closest.pt'#{model_color_2}_closest.pt'
 
-    num_anchors = 3136  # len(space1_anchors) # 3136
-    space1_anchors, space2_anchors = get_anchors(
-        space1,
-        space2,
-        num_anchors,
-        subset_indices,
-        anchoring_method,
-        translation_path,
-        device,
-        # use_saved=True,
-    )
+        align_path = os.path.join(
+            "alignment_indices", str(args.encoder_dir).replace("models/", "")
+        )
+        if not os.path.exists(align_path):
+            os.makedirs(align_path)
+        translation_path = os.path.join(align_path, f"{args.anchors_method}_closest.pt")
 
-    from latentis.estimate.linear import LSTSQEstimator
-    import latentis
+        num_anchors = 3136  # len(space1_anchors) # 3136
+        space1_anchors, space2_anchors = get_anchors(
+            space1,
+            space2,
+            num_anchors,
+            subset_indices,
+            anchoring_method,
+            translation_path,
+            device,
+            # use_saved=True,
+        )
 
-    # translation = LatentTranslator(
-    #     random_seed=42,
-    #     estimator=SVDEstimator(
-    #         dim_matcher=ZeroPadding()
-    #     ),  # SGDAffineTranslator(),#SVDEstimator(dim_matcher=ZeroPadding()),
-    #     source_transforms=[latentis.transform.StandardScaling()],
-    #     target_transforms=[latentis.transform.StandardScaling()],
-    # )
+        from latentis.estimate.linear import LSTSQEstimator
+        import latentis
+
+        # translation = LatentTranslator(
+        #     random_seed=42,
+        #     estimator=SVDEstimator(
+        #         dim_matcher=ZeroPadding()
+        #     ),  # SGDAffineTranslator(),#SVDEstimator(dim_matcher=ZeroPadding()),
+        #     source_transforms=[latentis.transform.StandardScaling()],
+        #     target_transforms=[latentis.transform.StandardScaling()],
+        # )
 
 
-    translation = LatentTranslator(
-        random_seed=42,
-        estimator=LSTSQEstimator(),
-        # estimator=SVDEstimator(
-        #     dim_matcher=ZeroPadding()
-        # ),  # SGDAffineTranslator(),#SVDEstimator(dim_matcher=ZeroPadding()),
-        source_transforms=[latentis.transform.Centering()],#, latentis.transform.StandardScaling()], # [latentis.transform.Centering()], # [latentis.transform.StandardScaling()], #None
-        target_transforms=[latentis.transform.Centering()],#, latentis.transform.StandardScaling()], # [latentis.transform.Centering()], # [latentis.transform.StandardScaling()],
-    )
+        translation = LatentTranslator(
+            random_seed=42,
+            estimator=LSTSQEstimator(),
+            # estimator=SVDEstimator(
+            #     dim_matcher=ZeroPadding()
+            # ),  # SGDAffineTranslator(),#SVDEstimator(dim_matcher=ZeroPadding()),
+            source_transforms=[latentis.transform.Centering()],#, latentis.transform.StandardScaling()], # [latentis.transform.Centering()], # [latentis.transform.StandardScaling()], #None
+            target_transforms=[latentis.transform.Centering()],#, latentis.transform.StandardScaling()], # [latentis.transform.Centering()], # [latentis.transform.StandardScaling()],
+        )
 
-    # translation = LatentTranslation(
-    #     seed=42,
-    #     translator=SVDTranslator(),
-    #     source_transforms=None, #[Transforms.StandardScaling()],
-    #     target_transforms=None, #[Transforms.StandardScaling()],
-    # )
-    space1_anchors = space1_anchors.to(device)  # [:3136]
-    space2_anchors = space2_anchors.to(device)  # [:3136]
-    # space1 = LatentSpace(vectors=space1_anchors, name="space1")
-    # space2 = LatentSpace(vectors=space2_anchors, name="space2")
+        # translation = LatentTranslation(
+        #     seed=42,
+        #     translator=SVDTranslator(),
+        #     source_transforms=None, #[Transforms.StandardScaling()],
+        #     target_transforms=None, #[Transforms.StandardScaling()],
+        # )
+        space1_anchors = space1_anchors.to(device)  # [:3136]
+        space2_anchors = space2_anchors.to(device)  # [:3136]
+        # space1 = LatentSpace(vectors=space1_anchors, name="space1")
+        # space2 = LatentSpace(vectors=space2_anchors, name="space2")
 
-    print(f"fitting translation layer between {model_color_1} and {model_color_2} spaces...")
-    translation.fit(source_data=space1_anchors, target_data=space2_anchors)
-    print("done.\n\n")
-    print("\n##############################################\n")
-    
-    # print mse and cosine similarity between the two spaces
-    mse = torch.nn.MSELoss()
-    cos = torch.nn.CosineSimilarity()
-    print(
-        f"mean squared error between the two spaces: {mse(space1_anchors, space2_anchors)}"
-    )
-    print(
-        f"cosine similarity between the two spaces: {cos(space1_anchors, space2_anchors).mean()}"
-    )
+        print(f"fitting translation layer between {model_color_1} and {model_color_2} spaces...")
+        translation.fit(source_data=space1_anchors, target_data=space2_anchors)
+        print("done.\n\n")
+        print("\n##############################################\n")
+        
+        # print mse and cosine similarity between the two spaces
+        mse = torch.nn.MSELoss()
+        cos = torch.nn.CosineSimilarity()
+        print(
+            f"mean squared error between the two spaces: {mse(space1_anchors, space2_anchors)}"
+        )
+        print(
+            f"cosine similarity between the two spaces: {cos(space1_anchors, space2_anchors).mean()}"
+        )
 
-    space1 = space1[:900]
-    space2 = space2[:900]
+        space1 = space1[:900]
+        space2 = space2[:900]
 
-    translated_space1 = translation(space1)
-    print("Computing avg pairwise distances between space1 and space2...")
-    print(torch.cdist(space1, space2, p=2).mean())
+        translated_space1 = translation(space1)
+        print("Computing avg pairwise distances between space1 and space2...")
+        print(torch.cdist(space1, space2, p=2).mean())
 
-    print("\n##############################################\n")
-    print("Computing avg pairwise distances between translated space1 and space2...")
-    pairwise_dist_translated = torch.cdist(translated_space1, space2, p=2).mean()
-    print(pairwise_dist_translated)
+        print("\n##############################################\n")
+        print("Computing avg pairwise distances between translated space1 and space2...")
+        pairwise_dist_translated = torch.cdist(translated_space1, space2, p=2).mean()
+        print(pairwise_dist_translated)
 
-    # print cosine similarities between space1 and space2, and translated space1 and space2
-    cos = torch.nn.CosineSimilarity(dim=1)
-    cos_sim = cos(space1, space2)
-    print("cosine similarity between space1 and space2: ", cos_sim.mean())
+        # print cosine similarities between space1 and space2, and translated space1 and space2
+        cos = torch.nn.CosineSimilarity(dim=1)
+        cos_sim = cos(space1, space2)
+        print("cosine similarity between space1 and space2: ", cos_sim.mean())
 
-    cos = torch.nn.CosineSimilarity(dim=1)
-    cos_sim = cos(translated_space1, space2)
-    print(
-        "cosine similarity between translated space1 and space2: ",
-        cos_sim.mean(),
-    )
-# agent = Agent(encoder1, policy2, translation=translation).to(device)
-if args.use_resnet:
-    from rl_agents.ppo.ppo_resnet import AgentResNet
+        cos = torch.nn.CosineSimilarity(dim=1)
+        cos_sim = cos(translated_space1, space2)
+        print(
+            "cosine similarity between translated space1 and space2: ",
+            cos_sim.mean(),
+        )
+    # agent = Agent(encoder1, policy2, translation=translation).to(device)
+    if args.use_resnet:
+        from rl_agents.ppo.ppo_resnet import AgentResNet
 
-    agent = AgentResNet(encoder1, policy2).to(device)
-else:
-    agent = Agent(encoder1, policy2, translation=translation).to(device)
+        agent = AgentResNet(encoder1, policy2).to(device)
+    else:
+        agent = Agent(encoder1, policy2, translation=translation).to(device)
 
+    return agent, encoder1, policy2
 # translated_obs = translation(agent.encoder.forward_single(obs_set_1.to(device)).detach().cpu())
 # print('######')
 # print(space1_anchors)
@@ -432,8 +435,9 @@ else:
 
 # env_type = "tanh_rgb_nostack"
 
+agent, encoder1, policy2 = init_stuff()
 
-finetuning = True
+finetuning = False
 if finetuning:
     import gymnasium as gym
 
