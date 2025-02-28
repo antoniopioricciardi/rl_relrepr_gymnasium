@@ -189,7 +189,7 @@ envs = init_env(
     render_md=render_md,
     num_envs=num_envs,
 )
-def init_stuff(envs):
+def init_stuff(envs, num_envs=1):
     if env_info == "rgb":
         encoder_instance, policy_instance, agent_instance = get_algo_instance(
             model_algo_1, model_algo_2, use_resnet=args.use_resnet
@@ -411,7 +411,7 @@ def init_stuff(envs):
 
         agent = AgentResNet(encoder1, policy2).to(device)
     else:
-        agent = Agent(encoder1, policy2, translation=translation).to(device)
+        agent = Agent(encoder1, policy2, translation=translation, num_envs=num_envs).to(device)
 
     return agent, encoder1, policy2
 # translated_obs = translation(agent.encoder.forward_single(obs_set_1.to(device)).detach().cpu())
@@ -437,7 +437,7 @@ def init_stuff(envs):
 
 agent, encoder1, policy2 = init_stuff(envs)
 
-finetuning = False
+finetuning = True
 if finetuning:
     import gymnasium as gym
 
@@ -498,7 +498,7 @@ if finetuning:
         ]
     )
 
-    agent, encoder1, policy2 = init_stuff(finetune_envs, num_envs=num_envs)
+    agent, encoder1, policy2 = init_stuff(finetune_envs, num_envs=num_eval_envs)
 
     from zeroshotrl.finetune import PPOFinetune
     print("Starting finetuning...")
