@@ -189,7 +189,7 @@ envs = init_env(
     render_md=render_md,
     num_envs=num_envs,
 )
-def init_stuff():
+def init_stuff(envs):
     if env_info == "rgb":
         encoder_instance, policy_instance, agent_instance = get_algo_instance(
             model_algo_1, model_algo_2, use_resnet=args.use_resnet
@@ -449,6 +449,7 @@ if finetuning:
     env = LunarLanderRGB(render_mode="rgb_array", color=model_color_1, gravity=gravity)
     eval_env = LunarLanderRGB(render_mode="rgb_array", color=model_color_1, gravity=gravity)
     
+    num_envs = 3
     num_eval_envs = 3
 
     # env setup
@@ -472,7 +473,7 @@ if finetuning:
                 capture_video=False,
                 run_name="finetune",
             )
-            for i in range(5)
+            for i in range(num_envs)
         ]
     )
 
@@ -493,9 +494,11 @@ if finetuning:
                 capture_video=False,
                 run_name="eval_finetune",
             )
-            for i in range(2)
+            for i in range(num_eval_envs)
         ]
     )
+
+    agent, encoder1, policy2 = init_stuff(finetune_envs)
 
     from zeroshotrl.finetune import PPOFinetune
     print("Starting finetuning...")
