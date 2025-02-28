@@ -284,8 +284,8 @@ if stitching_md == "translate":
 
     # obs_set_1 = torch.cat(obs_set_1, dim=0).cpu()  # [anch_indices]
     # obs_set_2 = torch.cat(obs_set_2, dim=0).cpu()  # [anch_indices]
-    space1 = encoder1.forward_single(obs_set_1.to(device)).detach().cpu()
-    space2 = encoder2.forward_single(obs_set_2.to(device)).detach().cpu()
+    space1 = encoder1.forward_single(obs_set_1.to(device))#.detach().cpu()
+    space2 = encoder2.forward_single(obs_set_2.to(device))#.detach().cpu()
 
     # print('AAAAA', obs_set_1.shape, obs_set_2.shape, space1.shape, space2.shape)
 
