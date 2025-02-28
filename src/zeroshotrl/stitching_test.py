@@ -435,7 +435,7 @@ def init_stuff(envs):
 
 # env_type = "tanh_rgb_nostack"
 
-agent, encoder1, policy2 = init_stuff()
+agent, encoder1, policy2 = init_stuff(envs)
 
 finetuning = False
 if finetuning:
