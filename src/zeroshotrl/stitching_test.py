@@ -112,7 +112,7 @@ def parse_args():
 
 """ gravity -3: abs/transl/relative (white/red) """
 # python src/zeroshotrl/stitching_test.py --stitching-mode absolute --env-id LunarLanderRGB-3 --env-seed 1 --background-color white --encoder-dir models/LunarLanderRGB-3/rgb/white/ppo/absolute/relu/seed_1 --policy-dir models/LunarLanderRGB-3/rgb/white/ppo/absolute/relu/seed_1
-# python src/zeroshotrl/stitching_test.py --stitching-mode translate --env-id LunarLanderRGB-3 --env-seed 1 --background-color white --encoder-dir models/LunarLanderRGB-3/rgb/white/ppo/absolute/relu/seed_1 --policy-dir models/LunarLanderRGB-3/rgb/red/ppo/absolute/relu/seed_1 --anchors-file1 data/anchors/LunarLanderRGB-3/rgb_ppo_transitions_white_obs.pkl --anchors-file2 data/anchors/LunarLanderRGB-3/rgb_ppo_transitions_red_obs.pkl --anchors-alpha None --anchors-method random --render-mode human
+# python src/zeroshotrl/stitching_test.py --stitching-mode translate --env-id LunarLanderRGB-3 --env-seed 1 --background-color red --encoder-dir models/LunarLanderRGB/rgb/red/ppo/absolute/relu/seed_1 --policy-dir models/LunarLanderRGB-3/rgb/white/ppo/absolute/relu/seed_1 --anchors-file1 data/anchors/LunarLanderRGB/rgb_ppo_transitions_red_obs.pkl --anchors-file2 data/anchors/LunarLanderRGB/rgb_ppo_transitions_white_obs.pkl --anchors-alpha None --anchors-method random --render-mode human
 # python src/zeroshotrl/stitching_test.py --stitching-mode relative --env-id LunarLanderRGB-3 --env-seed 1 --background-color white --encoder-dir models/LunarLanderRGB-3/rgb/white/ppo/relative/relu/alpha_0_999/seed_1 --policy-dir models/LunarLanderRGB-3/rgb/white/ppo/relative/relu/alpha_0_999/seed_1 --anchors-alpha None --anchors-method random --render-mode human
 
 """ MiniworldOneRoom """
@@ -344,15 +344,14 @@ if stitching_md == "translate":
     # )
 
 
-
     translation = LatentTranslator(
-    random_seed=42,
-    estimator=LSTSQEstimator(),
-    # estimator=SVDEstimator(
-    #     dim_matcher=ZeroPadding()
-    # ),  # SGDAffineTranslator(),#SVDEstimator(dim_matcher=ZeroPadding()),
-    source_transforms=[latentis.transform.StandardScaling()], # [latentis.transform.Centering()], # [latentis.transform.StandardScaling()], #None
-    target_transforms=[latentis.transform.StandardScaling()], # [latentis.transform.Centering()], # [latentis.transform.StandardScaling()],
+        random_seed=42,
+        estimator=LSTSQEstimator(),
+        # estimator=SVDEstimator(
+        #     dim_matcher=ZeroPadding()
+        # ),  # SGDAffineTranslator(),#SVDEstimator(dim_matcher=ZeroPadding()),
+        source_transforms=[latentis.transform.Centering()],#, latentis.transform.StandardScaling()], # [latentis.transform.Centering()], # [latentis.transform.StandardScaling()], #None
+        target_transforms=[latentis.transform.Centering()],#, latentis.transform.StandardScaling()], # [latentis.transform.Centering()], # [latentis.transform.StandardScaling()],
     )
 
     # translation = LatentTranslation(
@@ -432,6 +431,74 @@ else:
 # exit(3)
 
 # env_type = "tanh_rgb_nostack"
+
+
+finetuning = True
+if finetuning:
+    import gymnasium as gym
+
+    gravity = -10
+    if "-" in env_id:
+        gravity = -int(env_id.split("-")[-1])
+    from zeroshotrl.envs.lunarlander.lunar_lander_rgb import LunarLanderRGB
+    print("Gravity:", gravity)
+    env = LunarLanderRGB(render_mode="rgb_array", color=model_color_1, gravity=gravity)
+    eval_env = LunarLanderRGB(render_mode="rgb_array", color=model_color_1, gravity=gravity)
+    
+    num_eval_envs = 3
+
+    # env setup
+    from zeroshotrl.utils.env_initializer import make_env_atari
+
+    finetune_envs = gym.vector.AsyncVectorEnv(
+        [
+            make_env_atari(
+                env,
+                seed=cust_seed,
+                rgb=True,
+                stack=4,
+                no_op=0,
+                action_repeat=0,
+                max_frames=False,
+                episodic_life=False,
+                clip_reward=False,
+                check_fire=False,
+                #time_limit=1000,
+                idx=i,
+                capture_video=False,
+                run_name="finetune",
+            )
+            for i in range(5)
+        ]
+    )
+
+    eval_envs = gym.vector.AsyncVectorEnv(
+        [
+            make_env_atari(
+                eval_env,
+                seed=cust_seed,
+                rgb=True,
+                stack=4,
+                no_op=0,
+                action_repeat=0,
+                max_frames=False,
+                episodic_life=False,
+                clip_reward=False,
+                check_fire=False,
+                idx=i,
+                capture_video=False,
+                run_name="eval_finetune",
+            )
+            for i in range(2)
+        ]
+    )
+
+    from zeroshotrl.finetune import PPOFinetune
+    print("Starting finetuning...")
+    finetuner = PPOFinetune(agent, finetune_envs, eval_envs, seed=1, total_timesteps=1000, learning_rate=0.0001, device=device)
+    finetuner.train()
+    print("Finetuning done.")
+
 
 forced_render = False
 if env_id.startswith("MiniWorld") and render_md == "human":
