@@ -449,8 +449,8 @@ if finetuning:
     env = LunarLanderRGB(render_mode="rgb_array", color=model_color_1, gravity=gravity)
     eval_env = LunarLanderRGB(render_mode="rgb_array", color=model_color_1, gravity=gravity)
     
-    num_envs = 3
-    num_eval_envs = 3
+    num_envs = 5
+    num_eval_envs = 2
 
     # env setup
     from zeroshotrl.utils.env_initializer import make_env_atari
@@ -498,7 +498,7 @@ if finetuning:
         ]
     )
 
-    agent, encoder1, policy2 = init_stuff(finetune_envs)
+    agent, encoder1, policy2 = init_stuff(finetune_envs, num_envs=num_envs)
 
     from zeroshotrl.finetune import PPOFinetune
     print("Starting finetuning...")

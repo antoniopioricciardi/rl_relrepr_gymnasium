@@ -215,7 +215,7 @@ class PPOFinetune:
                 # ALGO LOGIC: action logic
                 with torch.no_grad():
                     action, logprob, _, value = self.agent.get_action_and_value(
-                        next_obs
+                        next_obs, num_envs=self.num_envs
                     )
                     values[step] = value.flatten()
                 actions[step] = action

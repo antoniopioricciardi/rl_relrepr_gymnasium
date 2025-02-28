@@ -235,14 +235,12 @@ class Policy(nn.Module):
 
 class Agent(nn.Module):
     def __init__(
-        self, feature_extractor: FeatureExtractor, policy: Policy, translation=None, num_envs=1, num_stack=4,
+        self, feature_extractor: FeatureExtractor, policy: Policy, translation=None
     ):
         super().__init__()
 
         self.encoder = feature_extractor
         self.policy = policy
-        self.num_envs = num_envs
-        self.num_stack = num_stack
 
         self.translation = translation
 
@@ -271,24 +269,18 @@ class Agent(nn.Module):
             )  # ['target'].view(1, 12544)
             return self.policy.get_action_and_value(hid, action=action)
 
-    def get_action_and_value_deterministic(self, x, action=None, num_envs=None, num_stack=None):
-        if num_envs is None:
-            num_envs = self.num_envs
-        if num_stack is None:
-            num_stack = self.num_stack
+    def get_action_and_value_deterministic(self, x, action=None):
         if self.translation is None:
             return self.policy.get_action_and_value_deterministic(
                 self.encoder(x), action=action
             )
         else:
             hid = self.encoder(x)
-            # hid = hid.view(4, 3136)
-            # reshape hid from (1, whatever) to (num_envs, num_stack, 3136)
-            hid = hid.view(num_envs, num_stack, 3136)
-            
+            # reshape (1, 12544) tensor into (4, 3136)
+            hid = hid.view(4, 3136)
             hid = LatentSpace(vectors=hid, name="hid")
             hid = self.translation(hid).vectors.view(
-                num_envs, num_stack*3136
+                1, 12544
             )  # ['target'].view(1, 12544)
             return self.policy.get_action_and_value_deterministic(hid, action=action)
 
