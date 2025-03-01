@@ -14,6 +14,7 @@ import torch.optim as optim
 
 from torch.utils.tensorboard import SummaryWriter
 from zeroshotrl.logger import CustomLogger
+from zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu_stack_align import Agent
 
 
 # """ RESUME TRAINING """
@@ -159,10 +160,13 @@ class PPOFinetune:
                 # eval and save model
                 if global_step % eval_freq == 0:
                     print("### EVALUATION ###")
-                    self.agent.eval()
+                    eval_agent = Agent(feature_extractor=self.agent.feature_extractor, policy=self.agent.policy,
+                                       translation=self.agent.translation, num_envs=self.num_eval_envs).to(self.device)
+                    # self.agent.eval()
+                    eval_agent.eval()
                     eval_rewards, eval_lengths, eval_avg_reward = evaluate_vec_env(
                         agent=self.agent,
-                        num_envs=self.num_eval_envs,
+                        num_envs=eval_agent,#self.num_eval_envs,
                         env=self.eval_envs,
                         global_step=global_step,
                         device=self.device,
@@ -428,9 +432,13 @@ class PPOFinetune:
         # eval and save model
         # if global_step % eval_freq == 0:
         print("### EVALUATION ###")
-        self.agent.eval()
+        # self.agent.eval()
+        eval_agent = Agent(feature_extractor=self.agent.feature_extractor, policy=self.agent.policy,
+                    translation=self.agent.translation, num_envs=self.num_eval_envs).to(self.device)
+        # self.agent.eval()
+        eval_agent.eval()
         eval_rewards, eval_lengths, eval_avg_reward = evaluate_vec_env(
-            agent=self.agent,
+            agent=eval_agent,# self.agent,
             num_envs=self.num_eval_envs,
             env=self.eval_envs,
             global_step=global_step,

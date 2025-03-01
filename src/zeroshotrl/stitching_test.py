@@ -498,7 +498,7 @@ if finetuning:
         ]
     )
 
-    agent, encoder1, policy2 = init_stuff(finetune_envs, num_envs=num_eval_envs)
+    agent, encoder1, policy2 = init_stuff(finetune_envs, num_envs=num_envs)
 
     from zeroshotrl.finetune import PPOFinetune
     print("Starting finetuning...")

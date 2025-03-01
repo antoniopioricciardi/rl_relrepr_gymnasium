@@ -272,10 +272,10 @@ class Agent(nn.Module):
             return self.policy.get_action_and_value(hid, action=action)
 
     def get_action_and_value_deterministic(self, x, action=None, num_envs=None, num_stack=None):
-        if num_envs is None:
-            num_envs = self.num_envs
-        if num_stack is None:
-            num_stack = self.num_stack
+        # if num_envs is None:
+        #     num_envs = self.num_envs
+        # if num_stack is None:
+        #     num_stack = self.num_stack
         if self.translation is None:
             return self.policy.get_action_and_value_deterministic(
                 self.encoder(x), action=action
