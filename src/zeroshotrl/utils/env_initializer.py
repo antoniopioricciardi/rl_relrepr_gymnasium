@@ -327,7 +327,7 @@ def init_env(
                     capture_video=False,
                     run_name="test",
                 )
-                for i in range(1)
+                for i in range(num_envs)
 
                 
             ]
@@ -358,7 +358,7 @@ def init_env(
                     capture_video=False,
                     run_name="test",
                 )
-                for i in range(1)
+                for i in range(num_envs)
             ]
         )
     elif env_id.startswith("Wolfenstein"):
@@ -384,7 +384,7 @@ def init_env(
                     capture_video=False,
                     run_name="test",
                 )
-                for i in range(1)
+                for i in range(num_envs)
             ]
         )
     # else:
