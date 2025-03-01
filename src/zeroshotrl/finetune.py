@@ -433,7 +433,7 @@ class PPOFinetune:
         # if global_step % eval_freq == 0:
         print("### EVALUATION ###")
         # self.agent.eval()
-        eval_agent = Agent(feature_extractor=self.agent.feature_extractor, policy=self.agent.policy,
+        eval_agent = Agent(feature_extractor=self.agent.encoder, policy=self.agent.policy,
                     translation=self.agent.translation, num_envs=self.num_eval_envs).to(self.device)
         # self.agent.eval()
         eval_agent.eval()
