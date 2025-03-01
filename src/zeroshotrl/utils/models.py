@@ -165,6 +165,7 @@ def load_model_from_path(
         is_relative,
         is_pretrained,
         anchors_alpha=anchors_alpha,
+        encoder_eval=encoder_eval,
         device=device,
     )
     

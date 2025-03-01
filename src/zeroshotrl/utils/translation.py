@@ -136,6 +136,9 @@ def translate(anchors_file1, anchors_file2, encoder_dir, encoder1, encoder2, pol
     space2_anchors = space2_anchors.to(device)  # [:3136]
     # space1 = LatentSpace(vectors=space1_anchors, name="space1")
     # space2 = LatentSpace(vectors=space2_anchors, name="space2")
+    # remove gradients from the anchors
+    space1_anchors = space1_anchors.detach()
+    space2_anchors = space2_anchors.detach()
 
     print(f"fitting translation layer between {model_color_1} and {model_color_2} spaces...")
     translation.fit(source_data=space1_anchors, target_data=space2_anchors)
