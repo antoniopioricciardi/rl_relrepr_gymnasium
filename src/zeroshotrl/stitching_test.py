@@ -122,73 +122,7 @@ def parse_args():
 """ MiniWorldFourRooms """
 # python src/zeroshotrl/stitching_test.py --stitching-mode absolute --env-id MiniWorld-FourRooms-v0 --env-seed 1 --background-color standard --encoder-dir models/MiniWorld-FourRooms-v0/rgb/standard/ppo/absolute/relu/seed_1 --policy-dir models/MiniWorld-FourRooms-v0/rgb/standard/ppo/absolute/relu/seed_1
 
-args = parse_args()
-if args.stitching_mode == "translate":
-    assert (
-        args.anchors_file1 is not None and args.anchors_file2 is not None
-    ), "Anchors file must be specified for stitching mode translate"
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-""" Single test allows to choose a single combination of encoder and policy to test.
-If False, perform an extensive stitching test over all combinations of encoder and policy colors. """
-
-# single_test = args.single_test
-# stitching_modes = ["absolute", "relative", "translate"]
-stitching_md = args.stitching_mode
-
-anchoring_method = args.anchors_method  # "fps"  # "fps", "kmeans", "random"
-
-
-relative = False
-if stitching_md == "relative":
-    relative = True
-
-pretrained = False
-# model_type = 'ppo'
-
-env_id = args.env_id  # "CarRacing-v2" # "Wolfenstein-basic" # "StarGunnerNoFrameskip-v4  # "CarRacing-v2" #"BoxingNoFrameskip-v4"# "BreakoutNoFrameskip-v4"
-env_info = "rgb"
-cust_seed = args.env_seed
-
-# env_seeds_totest = [0]
-# if env_id.startswith("CarRacing"):
-#     env_seeds_totest = [40, 41, 42, 43] # 39
-# torch.Size([4000, 3, 84, 84])
-
-""" Parameters to change for single test """
-model_color_1 = args.background_color
-model_color_2 = "--" # args.policy_color
-
-model_algo_1 = "ppo"
-model_algo_2 = "ppo"
-
-model_activation_1 = "relu"
-model_activation_2 = "relu"
-
-model_alpha_1 = None  # "0999"
-model_alpha_2 = None  # "0999"
-""" ----- """
-
-video_path = "data/track_bg_videos/0.mp4"
-image_path = "data/track_bg_images/0.jpg"
-
-# imgsource = "plain" # "color" "plain"
-render_md = args.render_mode
-
-# env_pathname = f"{env_id}"
-# env_pathname2 = f"{env_id2}"
-num_envs = 1
-envs = init_env(
-    env_id,
-    env_info,
-    background_color=args.background_color,
-    image_path=image_path,
-    zoom=args.zoom,
-    cust_seed=args.env_seed,
-    render_md=render_md,
-    num_envs=num_envs,
-)
 def init_stuff(envs, num_envs=1):
     if env_info == "rgb":
         encoder_instance, policy_instance, agent_instance = get_algo_instance(
@@ -419,6 +353,77 @@ def init_stuff(envs, num_envs=1):
         agent = Agent(encoder1, policy2, translation=translation, num_envs=num_envs).to(device)
 
     return agent, encoder1, policy2
+
+
+
+args = parse_args()
+if args.stitching_mode == "translate":
+    assert (
+        args.anchors_file1 is not None and args.anchors_file2 is not None
+    ), "Anchors file must be specified for stitching mode translate"
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+""" Single test allows to choose a single combination of encoder and policy to test.
+If False, perform an extensive stitching test over all combinations of encoder and policy colors. """
+
+# single_test = args.single_test
+# stitching_modes = ["absolute", "relative", "translate"]
+stitching_md = args.stitching_mode
+
+anchoring_method = args.anchors_method  # "fps"  # "fps", "kmeans", "random"
+
+
+relative = False
+if stitching_md == "relative":
+    relative = True
+
+pretrained = False
+# model_type = 'ppo'
+
+env_id = args.env_id  # "CarRacing-v2" # "Wolfenstein-basic" # "StarGunnerNoFrameskip-v4  # "CarRacing-v2" #"BoxingNoFrameskip-v4"# "BreakoutNoFrameskip-v4"
+env_info = "rgb"
+cust_seed = args.env_seed
+
+# env_seeds_totest = [0]
+# if env_id.startswith("CarRacing"):
+#     env_seeds_totest = [40, 41, 42, 43] # 39
+# torch.Size([4000, 3, 84, 84])
+
+""" Parameters to change for single test """
+model_color_1 = args.background_color
+model_color_2 = "--" # args.policy_color
+
+model_algo_1 = "ppo"
+model_algo_2 = "ppo"
+
+model_activation_1 = "relu"
+model_activation_2 = "relu"
+
+model_alpha_1 = None  # "0999"
+model_alpha_2 = None  # "0999"
+""" ----- """
+
+video_path = "data/track_bg_videos/0.mp4"
+image_path = "data/track_bg_images/0.jpg"
+
+# imgsource = "plain" # "color" "plain"
+render_md = args.render_mode
+
+# env_pathname = f"{env_id}"
+# env_pathname2 = f"{env_id2}"
+num_envs = 1
+envs = init_env(
+    env_id,
+    env_info,
+    background_color=args.background_color,
+    image_path=image_path,
+    zoom=args.zoom,
+    cust_seed=args.env_seed,
+    render_md=render_md,
+    num_envs=num_envs,
+)
+
 # translated_obs = translation(agent.encoder.forward_single(obs_set_1.to(device)).detach().cpu())
 # print('######')
 # print(space1_anchors)
@@ -442,7 +447,7 @@ def init_stuff(envs, num_envs=1):
 
 agent, encoder1, policy2 = init_stuff(envs)
 
-finetuning = False
+finetuning = True
 if finetuning:
     import gymnasium as gym
 
@@ -505,6 +510,15 @@ if finetuning:
 
     agent, encoder1, policy2 = init_stuff(finetune_envs, num_envs=num_envs)
     agent.encoder.eval()
+    agent.translation.eval()
+    # print translation requires grad
+    agent.translation.requires_grad_(False)
+    for param in agent.encoder.parameters():
+        param.requires_grad = False
+    agent.encoder.requires_grad_(False)
+    agent.policy.train()
+    for param in agent.policy.parameters():
+        param.requires_grad = True
 
     from zeroshotrl.finetune import PPOFinetune
     print("Starting finetuning...")
