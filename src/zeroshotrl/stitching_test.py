@@ -290,7 +290,7 @@ envs = init_env(
 
 agent, encoder1, policy2 = init_stuff(envs)
 
-finetuning = False
+finetuning = True
 if finetuning:
     import gymnasium as gym
 
@@ -313,7 +313,7 @@ if finetuning:
         image_path=image_path,
         zoom=args.zoom,
         cust_seed=args.env_seed,
-        render_md=render_md,
+        render_md="rgb_array",
         num_envs=num_finetune_envs,
     )
     eval_envs = init_env(
@@ -323,7 +323,7 @@ if finetuning:
         image_path=image_path,
         zoom=args.zoom,
         cust_seed=args.env_seed,
-        render_md=render_md,
+        render_md="rgb_array",
         num_envs=num_eval_envs,
     )
     # env setup
@@ -372,7 +372,7 @@ if finetuning:
     #     ]
     # )
 
-    agent, encoder1, policy2 = init_stuff(finetune_envs, num_envs=num_envs)
+    agent, encoder1, policy2 = init_stuff(finetune_envs, num_envs=num_finetune_envs)
     agent.encoder.eval()
     agent.translation.eval()
     # print translation requires grad
@@ -386,7 +386,7 @@ if finetuning:
 
     from zeroshotrl.finetune import PPOFinetune
     print("Starting finetuning...")
-    finetuner = PPOFinetune(agent, finetune_envs, eval_envs, seed=1, total_timesteps=600000, learning_rate=0.0001, device=device)
+    finetuner = PPOFinetune(agent, finetune_envs, eval_envs, seed=1, total_timesteps=800000, learning_rate=0.0001, device=device)
     finetuner.train()
     print("Finetuning done.")
 
