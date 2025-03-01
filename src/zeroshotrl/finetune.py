@@ -160,13 +160,13 @@ class PPOFinetune:
                 # eval and save model
                 if global_step % eval_freq == 0:
                     print("### EVALUATION ###")
-                    eval_agent = Agent(feature_extractor=self.agent.feature_extractor, policy=self.agent.policy,
+                    eval_agent = Agent(feature_extractor=self.agent.encoder, policy=self.agent.policy,
                                        translation=self.agent.translation, num_envs=self.num_eval_envs).to(self.device)
                     # self.agent.eval()
-                    eval_agent.eval()
+                    # eval_agent.eval()
                     eval_rewards, eval_lengths, eval_avg_reward = evaluate_vec_env(
-                        agent=self.agent,
-                        num_envs=eval_agent,#self.num_eval_envs,
+                        agent=eval_agent,
+                        num_envs=self.num_eval_envs,
                         env=self.eval_envs,
                         global_step=global_step,
                         device=self.device,
@@ -219,7 +219,7 @@ class PPOFinetune:
                 # ALGO LOGIC: action logic
                 with torch.no_grad():
                     action, logprob, _, value = self.agent.get_action_and_value(
-                        next_obs, num_envs=self.num_envs
+                        next_obs
                     )
                     values[step] = value.flatten()
                 actions[step] = action

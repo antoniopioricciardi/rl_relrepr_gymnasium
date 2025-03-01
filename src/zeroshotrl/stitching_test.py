@@ -264,6 +264,8 @@ def init_stuff(envs, num_envs=1):
         from latentis.estimate.dim_matcher import ZeroPadding
         from latentis.estimate.orthogonal import SVDEstimator
         from latentis.translate.translator import LatentTranslator
+        from latentis.estimate.affine import SGDAffineTranslator
+
 
         obs_set_1 = pickle.load(Path(args.anchors_file1).open("rb"))  # [30:2000]
         obs_set_2 = pickle.load(Path(args.anchors_file2).open("rb"))  # [30:2000]
@@ -355,13 +357,16 @@ def init_stuff(envs, num_envs=1):
             source_transforms=[latentis.transform.Centering()],#, latentis.transform.StandardScaling()], # [latentis.transform.Centering()], # [latentis.transform.StandardScaling()], #None
             target_transforms=[latentis.transform.Centering()],#, latentis.transform.StandardScaling()], # [latentis.transform.Centering()], # [latentis.transform.StandardScaling()],
         )
+        translation = LatentTranslator(
+        random_seed=42,
+        estimator=SGDAffineTranslator(),
+        # estimator=SVDEstimator(
+        #     dim_matcher=ZeroPadding()
+        # ),  # SGDAffineTranslator(),#SVDEstimator(dim_matcher=ZeroPadding()),
+        source_transforms=[latentis.transform.Centering()],#, latentis.transform.StandardScaling()], # [latentis.transform.Centering()], # [latentis.transform.StandardScaling()], #None
+        target_transforms=[latentis.transform.Centering()],#, latentis.transform.StandardScaling()], # [latentis.transform.Centering()], # [latentis.transform.StandardScaling()],
+    )
 
-        # translation = LatentTranslation(
-        #     seed=42,
-        #     translator=SVDTranslator(),
-        #     source_transforms=None, #[Transforms.StandardScaling()],
-        #     target_transforms=None, #[Transforms.StandardScaling()],
-        # )
         space1_anchors = space1_anchors.to(device)  # [:3136]
         space2_anchors = space2_anchors.to(device)  # [:3136]
         # space1 = LatentSpace(vectors=space1_anchors, name="space1")
@@ -449,7 +454,7 @@ if finetuning:
     env = LunarLanderRGB(render_mode="rgb_array", color=model_color_1, gravity=gravity)
     eval_env = LunarLanderRGB(render_mode="rgb_array", color=model_color_1, gravity=gravity)
     
-    num_envs = 5
+    num_envs = 16
     num_eval_envs = 2
 
     # env setup
@@ -499,10 +504,11 @@ if finetuning:
     )
 
     agent, encoder1, policy2 = init_stuff(finetune_envs, num_envs=num_envs)
+    agent.encoder.eval()
 
     from zeroshotrl.finetune import PPOFinetune
     print("Starting finetuning...")
-    finetuner = PPOFinetune(agent, finetune_envs, eval_envs, seed=1, total_timesteps=1000, learning_rate=0.0001, device=device)
+    finetuner = PPOFinetune(agent, finetune_envs, eval_envs, seed=1, total_timesteps=1000000, learning_rate=0.00005, device=device)
     finetuner.train()
     print("Finetuning done.")
 
