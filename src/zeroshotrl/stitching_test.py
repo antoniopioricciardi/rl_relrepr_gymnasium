@@ -442,7 +442,7 @@ def init_stuff(envs, num_envs=1):
 
 agent, encoder1, policy2 = init_stuff(envs)
 
-finetuning = True
+finetuning = False
 if finetuning:
     import gymnasium as gym
 
@@ -454,7 +454,7 @@ if finetuning:
     env = LunarLanderRGB(render_mode="rgb_array", color=model_color_1, gravity=gravity)
     eval_env = LunarLanderRGB(render_mode="rgb_array", color=model_color_1, gravity=gravity)
     
-    num_envs = 16
+    num_envs = 8
     num_eval_envs = 2
 
     # env setup
@@ -508,7 +508,7 @@ if finetuning:
 
     from zeroshotrl.finetune import PPOFinetune
     print("Starting finetuning...")
-    finetuner = PPOFinetune(agent, finetune_envs, eval_envs, seed=1, total_timesteps=1000000, learning_rate=0.00005, device=device)
+    finetuner = PPOFinetune(agent, finetune_envs, eval_envs, seed=1, total_timesteps=600000, learning_rate=0.0001, device=device)
     finetuner.train()
     print("Finetuning done.")
 
