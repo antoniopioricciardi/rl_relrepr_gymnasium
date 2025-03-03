@@ -123,7 +123,7 @@ def parse_args():
 # python src/zeroshotrl/stitching_test.py --stitching-mode absolute --env-id MiniWorld-FourRooms-v0 --env-seed 1 --background-color standard --encoder-dir models/MiniWorld-FourRooms-v0/rgb/standard/ppo/absolute/relu/seed_1 --policy-dir models/MiniWorld-FourRooms-v0/rgb/standard/ppo/absolute/relu/seed_1
 
 
-def init_stuff(envs, num_envs=1):
+def init_stuff(envs, num_envs=1, set_eval=True):
     if env_info == "rgb":
         encoder_instance, policy_instance, agent_instance = get_algo_instance(
             model_algo_1, model_algo_2, use_resnet=args.use_resnet
@@ -162,7 +162,7 @@ def init_stuff(envs, num_envs=1):
             is_relative=relative,
             is_pretrained=False,
             anchors_alpha=None,
-            encoder_eval=True,
+            encoder_eval=set_eval,
             device=device,
         )
     if args.use_resnet:
@@ -170,7 +170,7 @@ def init_stuff(envs, num_envs=1):
             path2_pol,
             envs.single_action_space.n,
             policy_instance,
-            policy_eval=True,
+            policy_eval=set_eval,
             encoder_out_dim=encoder1.out_dim,
             repr_dim=3136,
             device=device,
@@ -184,6 +184,8 @@ def init_stuff(envs, num_envs=1):
             encoder_instance,
             policy_instance,
             agent_instance,
+            encoder_eval=set_eval,
+            policy_eval=set_eval,
             is_relative=False,
             is_pretrained=False,
             device=device,
@@ -288,22 +290,21 @@ envs = init_env(
 
 # env_type = "tanh_rgb_nostack"
 
-agent, encoder1, policy2 = init_stuff(envs)
 
-finetuning = False
+finetuning = True
 if finetuning:
     import gymnasium as gym
 
 
-    gravity = -10
-    if "-" in env_id:
-        gravity = -int(env_id.split("-")[-1])
-    from zeroshotrl.envs.lunarlander.lunar_lander_rgb import LunarLanderRGB
-    print("Gravity:", gravity)
-    env = LunarLanderRGB(render_mode="rgb_array", color=model_color_1, gravity=gravity)
-    eval_env = LunarLanderRGB(render_mode="rgb_array", color=model_color_1, gravity=gravity)
+    #gravity = -10
+    # if "-" in env_id:
+    #     gravity = -int(env_id.split("-")[-1])
+    # from zeroshotrl.envs.lunarlander.lunar_lander_rgb import LunarLanderRGB
+    # print("Gravity:", gravity)
+    # env = LunarLanderRGB(render_mode="rgb_array", color=model_color_1, gravity=gravity)
+    # eval_env = LunarLanderRGB(render_mode="rgb_array", color=model_color_1, gravity=gravity)
     
-    num_finetune_envs = 8
+    num_finetune_envs = 16
     num_eval_envs = 2
 
     finetune_envs = init_env(
@@ -313,8 +314,9 @@ if finetuning:
         image_path=image_path,
         zoom=args.zoom,
         cust_seed=args.env_seed,
-        render_md=render_md,
+        render_md="rgb_array",
         num_envs=num_finetune_envs,
+        sync_async="async"
     )
     eval_envs = init_env(
         env_id,
@@ -323,8 +325,9 @@ if finetuning:
         image_path=image_path,
         zoom=args.zoom,
         cust_seed=args.env_seed,
-        render_md=render_md,
+        render_md="rgb_array",
         num_envs=num_eval_envs,
+        sync_async="async"
     )
     # env setup
     from zeroshotrl.utils.env_initializer import make_env_atari
@@ -372,23 +375,28 @@ if finetuning:
     #     ]
     # )
 
-    agent, encoder1, policy2 = init_stuff(finetune_envs, num_envs=num_envs)
-    agent.encoder.eval()
-    agent.translation.eval()
+    agent, encoder1, policy2 = init_stuff(finetune_envs, num_envs=num_finetune_envs, set_eval=False)
+    # agent.encoder.eval()
+    # agent.translation.eval()
     # print translation requires grad
-    agent.translation.requires_grad_(False)
-    for param in agent.encoder.parameters():
-        param.requires_grad = False
-    agent.encoder.requires_grad_(False)
+    # agent.translation.requires_grad_(False)
+    # for param in agent.encoder.parameters():
+    #     param.requires_grad = False
+    # agent.encoder.requires_grad_(False)
     agent.policy.train()
+    agent.encoder.train()
+    for param in agent.encoder.parameters():
+        param.requires_grad = True
     for param in agent.policy.parameters():
         param.requires_grad = True
 
     from zeroshotrl.finetune import PPOFinetune
     print("Starting finetuning...")
-    finetuner = PPOFinetune(agent, finetune_envs, eval_envs, seed=1, total_timesteps=600000, learning_rate=0.0001, device=device)
+    finetuner = PPOFinetune(agent, finetune_envs, eval_envs, seed=1, total_timesteps=200000, learning_rate=0.00005, device=device)
     finetuner.train()
     print("Finetuning done.")
+else:
+    agent, encoder1, policy2 = init_stuff(envs)
 
 
 forced_render = False

@@ -213,6 +213,7 @@ def init_carracing_env(
     cust_seed=0,
     render_md="rgb_array",
     num_envs=1,
+    sync_async = "sync"
 ):
     if car_mode == "slow":
         from zeroshotrl.envs.carracing.car_racing_slow import CarRacing
@@ -257,8 +258,13 @@ def init_carracing_env(
     else:
         env = CarRacing(
             continuous=False, background=background_color, zoom=zoom, render_mode=render_md
-        )                     
-    nv = gym.vector.SyncVectorEnv(
+        )      
+    if sync_async == "sync":
+        env_fn = gym.vector.SyncVectorEnv
+    else:
+        env_fn = gym.vector.AsyncVectorEnv
+    # nv = gym.vector.SyncVectorEnv(
+    nv = env_fn(               
         [
             make_env_atari(
                 env,
@@ -290,6 +296,7 @@ def init_env(
     cust_seed=0,
     render_md="human",
     num_envs=1,
+    sync_async = "sync"
 ):
     if env_id.startswith("CarRacing-v2"):
         # separate car mode from env_id
@@ -302,6 +309,7 @@ def init_env(
             cust_seed=cust_seed,
             render_md=render_md,
             num_envs=num_envs,
+            sync_async=sync_async
         )
     elif env_id.startswith("LunarLander"):
         gravity = -10
@@ -310,7 +318,12 @@ def init_env(
         from zeroshotrl.envs.lunarlander.lunar_lander_rgb import LunarLanderRGB
         print("Gravity:", gravity)
         env = LunarLanderRGB(render_mode=render_md, color=background_color, gravity=gravity)
-        nv = gym.vector.SyncVectorEnv(
+        if sync_async == "sync":
+            env_fn = gym.vector.SyncVectorEnv
+        else:
+            env_fn = gym.vector.AsyncVectorEnv
+        # nv = gym.vector.SyncVectorEnv(
+        nv = env_fn(
             [
                 make_env_atari(
                     env,
@@ -340,7 +353,12 @@ def init_env(
         # env = OneRoom(render_mode="human", topdown=False)
         from zeroshotrl.envs.miniworld.fourrooms import FourRooms
         env = FourRooms(render_mode="human")
-        nv = gym.vector.SyncVectorEnv(
+        if sync_async == "sync":
+            env_fn = gym.vector.SyncVectorEnv
+        else:
+            env_fn = gym.vector.AsyncVectorEnv
+        # nv = gym.vector.SyncVectorEnv(
+        nv = env_fn(
             [
                 make_env_atari(
                     env,
@@ -367,7 +385,12 @@ def init_env(
 
         use_rgb = True if env_info == "rgb" else False
         env = Wolfenstein(level=lvl, render_mode="human").env
-        nv = gym.vector.SyncVectorEnv(
+        if sync_async == "sync":
+            env_fn = gym.vector.SyncVectorEnv
+        else:
+            env_fn = gym.vector.AsyncVectorEnv
+        # nv = gym.vector.SyncVectorEnv(
+        nv = env_fn(
             [
                 make_env_atari(
                     env,
