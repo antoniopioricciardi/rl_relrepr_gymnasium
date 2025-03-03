@@ -529,8 +529,10 @@ class PPOFinetune:
         self.writer.close()
 
 
-finetuning = False
-if finetuning:
+
+if __name__ == "__main__":
+    # finetuning = False
+    # if finetuning:
     import gymnasium as gym
     # env setup
     from zeroshotrl.utils.env_initializer import make_env_atari
