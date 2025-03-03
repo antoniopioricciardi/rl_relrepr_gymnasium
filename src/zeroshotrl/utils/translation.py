@@ -113,15 +113,15 @@ def translate(anchors_file1, anchors_file2, encoder_dir, encoder1, encoder2, pol
     # )
 
 
-    translation = LatentTranslator(
-        random_seed=42,
-        estimator=LSTSQEstimator(),
-        # estimator=SVDEstimator(
-        #     dim_matcher=ZeroPadding()
-        # ),  # SGDAffineTranslator(),#SVDEstimator(dim_matcher=ZeroPadding()),
-        source_transforms=[latentis.transform.Centering()],#, latentis.transform.StandardScaling()], # [latentis.transform.Centering()], # [latentis.transform.StandardScaling()], #None
-        target_transforms=[latentis.transform.Centering()],#, latentis.transform.StandardScaling()], # [latentis.transform.Centering()], # [latentis.transform.StandardScaling()],
-    )
+    # translation = LatentTranslator(
+    #     random_seed=42,
+    #     estimator=LSTSQEstimator(),
+    #     # estimator=SVDEstimator(
+    #     #     dim_matcher=ZeroPadding()
+    #     # ),  # SGDAffineTranslator(),#SVDEstimator(dim_matcher=ZeroPadding()),
+    #     source_transforms=[latentis.transform.Centering()],#, latentis.transform.StandardScaling()], # [latentis.transform.Centering()], # [latentis.transform.StandardScaling()], #None
+    #     target_transforms=[latentis.transform.Centering()],#, latentis.transform.StandardScaling()], # [latentis.transform.Centering()], # [latentis.transform.StandardScaling()],
+    # )
     translation = LatentTranslator(
     random_seed=42,
     estimator=SGDAffineTranslator(),

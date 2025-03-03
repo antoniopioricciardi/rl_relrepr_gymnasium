@@ -6,6 +6,8 @@ import numpy as np
 from zeroshotrl.utils.env_initializer import init_env
 from zeroshotrl.utils.evaluation import evaluate_vec_env
 from latentis.estimate.linear import LSTSQEstimator
+from latentis.estimate.affine import SGDAffineTranslator
+
 import latentis
 # TODO: MOVE THEM TO A COMMON FILE
 
@@ -368,23 +370,25 @@ def stitching_test_quantitative(
                             f"{anchoring_method} done in {clustering_time} seconds.\n\n"
                         )
 
-                        translation = LatentTranslator(
-                            random_seed=42,
-                            estimator=LSTSQEstimator(),
-                            # estimator=SVDEstimator(
-                            #     dim_matcher=ZeroPadding()
-                            # ),  # SGDAffineTranslator(),#SVDEstimator(dim_matcher=ZeroPadding()),
-                            source_transforms=[latentis.transform.StandardScaling()], # [latentis.transform.Centering()], # [latentis.transform.StandardScaling()], #None
-                            target_transforms=[latentis.transform.StandardScaling()], # [latentis.transform.Centering()], # [latentis.transform.StandardScaling()],
-                        )
                         # translation = LatentTranslator(
                         #     random_seed=42,
-                        #     estimator=SVDEstimator(
-                        #         dim_matcher=ZeroPadding()
-                        #     ),  # SGDAffineTranslator(),#SVDEstimator(dim_matcher=ZeroPadding()),
-                        #     source_transforms=None,  # [transforms.StandardScaling()],
-                        #     target_transforms=None,  # [transforms.StandardScaling()],
+                        #     estimator=LSTSQEstimator(),
+                        #     # estimator=SVDEstimator(
+                        #     #     dim_matcher=ZeroPadding()
+                        #     # ),  # SGDAffineTranslator(),#SVDEstimator(dim_matcher=ZeroPadding()),
+                        #     source_transforms=[latentis.transform.StandardScaling()], # [latentis.transform.Centering()], # [latentis.transform.StandardScaling()], #None
+                        #     target_transforms=[latentis.transform.StandardScaling()], # [latentis.transform.Centering()], # [latentis.transform.StandardScaling()],
                         # )
+
+                        translation = LatentTranslator(
+                        random_seed=42,
+                        estimator=SGDAffineTranslator(),
+                        # estimator=SVDEstimator(
+                        #     dim_matcher=ZeroPadding()
+                        # ),  # SGDAffineTranslator(),#SVDEstimator(dim_matcher=ZeroPadding()),
+                        source_transforms=[latentis.transform.Centering()],#, latentis.transform.StandardScaling()], # [latentis.transform.Centering()], # [latentis.transform.StandardScaling()], #None
+                        target_transforms=[latentis.transform.Centering()],#, latentis.transform.StandardScaling()], # [latentis.transform.Centering()], # [latentis.transform.StandardScaling()],
+                        )
                         space1_anchors = space1_anchors.to(device)  # [:3136]
                         space2_anchors = space2_anchors.to(device)  # [:3136]
                         space1 = LatentSpace(vectors=space1_anchors, name="space1")
