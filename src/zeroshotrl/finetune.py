@@ -632,11 +632,14 @@ if __name__ == "__main__":
     #     param.requires_grad = False
     # agent.encoder.requires_grad_(False)
     agent.policy.train()
-    agent.encoder.train()
+    agent.encoder.eval()
     for param in agent.encoder.parameters():
-        param.requires_grad = True
+        param.requires_grad = False
     for param in agent.policy.parameters():
         param.requires_grad = True
+    agent.translation.eval()
+    for param in agent.translation.parameters():
+        param.requires_grad = False
 
     from zeroshotrl.finetune import PPOFinetune
     print("Starting finetuning...")
