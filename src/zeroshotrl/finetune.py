@@ -34,7 +34,7 @@ from zeroshotrl.utils.env_initializer import init_env
 
 
 class PPOFinetune:
-    def __init__(self, agent, env_id, envs, eval_envs, seed, total_timesteps, learning_rate,
+    def __init__(self, agent, eval_agent, env_id, envs, eval_envs, seed, total_timesteps, learning_rate,
                  num_eval_eps, track, exp_name, wandb_project_name, wandb_entity,
                  device, args):
         self.agent = agent
@@ -60,6 +60,7 @@ class PPOFinetune:
         # self.encoder = encoder
         # self.policy = policy
         self.agent = agent
+        self.eval_agent = eval_agent
         # writer = SummaryWriter("finetuning/custom")
         # logger = CustomLogger(
         # "finetuning", use_tb=False, use_wandb=False
@@ -201,12 +202,12 @@ class PPOFinetune:
                 # eval and save model
                 if global_step % eval_freq == 0:
                     print("### EVALUATION ###")
-                    eval_agent = Agent(feature_extractor=self.agent.encoder, policy=self.agent.policy,
-                                       translation=self.agent.translation, num_envs=self.num_eval_envs).to(self.device)
                     # self.agent.eval()
                     # eval_agent.eval()
+                    self.eval_agent.load_state_dict(self.agent.state_dict())
+                    self.eval_agent.eval()
                     eval_rewards, eval_lengths, eval_avg_reward = evaluate_vec_env(
-                        agent=eval_agent,
+                        agent=self.eval_agent,
                         num_envs=self.num_eval_envs,
                         env=self.eval_envs,
                         global_step=global_step,
@@ -215,7 +216,7 @@ class PPOFinetune:
                         writer=self.writer,
                         logger=self.logger,
                     )
-                    self.agent.train()
+                    # self.agent.train()
                     # decay best_score to ensure saving a model with converging anchors
                     eval_best_score *= 0.99
                     # save model if it's the best so far
@@ -474,12 +475,11 @@ class PPOFinetune:
         # if global_step % eval_freq == 0:
         print("### EVALUATION ###")
         # self.agent.eval()
-        eval_agent = Agent(feature_extractor=self.agent.encoder, policy=self.agent.policy,
-                    translation=self.agent.translation, num_envs=self.num_eval_envs).to(self.device)
-        # self.agent.eval()
-        eval_agent.eval()
+
+        self.eval_agent.load_state_dict(self.agent.state_dict())
+        self.eval_agent.eval()
         eval_rewards, eval_lengths, eval_avg_reward = evaluate_vec_env(
-            agent=eval_agent,# self.agent,
+            agent=self.eval_agent,# self.agent,
             num_envs=self.num_eval_envs,
             env=self.eval_envs,
             global_step=global_step,
@@ -488,7 +488,7 @@ class PPOFinetune:
             writer=self.writer,
             logger=self.logger,
         )
-        self.agent.train()
+        # self.agent.train()
         # decay best_score to ensure saving a model with converging anchors
         eval_best_score *= 0.99
         # save model if it's the best so far
@@ -622,27 +622,28 @@ if __name__ == "__main__":
     agent, encoder1, policy2 = init_stuff(finetune_envs, env_info, model_algo_1, model_algo_2,
                model_color_1, model_color_2, encoder_dir, policy_dir, anchors_file1, anchors_file2, use_resnet,
                device, relative, anchoring_method, stitching_md, num_envs=num_finetune_envs, set_eval=False)
-
-    # agent, encoder1, policy2 = init_stuff(finetune_envs, num_envs=num_finetune_envs, set_eval=False)
-    # agent.encoder.eval()
-    # agent.translation.eval()
-    # print translation requires grad
-    # agent.translation.requires_grad_(False)
-    # for param in agent.encoder.parameters():
-    #     param.requires_grad = False
-    # agent.encoder.requires_grad_(False)
+    
     agent.policy.train()
-    agent.encoder.train()
+    agent.encoder.eval()
+    agent.translation.eval()
     for param in agent.encoder.parameters():
         param.requires_grad = True
     for param in agent.policy.parameters():
-        param.requires_grad = True
+        param.requires_grad = False
+    for param in agent.translation.parameters():
+        param.requires_grad = False
 
     from zeroshotrl.finetune import PPOFinetune
     print("Starting finetuning...")
     # finetuner = PPOFinetune(agent, finetune_envs, eval_envs, seed=1, total_timesteps=200000, learning_rate=0.00005, device=device)
 
-    finetuner = PPOFinetune(agent, env_id, finetune_envs, eval_envs, seed=1, total_timesteps=args.total_timesteps, learning_rate=args.learning_rate,
+    import copy
+    eval_agent = copy.deepcopy(agent)
+    eval_agent.eval()
+
+    print(agent.policy.training)
+
+    finetuner = PPOFinetune(agent, eval_agent, env_id, finetune_envs, eval_envs, seed=1, total_timesteps=args.total_timesteps, learning_rate=args.learning_rate,
                             num_eval_eps=args.num_eval_eps, track=args.track,
                             exp_name=exp_name, wandb_project_name=args.wandb_project_name,
                             wandb_entity=None, device=device, args=args)
