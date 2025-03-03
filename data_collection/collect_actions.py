@@ -99,7 +99,7 @@ env = init_env(
     background_color=args.background,
     image_path="",
     cust_seed=args.seed,
-    render_md=args.render_mode,
+    render_md=args.render_mode,# "human"#args.render_mode,
 )
 
 encoder_path = os.path.join(
@@ -170,7 +170,9 @@ score = 0
 # write reinforcement learning loop
 seed = args.seed
 obs, _ = env.reset(seed=seed)
-random_every = 0  # pong:20
+random_every = 200 # pong:20
+random_for_steps = 100
+random_action_chosen = False
 k = 0
 for i in tqdm.tqdm(range(num_steps)):
     # action = env.action_space.sample()
@@ -179,12 +181,25 @@ for i in tqdm.tqdm(range(num_steps)):
         action, logprob, _, value = agent.get_action_and_value(
             torch.Tensor(obs).to(device)
         )
-        if (random_every > 0) and (i % random_every == 0):
-            if k < 20:
-                action = torch.tensor([env.single_action_space.sample()])
-                k += 1
-            else:
-                k = 0
+    # if (random_every > 0) and (i % random_every == 0):
+    #     if k < random_for_steps:
+    #         action = torch.tensor([env.single_action_space.sample()])
+    #         k += 1
+    #     else:
+    #         k = 0
+
+    if (random_every > 0) and (i % random_every == 0):
+        action = torch.tensor([env.single_action_space.sample()])
+        random_action_chosen = True
+        prev_action = action
+
+    if random_every > 0 and random_action_chosen:
+        action = prev_action
+        k += 1
+        if k == random_for_steps:
+            random_action_chosen = False
+            k = 0
+
     actions.append(action.cpu().numpy().item())
     next_obs, reward, terminated, truncated, info = env.step(action.cpu().numpy())
     done = np.logical_or(terminated, truncated)

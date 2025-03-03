@@ -65,6 +65,7 @@ class FeatureExtractor(nn.Module):
             )
             # self.set_anchors()
 
+    @torch.no_grad()
     def _compute_relative_representation(self, hidden):
         # assert self.obs_anchors is not None, "You must set the anchors first. Use set_anchors() method."
         return self.projector(x=hidden, anchors=self.anchors)  # .vectors

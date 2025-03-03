@@ -362,3 +362,86 @@ def get_algo_instance_bw(encoder_algo, policy_algo):
         #     from zeroshotrl.rl_agents.ddqn.ddqn_end_to_end_stack import AgentDDQN
         agent_instance = AgentDDQN
     return encoder_instance, policy_instance, agent_instance
+
+
+
+
+def init_stuff(envs, env_info, model_algo_1, model_algo_2,
+               model_color_1, model_color_2, encoder_dir, policy_dir, anchors_file1, anchors_file2, use_resnet,
+               device, relative, anchoring_method, stitching_md,
+               num_envs=1, set_eval=True):
+    if stitching_md == "translate":
+        assert anchors_file1 is not None and anchors_file2 is not None, "Anchors file is required for translation"
+    from zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu_stack_align import FeatureExtractor
+    if env_info == "rgb":
+        encoder_instance, policy_instance, agent_instance = get_algo_instance(
+            model_algo_1, model_algo_2, use_resnet=use_resnet
+        )
+    else:
+        encoder_instance, policy_instance, agent_instance = get_algo_instance_bw(
+            model_algo_1, model_algo_2
+        )
+
+    if not use_resnet:
+        path1_enc = os.path.join(encoder_dir, "encoder.pt")
+        path2_enc = os.path.join(policy_dir, "encoder.pt")
+    # path1_pol = os.path.join(encoder_dir, "policy.pt")
+    path2_pol = os.path.join(policy_dir, "policy.pt")
+
+    random_encoder = False
+    if random_encoder:
+        obs_anchors = None
+        # if is_relative:
+        #     obs_anchors = encoder_params["obs_anchors"]
+        encoder1 = FeatureExtractor(
+            use_relative=relative,
+            pretrained=False,
+            obs_anchors=obs_anchors,
+            anchors_alpha=None,
+        ).to(device)
+    elif use_resnet:
+        from rl_agents.ppo.ppo_resnet import FeatureExtractorResNet
+
+        encoder1 = FeatureExtractorResNet().to(device)
+    else:
+        print('enc1')
+        encoder1 = load_encoder_from_path(
+            path1_enc,
+            encoder_instance,
+            is_relative=relative,
+            is_pretrained=False,
+            anchors_alpha=None,
+            encoder_eval=set_eval,
+            device=device,
+        )
+    if use_resnet:
+        policy2 = load_policy_from_path(
+            path2_pol,
+            envs.single_action_space.n,
+            policy_instance,
+            policy_eval=set_eval,
+            encoder_out_dim=encoder1.out_dim,
+            repr_dim=3136,
+            device=device,
+        )
+    else:
+        print('pol2')
+        encoder2, policy2, agent2 = load_model_from_path(
+            path2_enc,
+            path2_pol,
+            envs.single_action_space.n,
+            encoder_instance,
+            policy_instance,
+            agent_instance,
+            encoder_eval=set_eval,
+            policy_eval=set_eval,
+            is_relative=False,
+            is_pretrained=False,
+            device=device,
+        )
+
+    translation_layer = None
+    if stitching_md == "translate":
+        from zeroshotrl.utils.translation import translate
+        agent, encoder1, policy2, translation_layer = translate(anchors_file1, anchors_file2, encoder_dir, encoder1, encoder2, policy2, model_color_1, model_color_2, anchoring_method, use_resnet, num_envs, device)
+    return agent, encoder1, policy2

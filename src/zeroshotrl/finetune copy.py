@@ -4,7 +4,7 @@ import time
 import numpy as np
 import torch
 import torch.nn as nn
-import os
+
 
 # from utils.relative import init_anchors, init_anchors_from_obs, get_obs_anchors, get_obs_anchors_totensor
 from zeroshotrl.utils.helputils import save_model, upload_csv_wandb
@@ -34,8 +34,7 @@ from zeroshotrl.utils.env_initializer import init_env
 
 
 class PPOFinetune:
-    def __init__(self, agent, envs, eval_envs, seed, total_timesteps, learning_rate, track, exp_name, anchors_alpha, wandb_project_name, wandb_entity,
-                 device):
+    def __init__(self, agent, envs, eval_envs, seed, total_timesteps, learning_rate, device):
         self.agent = agent
         self.envs = envs
         self.eval_envs = eval_envs
@@ -59,12 +58,12 @@ class PPOFinetune:
         # self.encoder = encoder
         # self.policy = policy
         self.agent = agent
-        # writer = SummaryWriter("finetuning/custom")
-        # logger = CustomLogger(
-        # "finetuning", use_tb=False, use_wandb=False
-        # )  # True if args.track else False)
-        # self.writer = writer
-        # self.logger = logger
+        writer = SummaryWriter("finetuning/custom")
+        logger = CustomLogger(
+        "finetuning", use_tb=False, use_wandb=False
+        )  # True if args.track else False)
+        self.writer = writer
+        self.logger = logger
         self.CHECKPOINT_FREQUENCY = 50
 
         self.update_epochs = 4
@@ -89,44 +88,6 @@ class PPOFinetune:
         self.wandb = False
         # self.log_path = log_path
 
-        run_name = f"{env_id}__{exp_name}__a{str(anchors_alpha)}_{args.seed}__{int(time.time())}"
-        eval_run_name = run_name + "_eval"
-        wandb = None
-        if track:
-            import wandb
-
-            wandb.init(
-                project=wandb_project_name,
-                entity=wandb_entity,
-                sync_tensorboard=True,
-                config=vars(args),
-                name=run_name,
-                monitor_gym=True,
-                save_code=True,
-            )
-        self.writer = SummaryWriter(f"runs/{run_name}")
-        self.writer.add_text(
-            "hyperparameters",
-            "|param|value|\n|-|-|\n%s"
-            % ("\n".join([f"|{key}|{value}|" for key, value in vars(args).items()])),
-        )
-
-        # paths for saving models and csv files, etc. # TODO: create a function for this
-        if not args.track:
-            log_path = os.path.join("runs", run_name)  # f"runs/{run_name}/"
-        else:
-            log_path = f"{wandb.run.dir}"
-
-        # create logger
-        # logger = Logger(work_dir, use_tb=cfg.use_tb, use_wandb=cfg.use_wandb)
-        # work_dir = Path.cwd() / "runs" / run_name
-        self.logger = CustomLogger(
-            log_path, use_tb=False, use_wandb=False
-        )  # True if args.track else False)
-        csv_file_name = "train"
-        self.csv_file_path = os.path.join(log_path, f"{csv_file_name}.csv")
-        eval_csv_file_name = "eval"
-        self.eval_csv_file_path = os.path.join(log_path, f"{eval_csv_file_name}.csv")
 
         # self.csv_file_path = csv_file_path
         # self.eval_csv_file_path = eval_csv_file_path
@@ -511,17 +472,17 @@ class PPOFinetune:
 
         """ HANDLE MODELS SAVING """
 
-        if self.track:
-            # save_model(
-            #     wandb=self.wandb,
-            #     log_path=self.log_path,
-            #     model_params_dict=best_model_params,
-            #     save_wandb=self.track,
-            # )
-            upload_csv_wandb(self.wandb, self.eval_csv_file_path)
-            upload_csv_wandb(self.wandb, self.csv_file_path)
+        # if self.track:
+        #     save_model(
+        #         wandb=self.wandb,
+        #         log_path=self.log_path,
+        #         model_params_dict=best_model_params,
+        #         save_wandb=self.track,
+        #     )
+        #     upload_csv_wandb(self.wandb, self.eval_csv_file_path)
+        #     upload_csv_wandb(self.wandb, self.csv_file_path)
 
-            self.wandb.finish()
+        #     self.wandb.finish()
         """ END OF EVALUATION """
 
         self.envs.close()
@@ -536,52 +497,27 @@ if finetuning:
     from zeroshotrl.utils.env_initializer import make_env_atari
     from zeroshotrl.utils.models import init_stuff
 
-    # parse argsuments
-    import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--env-id", type=str, default="CarRacing-v2")
-    parser.add_argument("--background-color", type=str, default="green")
-    parser.add_argument("--encoder-dir", type=str, default="models/encoder")
-    parser.add_argument("--policy-dir", type=str, default="models/policy")
-    parser.add_argument("--anchors-file1", type=str, default="data/obs_set_1.pt")
-    parser.add_argument("--anchors-file2", type=str, default="data/obs_set_2.pt")
-    parser.add_argument("--use-resnet", type=bool, default=False)
-    parser.add_argument("--anchors-method", type=str, default="fps")
-    parser.add_argument("--stitching-mode", type=str, default="relative")
-    parser.add_argument("--zoom", type=bool, default=False)
-    parser.add_argument("--env-seed", type=int, default=1)
-    parser.add_argument("--track", type=bool, default=False)
-    # parser.add_argument("--exp_name", type=str, default="finetune")
-    parser.add_argument("--wandb-project-name", type=str, default="finetune")
-
-    args = parser.parse_args()
-
-    # exmaple usage:
-    # python src/zeroshotrl/finetune.py --track True --wandb-project-name finetuning --stitching-mode translate --env-id CarRacing-v2 --env-seed 1 --background-color green --encoder-dir --encoder-dir models/CarRacing-v2/rgb/green/ppo/absolute/relu/seed_1 --policy-dir models/CarRacing-v2/rgb/blue/ppo/absolute/relu/seed_2 --anchors-file1 data/anchors/CarRacing-v2/rgb_ppo_transitions_green_obs.pkl --anchors-file2 data/anchors/CarRacing-v2/rgb_ppo_transitions_blue_obs.pkl --anchors-alpha None --anchors-method random
-
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     """ Parameters to change for single test """
-    env_id = args.env_id 
     model_color_1 = args.background_color
     encoder_dir = args.encoder_dir
     policy_dir = args.policy_dir
     anchors_file1 = args.anchors_file1
     anchors_file2 = args.anchors_file2
-    use_resnet = args.use_resnet
-    anchoring_method = args.anchors_method  # "fps"  # "fps", "kmeans", "random"
-
-    exp_name = args.env_id
+    use_resnet = args.use_resnet,
     model_color_2 = "--" # args.policy_color
 
     model_algo_1 = "ppo"
     model_algo_2 = "ppo"
     env_info = "rgb"
 
-    stitching_md = args.stitching_mode
-    image_path = ""
-    relative = False
-    if stitching_md == "relative":
-        relative = True
+    stitching_md = args.stitching_md
+    #gravity = -10
+    # if "-" in env_id:
+    #     gravity = -int(env_id.split("-")[-1])
+    # from zeroshotrl.envs.lunarlander.lunar_lander_rgb import LunarLanderRGB
+    # print("Gravity:", gravity)
+    # env = LunarLanderRGB(render_mode="rgb_array", color=model_color_1, gravity=gravity)
+    # eval_env = LunarLanderRGB(render_mode="rgb_array", color=model_color_1, gravity=gravity)
     
     num_finetune_envs = 16
     num_eval_envs = 2
@@ -631,9 +567,6 @@ if finetuning:
 
     from zeroshotrl.finetune import PPOFinetune
     print("Starting finetuning...")
-    # finetuner = PPOFinetune(agent, finetune_envs, eval_envs, seed=1, total_timesteps=200000, learning_rate=0.00005, device=device)
-    finetuner = PPOFinetune(agent, finetune_envs, eval_envs, seed=1, total_timesteps=200000, learning_rate=0.00005,
-                            track=args.track, exp_name=exp_name, anchors_alpha=0, wandb_project_name=args.wandb_project_name,
-                            wandb_entity=None, device=device)
+    finetuner = PPOFinetune(agent, finetune_envs, eval_envs, seed=1, total_timesteps=200000, learning_rate=0.00005, device=device)
     finetuner.train()
     print("Finetuning done.")
