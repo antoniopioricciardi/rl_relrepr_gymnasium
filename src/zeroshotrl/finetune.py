@@ -35,7 +35,7 @@ from zeroshotrl.utils.env_initializer import init_env
 
 class PPOFinetune:
     def __init__(self, agent, envs, eval_envs, seed, total_timesteps, learning_rate,
-                 num_eval_eps, track, exp_name, anchors_alpha, wandb_project_name, wandb_entity,
+                 num_eval_eps, track, exp_name, wandb_project_name, wandb_entity,
                  device):
         self.agent = agent
         self.envs = envs
@@ -90,7 +90,7 @@ class PPOFinetune:
         self.wandb = False
         # self.log_path = log_path
 
-        run_name = f"{env_id}__{exp_name}__a{str(anchors_alpha)}_{args.seed}__{int(time.time())}"
+        run_name = f"{env_id}__{exp_name}_{args.seed}__{int(time.time())}"
         eval_run_name = run_name + "_eval"
         wandb = None
         if track:
@@ -554,7 +554,7 @@ if __name__ == "__main__":
     parser.add_argument("--use-resnet", type=bool, default=False)
     parser.add_argument("--anchors-method", type=str, default="fps")
     parser.add_argument("--stitching-mode", type=str, default="relative")
-    parser.add_argument("--zoom", type=bool, default=False)
+    parser.add_argument("--zoom", type=bool, default=2.7)
     parser.add_argument("--env-seed", type=int, default=1)
     parser.add_argument("--track", type=bool, default=False)
     # parser.add_argument("--exp_name", type=str, default="finetune")
@@ -563,7 +563,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # exmaple usage:
-    # python src/zeroshotrl/finetune.py --track True --wandb-project-name finetuning --stitching-mode translate --env-id CarRacing-v2 --env-seed 1 --background-color green --encoder-dir models/CarRacing-v2/rgb/green/ppo/absolute/relu/seed_1 --policy-dir models/CarRacing-v2/rgb/blue/ppo/absolute/relu/seed_2 --anchors-file1 data/anchors/CarRacing-v2/rgb_ppo_transitions_green_obs.pkl --anchors-file2 data/anchors/CarRacing-v2/rgb_ppo_transitions_blue_obs.pkl --total-timesteps 200000 --learning-rate 0.00005 --num-eval-eps 1000 --use-resnet False --anchors-method random --zoom False--anchors-alpha None 
+    # python src/zeroshotrl/finetune.py --track True --wandb-project-name finetuning --stitching-mode translate --env-id CarRacing-v2 --env-seed 1 --background-color green --encoder-dir models/CarRacing-v2/rgb/green/ppo/absolute/relu/seed_1 --policy-dir models/CarRacing-v2/rgb/blue/ppo/absolute/relu/seed_2 --anchors-file1 data/anchors/CarRacing-v2/rgb_ppo_transitions_green_obs.pkl --anchors-file2 data/anchors/CarRacing-v2/rgb_ppo_transitions_blue_obs.pkl --total-timesteps 200000 --learning-rate 0.00005 --num-eval-eps 1000 --use-resnet False --anchors-method random
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     """ Parameters to change for single test """
     env_id = args.env_id 
@@ -641,7 +641,7 @@ if __name__ == "__main__":
     print("Starting finetuning...")
     # finetuner = PPOFinetune(agent, finetune_envs, eval_envs, seed=1, total_timesteps=200000, learning_rate=0.00005, device=device)
     finetuner = PPOFinetune(agent, finetune_envs, eval_envs, seed=1, total_timesteps=args.total_timesteps, learning_rate=args.learning_rate,
-                            track=args.track, exp_name=exp_name, anchors_alpha=0, wandb_project_name=args.wandb_project_name,
+                            track=args.track, exp_name=exp_name, wandb_project_name=args.wandb_project_name,
                             wandb_entity=None, device=device)
     finetuner.train()
     print("Finetuning done.")
