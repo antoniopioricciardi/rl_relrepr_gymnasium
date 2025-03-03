@@ -630,8 +630,8 @@ if __name__ == "__main__":
         param.requires_grad = False
     for param in agent.policy.parameters():
         param.requires_grad = False
-    for param in agent.translation.parameters():
-        param.requires_grad = False
+    # for param in agent.translation.parameters():
+    #     param.requires_grad = False
 
     from zeroshotrl.finetune import PPOFinetune
     print("Starting finetuning...")
