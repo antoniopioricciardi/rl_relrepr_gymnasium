@@ -621,7 +621,7 @@ if __name__ == "__main__":
 
     agent, encoder1, policy2 = init_stuff(finetune_envs, env_info, model_algo_1, model_algo_2,
                model_color_1, model_color_2, encoder_dir, policy_dir, anchors_file1, anchors_file2, use_resnet,
-               device, relative, anchoring_method, stitching_md, num_envs=1, set_eval=False)
+               device, relative, anchoring_method, stitching_md, num_envs=num_eval_envs, set_eval=False)
 
     # agent, encoder1, policy2 = init_stuff(finetune_envs, num_envs=num_finetune_envs, set_eval=False)
     # agent.encoder.eval()
