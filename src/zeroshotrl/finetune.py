@@ -627,7 +627,7 @@ if __name__ == "__main__":
     agent.encoder.eval()
     agent.translation.eval()
     for param in agent.encoder.parameters():
-        param.requires_grad = True
+        param.requires_grad = False
     for param in agent.policy.parameters():
         param.requires_grad = False
     for param in agent.translation.parameters():
