@@ -43,7 +43,7 @@ class PPOFinetune:
         self.seed = seed
         self.total_timesteps = total_timesteps
         self.num_steps = 128
-        self.num_eval_eps = 2
+        self.num_eval_eps = 20
 
         self.num_envs = envs.num_envs
         self.num_eval_envs = eval_envs.num_envs
