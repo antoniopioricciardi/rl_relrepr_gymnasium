@@ -18,20 +18,6 @@ from zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu_stack_align import Agent
 
 from zeroshotrl.utils.env_initializer import init_env
 
-# """ RESUME TRAINING """
-# experiment_name = args.exp_name
-# if args.track and wandb.run.resumed:
-#     starting_update = wandb.run.summary.get("charts/update") + 1
-#     global_step = starting_update * args.self.batch_size
-#     api = wandb.Api()
-#     run = api.run(f"{wandb.run.entity}/{wandb.run.project}/{wandb.run.id}")
-#     model = run.file("agent.pt")
-#     model.download(f"models/{experiment_name}/")
-#     agent.load_state_dict(torch.load(
-#         f"models/{experiment_name}/agent.pt", map_location=device))
-#     agent.eval()
-#     print(f"resumed at update {starting_update}")
-
 
 class PPOFinetune:
     def __init__(self, agent, eval_agent, env_id, envs, eval_envs, seed, total_timesteps, learning_rate,
@@ -561,9 +547,6 @@ if __name__ == "__main__":
     parser.add_argument("--wandb-project-name", type=str, default="finetune")
 
     args = parser.parse_args()
-
-    # exmaple usage:
-    # python src/zeroshotrl/finetune.py --track True --wandb-project-name finetuning --stitching-mode translate --env-id CarRacing-v2 --env-seed 1 --background-color green --encoder-dir models/CarRacing-v2/rgb/green/ppo/absolute/relu/seed_1 --policy-dir models/CarRacing-v2/rgb/blue/ppo/absolute/relu/seed_2 --anchors-file1 data/anchors/CarRacing-v2/rgb_ppo_transitions_green_obs.pkl --anchors-file2 data/anchors/CarRacing-v2/rgb_ppo_transitions_blue_obs.pkl --total-timesteps 200000 --learning-rate 0.00005 --num-eval-eps 20  --anchors-method random
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     """ Parameters to change for single test """
@@ -649,3 +632,10 @@ if __name__ == "__main__":
                             wandb_entity=None, device=device, args=args)
     finetuner.train()
     print("Finetuning done.")
+
+
+# exmaple usage:
+# python src/zeroshotrl/finetune.py --track True --wandb-project-name finetuning --stitching-mode translate --env-id CarRacing-v2 --env-seed 1 --background-color green --encoder-dir models/CarRacing-v2/rgb/green/ppo/absolute/relu/seed_1 --policy-dir models/CarRacing-v2/rgb/blue/ppo/absolute/relu/seed_2 --anchors-file1 data/anchors/CarRacing-v2/rgb_ppo_transitions_green_obs.pkl --anchors-file2 data/anchors/CarRacing-v2/rgb_ppo_transitions_blue_obs.pkl --total-timesteps 200000 --learning-rate 0.00005 --num-eval-eps 20  --anchors-method random
+
+""" LUNARLANDER """
+# python src/zeroshotrl/finetune.py --track True --wandb-project-name finetuning --stitching-mode translate --env-id LunarLander-v2 --env-seed 1 --background-color white --encoder-dir models/LunarLander-v2/rgb/white/ppo/absolute/relu/seed_1 --policy-dir models/LunarLander-v2/rgb/red/ppo/absolute/relu/seed_2 --anchors-file1 data/anchors/LunarLander-v2/rgb_ppo_transitions_white_obs.pkl --anchors-file2 data/anchors/LunarLander-v2/rgb_ppo_transitions_red_obs.pkl --total-timesteps 2500000 --learning-rate 0.00005 --num-eval-eps 250  --anchors-method random
