@@ -608,9 +608,9 @@ if __name__ == "__main__":
     
     agent.policy.train()
     # agent.encoder.train()
-    # agent.translation.train()
+    agent.translation.train()
     agent.encoder.eval()
-    agent.translation.eval()
+    # agent.translation.eval()
     for param in agent.encoder.parameters():
         param.requires_grad = False # False
     for param in agent.policy.parameters():
