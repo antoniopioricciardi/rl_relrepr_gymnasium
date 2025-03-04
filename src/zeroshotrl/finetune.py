@@ -607,12 +607,14 @@ if __name__ == "__main__":
                device, relative, anchoring_method, stitching_md, num_envs=num_finetune_envs, set_eval=False)
     
     agent.policy.train()
+    # agent.encoder.train()
+    # agent.translation.train()
     agent.encoder.eval()
     agent.translation.eval()
     for param in agent.encoder.parameters():
-        param.requires_grad = False
+        param.requires_grad = False # False
     for param in agent.policy.parameters():
-        param.requires_grad = False
+        param.requires_grad = True
     # for param in agent.translation.parameters():
     #     param.requires_grad = False
 
