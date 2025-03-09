@@ -76,7 +76,7 @@ class PPOFinetune:
         self.track = args.track
         # self.log_path = log_path
 
-        run_name = f"{env_id}__{exp_name}_{seed}__{int(time.time())}"
+        run_name = f"{exp_name}_{seed}__{int(time.time())}"# f"{env_id}__{exp_name}_{seed}__{int(time.time())}"
         eval_run_name = run_name + "_eval"
         self.wandb = None
         if self.track:
@@ -561,7 +561,7 @@ if __name__ == "__main__":
     total_timesteps = args.total_timesteps
     learning_rate = args.learning_rate
 
-    exp_name = args.env_id
+    exp_name = args.env_id + "-" + args.stitching_mode + "-" + args.background_color
     model_color_2 = "--" # args.policy_color
 
     model_algo_1 = "ppo"
