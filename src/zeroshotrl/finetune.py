@@ -561,7 +561,7 @@ if __name__ == "__main__":
     total_timesteps = args.total_timesteps
     learning_rate = args.learning_rate
 
-    exp_name = args.env_id + "-" + args.stitching_mode + "-" + args.background_color
+    exp_name = args.env_id + "-" + args.background_color + "-" + args.stitching_mode 
     model_color_2 = "--" # args.policy_color
 
     model_algo_1 = "ppo"
