@@ -78,7 +78,7 @@ class PPOFinetune:
 
         run_name = f"{env_id}__{exp_name}_{seed}__{int(time.time())}"
         eval_run_name = run_name + "_eval"
-        wandb = None
+        self.wandb = None
         if self.track:
             import wandb
             wandb.init(
@@ -90,6 +90,7 @@ class PPOFinetune:
                 monitor_gym=True,
                 save_code=True,
             )
+        self.wandb = wandb
         self.writer = SummaryWriter(f"runs/{run_name}")
         self.writer.add_text(
             "hyperparameters",
@@ -101,7 +102,7 @@ class PPOFinetune:
         if not args.track:
             log_path = os.path.join("runs", run_name)  # f"runs/{run_name}/"
         else:
-            log_path = f"{wandb.run.dir}"
+            log_path = f"{self.wandb.run.dir}"
 
         # create logger
         # logger = Logger(work_dir, use_tb=cfg.use_tb, use_wandb=cfg.use_wandb)
