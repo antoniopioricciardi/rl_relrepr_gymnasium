@@ -607,7 +607,8 @@ if __name__ == "__main__":
     
     agent.policy.train()
     # agent.encoder.train()
-    agent.translation.train()
+    if stitching_md == "translate":
+        agent.translation.train()
     agent.encoder.eval()
     # agent.translation.eval()
     for param in agent.encoder.parameters():

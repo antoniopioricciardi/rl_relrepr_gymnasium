@@ -444,4 +444,7 @@ def init_stuff(envs, env_info, model_algo_1, model_algo_2,
     if stitching_md == "translate":
         from zeroshotrl.utils.translation import translate
         agent, encoder1, policy2, translation_layer = translate(anchors_file1, anchors_file2, encoder_dir, encoder1, encoder2, policy2, model_color_1, model_color_2, anchoring_method, use_resnet, num_envs, device)
+    else:
+        from zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu_stack_align import FeatureExtractor, Agent
+        agent = Agent(encoder1, policy2).to(device)
     return agent, encoder1, policy2
