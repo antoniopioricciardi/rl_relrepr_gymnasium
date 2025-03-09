@@ -74,15 +74,13 @@ class PPOFinetune:
         self.anneal_lr = True
 
         self.track = args.track
-        self.wandb = False
         # self.log_path = log_path
 
         run_name = f"{env_id}__{exp_name}_{seed}__{int(time.time())}"
         eval_run_name = run_name + "_eval"
         wandb = None
-        if track:
+        if self.track:
             import wandb
-
             wandb.init(
                 project=wandb_project_name,
                 entity=wandb_entity,
