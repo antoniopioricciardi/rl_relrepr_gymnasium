@@ -76,7 +76,6 @@ class PPOFinetune:
         self.track = args.track
         self.wandb = False
         # self.log_path = log_path
-        print(self.track)
 
         run_name = f"{env_id}__{exp_name}_{seed}__{int(time.time())}"
         eval_run_name = run_name + "_eval"
