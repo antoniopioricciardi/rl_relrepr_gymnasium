@@ -198,6 +198,21 @@ envs = init_env(
     num_envs=num_envs,
 )
 
+# save_gameplay_video = True
+# if save_gameplay_video:
+#     from gymnasium.wrappers import RecordVideo
+
+#     video_dir = f"videos/{env_id}_seed{args.env_seed}_{args.stitching_mode}"
+#     os.makedirs(video_dir, exist_ok=True)
+#     print(render_md)
+#     envs = RecordVideo(
+#         envs,
+#         video_folder=video_dir,
+#         episode_trigger=lambda episode_id: True,  # Record every episode
+#         name_prefix=f"stitching_{args.stitching_mode}",
+#         disable_logger=True,
+# )
+
 # translated_obs = translation(agent.encoder.forward_single(obs_set_1.to(device)).detach().cpu())
 # print('######')
 # print(space1_anchors)

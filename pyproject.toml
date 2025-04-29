@@ -33,6 +33,7 @@ dependencies = [
     "albumentations>=2.0.1",
     "nbformat>=5.10.4",
     "kaleido==0.2.0",
+    "panda-gym>=3.0.7",
 ]
 
 # [tool.uv.sources]
