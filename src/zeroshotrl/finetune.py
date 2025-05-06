@@ -639,6 +639,11 @@ if __name__ == "__main__":
 # exmaple usage:
 # python src/zeroshotrl/finetune.py --track True --wandb-project-name finetuning --stitching-mode translate --env-id CarRacing-v2 --env-seed 1 --background-color green --encoder-dir models/CarRacing-v2/rgb/green/ppo/absolute/relu/seed_1 --policy-dir models/CarRacing-v2/rgb/blue/ppo/absolute/relu/seed_2 --anchors-file1 data/anchors/CarRacing-v2/rgb_ppo_transitions_green_obs.pkl --anchors-file2 data/anchors/CarRacing-v2/rgb_ppo_transitions_blue_obs.pkl --total-timesteps 200000 --learning-rate 0.00005 --num-eval-eps 20  --anchors-method random
 
+""" CAR RACING """
+" red standard - green slow: absolute, relative" 
+# python src/zeroshotrl/finetune.py --track True --wandb-project-name finetuning --stitching-mode absolute --env-id CarRacing-v2 --env-seed 1 --background-color red --encoder-dir models/CarRacing-v2/rgb/red/ppo/absolute/relu/seed_1 --policy-dir models/CarRacing-v2/rgb/green/ppo/absolute/relu/seed_2 --total-timesteps 500000 --learning-rate 0.00005 --num-eval-eps 20
+# python src/zeroshotrl/finetune.py --track True --wandb-project-name finetuning --stitching-mode relative --env-id CarRacing-v2 --env-seed 1 --background-color red --encoder-dir models/CarRacing-v2/rgb/red/ppo/relative/relu/alpha_0_999/seed_1 --policy-dir models/CarRacing-v2/rgb/green/ppo/relative/relu/alpha_0_999/seed_2 --total-timesteps 500000 --learning-rate 0.00005 --num-eval-eps 20
+
 """ LUNARLANDER """
 # python src/zeroshotrl/finetune.py --track True --wandb-project-name finetuning --stitching-mode translate --env-id LunarLanderRGB --env-seed 1 --background-color white --encoder-dir models/LunarLanderRGB/rgb/white/ppo/absolute/relu/seed_1 --policy-dir models/LunarLanderRGB/rgb/red/ppo/absolute/relu/seed_2 --anchors-file1 data/anchors/LunarLanderRGB/rgb_ppo_transitions_white_obs.pkl --anchors-file2 data/anchors/LunarLanderRGB/rgb_ppo_transitions_red_obs.pkl --total-timesteps 2500000 --learning-rate 0.00005 --num-eval-eps 250  --anchors-method random
 
