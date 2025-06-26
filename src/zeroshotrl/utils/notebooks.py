@@ -207,6 +207,53 @@ def plot_latent_space(space1, space2, color1, color2, method='PCA', save_fig=Fal
     plt.show()
 
 
+    
+def plot_matching_latent_space(space1, space2,
+                              color1='green', color2='orange',
+                              method='PCA', n_steps=5,
+                              save_fig=False, save_path=None):
+    """
+    space1, space2 : arrays of shape (n_samples, D)  (must have same n_samples)
+    color1, color2 : matplotlib color strings
+    n_steps        : how many frames (including t=0 and t=1)
+    """
+    # 1) stack & reduce jointly
+    all_obs = np.vstack([space1, space2])
+    if method != 'PCA':
+        raise ValueError("Only PCA is supported here")
+    latent = PCA(n_components=3).fit_transform(all_obs)
+
+    # 2) split back into two equal-sized sets
+    n = space1.shape[0]
+    latent1 = latent[:n]
+    latent2 = latent[n:]
+
+    # 3) compute per-point shifts so latent1[i]→latent2[i]
+    shifts = latent2 - latent1   # shape (n,3)
+
+    # 4) plot
+    fig = plt.figure(figsize=(4*n_steps, 4))
+    for i, t in enumerate(np.linspace(0, 1, n_steps), start=1):
+        moved1 = latent1 + shifts * t
+
+        ax = fig.add_subplot(1, n_steps, i, projection='3d')
+        ax.scatter(moved1[:, 0], moved1[:, 1], moved1[:, 2],
+                   c=color1, s=10, alpha=0.8, label=color1)
+        ax.scatter(latent2[:, 0], latent2[:, 1], latent2[:, 2],
+                   c=color2, s=10, alpha=0.8, label=color2)
+        ax.set_title(f"t = {t:.2f}")
+        ax.set_xlabel("PC 1")
+        ax.set_ylabel("PC 2")
+        ax.set_zlabel("PC 3")
+        ax.view_init(elev=20, azim=-60)
+        if i == 1:
+            ax.legend(loc='upper right')
+
+    plt.tight_layout()
+    if save_fig and save_path:
+        plt.savefig(save_path, dpi=150)
+    plt.show()
+
 def plot_latent_space_plotly(space1, space2, color1, color2, method='PCA'):
     # Assuming space1, space2, color1, and color2 are already defined
     # Combine the observations
@@ -258,6 +305,62 @@ def plot_latent_space_plotly(space1, space2, color1, color2, method='PCA'):
     )
     fig.layout.yaxis.scaleanchor="x"
     fig.show()
+
+
+def plot_transition_with_static(
+    space1,               # shape (n, D)
+    translated_space1,    # shape (n, D), same ordering as space1
+    space2,               # shape (m, D)
+    color1='green',       # color for the moving cloud
+    color2='orange',      # color for the static cloud
+    method='PCA',
+    n_steps=5,
+    save_fig=False,
+    save_path=None
+):
+    """
+    Slides space1 → translated_space1 over `n_steps` frames,
+    while always plotting space2 in the same PCA projection.
+    """
+    # 1) Stack all three for one joint PCA basis
+    X = np.vstack([space1, translated_space1, space2])
+    if method != 'PCA':
+        raise ValueError("Only PCA is supported right now")
+    latent = PCA(n_components=3).fit_transform(X)
+
+    # 2) Split back into three latent clouds
+    n = space1.shape[0]
+    latent1       = latent[            :  n      ]  # original
+    latent_trans1 = latent[    n      :2 * n      ]  # translated target
+    latent2       = latent[2 * n     :           ]  # static reference
+
+    # 3) Pre-compute per-point shifts
+    shifts = latent_trans1 - latent1   # shape (n,3)
+
+    # 4) Make the figure of subplots
+    fig = plt.figure(figsize=(4 * n_steps, 4))
+    for i, t in enumerate(np.linspace(0, 1, n_steps), start=1):
+        moved = latent1 + shifts * t
+
+        ax = fig.add_subplot(1, n_steps, i, projection='3d')
+        ax.scatter(moved[:, 0], moved[:, 1], moved[:, 2],
+                   c=color1, s=10, alpha=0.8, label='space1 → translated')
+        ax.scatter(latent2[:, 0], latent2[:, 1], latent2[:, 2],
+                   c=color2, s=10, alpha=0.8, label='space2 (static)')
+        ax.set_title(f"t = {t:.2f}")
+        ax.set_xlabel("PC 1")
+        ax.set_ylabel("PC 2")
+        ax.set_zlabel("PC 3")
+        ax.view_init(elev=20, azim=-60)
+        if i == 1:
+            ax.legend(loc='upper right')
+
+    plt.tight_layout()
+    if save_fig and save_path:
+        plt.savefig(save_path, dpi=150)
+    plt.show()
+
+
 
 def set_cmap(cmap):
     global CMAP
