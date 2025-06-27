@@ -345,10 +345,10 @@ class PPOTrainer_vec:
             b_inds = np.arange(self.batch_size)
             clipfracs = []
             for epoch in range(self.update_epochs):
-                if self.use_relative and not self.pretrained:
-                    # self.agent.encoder.update_anchors()
-                    self.agent.encoder.update_anchors(anchors_upd_step, num_updates*self.update_epochs)
-                    anchors_upd_step += 1
+                # if self.use_relative and not self.pretrained:
+                #     # self.agent.encoder.update_anchors()
+                #     self.agent.encoder.update_anchors(anchors_upd_step, num_updates*self.update_epochs)
+                #     anchors_upd_step += 1
                 np.random.shuffle(b_inds)
                 for start in range(0, self.batch_size, self.minibatch_size):
                     # if self.use_relative and not self.pretrained:
@@ -413,6 +413,10 @@ class PPOTrainer_vec:
                 if self.target_kl is not None and approx_kl > self.target_kl:
                     break
 
+            if self.use_relative and not self.pretrained:
+                # self.agent.encoder.update_anchors()
+                self.agent.encoder.update_anchors(anchors_upd_step, num_updates*self.update_epochs)
+                anchors_upd_step += 1
             y_pred, y_true = b_values.cpu().numpy(), b_returns.cpu().numpy()
             var_y = np.var(y_true)
             explained_var = (
