@@ -191,7 +191,182 @@ class FeatureExtractor(nn.Module):
         # print(f"Dynamic Alpha: {alpha.item()}")  # Logging the dynamic alpha
         return alpha
 
+class StateExtractor(nn.Module):
+    """
+    MLP feature extractor for low-dimensional (vector) states.
+    Expected input shape in forward: (batch, stack_n, state_dim).
 
+    By default, per-stack output dim is 3136 to match the CNN extractor
+    (64 * 7 * 7), so you can plug this into the existing Policy by setting
+    Policy(..., stack_n=your_stack_n).
+
+    If you change per_stack_out_dim, you'll need a Policy that matches
+    batch_input_dim = stack_n * per_stack_out_dim.
+    """
+    def __init__(
+        self,
+        state_dim: int,
+        use_relative: bool = False,
+        pretrained: bool = False,
+        anchors_alpha: float = 0.99,
+        anchors_alpha_min: float = 0.01,
+        anchors_alpha_max: float = 0.999,
+        per_stack_out_dim: int = 64 * 7 * 7,  # 3136 to match CNN by default
+        hidden_dims: tuple[int, int] = (256, 256),
+        device: str = "cpu",
+    ):
+        super().__init__()     
+        self.use_relative = use_relative
+        self.pretrained = pretrained
+        self.anchors_alpha = anchors_alpha
+        self.anchors_alpha_min = anchors_alpha_min
+        self.anchors_alpha_max = anchors_alpha_max
+        self.obs_anchors = None
+
+        self.var_min = 0.001
+        self.var_max = 1
+        self.dynamic_alpha = 0
+        self.feature_variance = 0
+
+        h1, h2 = hidden_dims
+        self.per_stack_out_dim = per_stack_out_dim
+
+        self.network = nn.Sequential(
+            layer_init(nn.Linear(state_dim, h1)),
+            nn.ReLU(),
+            layer_init(nn.Linear(h1, h2)),
+            nn.ReLU(),
+            layer_init(nn.Linear(h2, per_stack_out_dim)),
+        )
+        print('STDIM:',state_dim)
+        if self.use_relative:
+            self.projector = RelativeProjector(
+                projection_fn=relative.cosine_proj,
+                abs_transforms=[Centering(), StandardScaling()],
+            )
+
+    def _compute_relative_representation(self, hidden: torch.Tensor):
+        return self.projector(x=hidden, anchors=self.anchors)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        x: (batch, stack_n, state_dim)
+        return: (batch, stack_n * per_stack_out_dim)
+        """
+        batch, stack_n, state_dim = x.shape[0], x.shape[1], x.shape[2]
+        x = x.view(batch * stack_n, state_dim)
+
+        if self.pretrained:
+            with torch.no_grad():
+                hidden = self.network(x)
+            if self.use_relative:
+                hidden = self._compute_relative_representation(hidden)
+        else:
+            hidden = self.network(x)
+            if self.use_relative:
+                hidden = self._compute_relative_representation(hidden)
+
+        hidden = hidden.view(batch, stack_n, self.per_stack_out_dim)
+        # hidden = hidden.view(batch, stack_n * self.per_stack_out_dim)
+        return hidden
+
+    def forward_single(self, x: torch.Tensor) -> torch.Tensor:
+        # x = x.view(1000, 4, 8)  # (batch * stack_n, state_dim) -> (batch, stack_n, state_dim)
+        print(x.shape)
+        return self.network(x)
+    
+    def set_obs_anchors(self, obs_anchors: torch.Tensor):
+        """
+        obs_anchors: (num_anchors, state_dim)
+        """
+        self.obs_anchors = obs_anchors
+        anchors = self.network(obs_anchors)
+        self.anchors = anchors
+
+    @torch.no_grad()
+    def update_anchors(self, step: int = None, total_steps: int = None):
+        """
+        Update anchors with EMA.
+        anchors_alpha:
+          -2: linearly schedule alpha up to 0.999 over first 50% of training
+          -1: variance-adaptive alpha
+          else: fixed alpha in (0,1)
+        """
+        new_anchors = self.network(self.obs_anchors)
+
+        if self.anchors_alpha == -2:
+            assert step is not None and total_steps is not None, (
+                "Both 'step' and 'total_steps' must be provided for linear EMA scheduling."
+            )
+            max_alpha = 0.999
+            progress = min(step / (0.5 * total_steps), 1.0)
+            current_alpha = progress * max_alpha
+            self.dynamic_alpha = current_alpha
+            self.anchors = current_alpha * self.anchors + (1 - current_alpha) * new_anchors
+
+        elif self.anchors_alpha == -1:
+            self.feature_variance = self.compute_feature_variance(new_anchors)
+            self.dynamic_alpha = self.adapt_anchors_alpha(self.feature_variance)
+            self.anchors = self.dynamic_alpha * self.anchors + (1 - self.dynamic_alpha) * new_anchors
+        else:
+            self.anchors = self.anchors_alpha * self.anchors + (1 - self.anchors_alpha) * new_anchors
+
+    def save_anchors_buffer(self):
+        self.register_buffer("saved_anchors", self.anchors)
+
+    @torch.no_grad()
+    def set_anchors(self, anchors: torch.Tensor):
+        self.anchors = anchors
+
+    @torch.no_grad()
+    def compute_feature_variance(self, features: torch.Tensor):
+        variance = torch.var(features, dim=0, unbiased=False).mean()
+        return variance
+
+    @torch.no_grad()
+    def adapt_anchors_alpha(self, feature_variance: torch.Tensor):
+        alpha = self.anchors_alpha_min + (feature_variance - self.var_min) * (
+            (self.anchors_alpha_max - self.anchors_alpha_min) / (self.var_max - self.var_min)
+        )
+        alpha = torch.clamp(alpha, self.anchors_alpha_min, self.anchors_alpha_max)
+        return alpha
+    
+
+class PolicyState(nn.Module):
+    def __init__(self, num_actions, hidden_size) -> None:
+        super().__init__()
+        self.network_linear = nn.Sequential(
+            nn.LayerNorm(hidden_size),
+            nn.ReLU(),
+            layer_init(nn.Linear(hidden_size, 512)),
+            nn.ReLU(),
+        )
+        self.actor = layer_init(nn.Linear(512, num_actions), std=0.01)
+        self.critic = layer_init(nn.Linear(512, 1), std=1)
+
+    def get_value(self, x):
+        x = self.network_linear(x)
+        return self.critic(x)
+
+    def get_action_and_value(self, x, action=None):
+        x = self.network_linear(x)
+        logits = self.actor(x)
+        probs = Categorical(logits=logits)
+        if action is None:
+            action = probs.sample()
+        return action, probs.log_prob(action), probs.entropy(), self.critic(x)
+
+    def get_action_and_value_deterministic(self, x, action=None):
+        x = self.network_linear(x)
+        logits = self.actor(x)
+        probs = Categorical(logits=logits)
+        if action is None:
+            action = probs.probs.argmax(dim=1, keepdim=True)
+            if len(action) == 1:
+                action = action[0]
+            else:
+                action = action.squeeze()
+        return action, probs.log_prob(action), probs.entropy(), self.critic(x)
         
 
 class Policy(nn.Module):

@@ -265,6 +265,9 @@ class PPOTrainer_vec:
                         # Skip the envs that are not done
                         if info is None:
                             continue
+                        # Some wrappers may not provide episode stats (e.g., pure TimeLimit truncation)
+                        if "episode" not in info:
+                            continue
                         # logger from meta
                         with self.logger.log_and_dump_ctx(
                             global_step, ty="train"

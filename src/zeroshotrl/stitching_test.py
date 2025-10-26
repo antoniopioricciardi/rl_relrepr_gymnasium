@@ -13,6 +13,7 @@ from zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu_stack_align import FeatureExtr
 from zeroshotrl.utils.models import (
     get_algo_instance,
     get_algo_instance_bw,
+    get_algo_instance_states,
     load_model_from_path,
     load_encoder_from_path,
     load_policy_from_path,
@@ -107,7 +108,7 @@ def parse_args():
 """ abs/transl """
 # python src/zeroshotrl/stitching_test.py --stitching-mode absolute --env-id PongNoFrameskip-v4 --env-seed 1 --background-color plain --encoder-dir models/PongNoFrameskip-v4/rgb/plain/ppo/absolute/relu/seed_1 --policy-dir models/PongNoFrameskip-v4/rgb/plain/ppo/absolute/relu/seed_1
 
-""" LunarLander """
+""" LunarLanderRGB """
 """ gravity -10: abs/transl/relative (white/red) """
 # python src/zeroshotrl/stitching_test.py --stitching-mode absolute --env-id LunarLanderRGB --env-seed 1 --background-color white --encoder-dir models/LunarLanderRGB/rgb/white/ppo/absolute/relu/seed_1 --policy-dir models/LunarLanderRGB/rgb/white/ppo/absolute/relu/seed_1
 # python src/zeroshotrl/stitching_test.py --stitching-mode translate --env-id LunarLanderRGB --env-seed 1 --background-color white --encoder-dir models/LunarLanderRGB/rgb/white/ppo/absolute/relu/seed_1 --policy-dir models/LunarLanderRGB/rgb/red/ppo/absolute/relu/seed_1 --anchors-file1 data/anchors/LunarLanderRGB/rgb_ppo_transitions_white_obs.pkl --anchors-file2 data/anchors/LunarLanderRGB/rgb_ppo_transitions_red_obs.pkl --anchors-alpha None --anchors-method random --render-mode human
@@ -127,6 +128,10 @@ def parse_args():
 
 
 
+""" LunarLander """
+# python src/zeroshotrl/stitching_test.py --stitching-mode absolute --env-id LunarLander --env-seed 1 --background-color white --encoder-dir models/LunarLander/states/standard/ppo/absolute/relu/seed_1 --policy-dir models/LunarLander/states/standard/ppo/absolute/relu/seed_1
+""" translate """
+# python src/zeroshotrl/stitching_test.py --stitching-mode translate --env-id LunarLanderRGB --env-seed 1 --background-color white --encoder-dir models/LunarLanderRGB/rgb/white/ppo/absolute/relu/seed_1 --policy-dir models/LunarLander/states/standard/ppo/absolute/relu/seed_1 --anchors-file1 data/anchors/LunarLanderRGB/rgb_ppo_transitions_white_obs.pkl --anchors-file2 data/anchors/LunarLander/states_ppo_transitions_standard_obs.pkl --anchors-alpha None --anchors-method random --render-mode human
         
 
 
@@ -157,7 +162,8 @@ pretrained = False
 # model_type = 'ppo'
 
 env_id = args.env_id  # "CarRacing-v2" # "Wolfenstein-basic" # "StarGunnerNoFrameskip-v4  # "CarRacing-v2" #"BoxingNoFrameskip-v4"# "BreakoutNoFrameskip-v4"
-env_info = "rgb"
+env_info = "rgb"  # "rgb"  #"states"  #"rgb"
+env_info2 = "states"
 cust_seed = args.env_seed
 
 # env_seeds_totest = [0]
@@ -191,6 +197,17 @@ num_envs = 1
 envs = init_env(
     env_id,
     env_info,
+    background_color=args.background_color,
+    image_path=image_path,
+    zoom=args.zoom,
+    cust_seed=args.env_seed,
+    render_md=render_md,
+    num_envs=num_envs,
+)
+
+envs2 = init_env(
+    "LunarLander",
+    env_info2,
     background_color=args.background_color,
     image_path=image_path,
     zoom=args.zoom,
@@ -234,9 +251,88 @@ envs = init_env(
 # exit(3)
 
 # env_type = "tanh_rgb_nostack"
-agent, encoder1, policy2 = init_stuff(envs, env_info, model_algo_1, model_algo_2,
-               model_color_1, model_color_2, args.encoder_dir, args.policy_dir, args.anchors_file1, args.anchors_file2, args.use_resnet,
-               device, relative, anchoring_method, stitching_md, num_envs=1, set_eval=True)
+state_dim = None
+
+state_dim = envs.observation_space.shape[-1]
+state_dim2 = envs2.observation_space.shape[-1]
+print(state_dim)
+
+# agent, encoder1, policy2 = init_stuff(envs, env_info, model_algo_1, model_algo_2,
+#                model_color_1, model_color_2, args.encoder_dir, args.policy_dir, args.anchors_file1, args.anchors_file2, args.use_resnet,
+#                device, relative, anchoring_method, stitching_md, num_envs=1, set_eval=True, state_dim=state_dim
+# )
+
+encoder_path = args.encoder_dir
+policy_path = args.policy_dir
+
+encoder_weights = torch.load(os.path.join(encoder_path, "encoder.pt"), map_location=device)
+policy_weights = torch.load(os.path.join(policy_path, "policy.pt"), map_location=device)
+
+
+if env_info == "states":
+    from zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu_stack_align import StateExtractor as FeatureExtractor, Policy, Agent
+    encoder = FeatureExtractor(
+        state_dim=state_dim,
+        use_relative=relative,
+        pretrained=pretrained,
+        anchors_alpha=model_alpha_1,
+    ).to(device)
+if env_info == "rgb":
+    from zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu_stack_align import FeatureExtractor#, Policy, Agent
+    encoder = FeatureExtractor(
+        use_relative=False,
+        pretrained=False,
+        # device=device,
+    ).to(device)
+
+if env_info2 == "states":
+    from zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu_stack_align import StateExtractor, Policy, Agent
+    encoder2 = StateExtractor(
+        state_dim=state_dim2,
+        use_relative=relative,
+        pretrained=pretrained,
+        anchors_alpha=model_alpha_2,
+    ).to(device)
+
+    policy2 = Policy(
+        num_actions=envs.single_action_space.n,
+        stack_n=4,
+    ).to(device)
+
+anchors_file1 = args.anchors_file1
+anchors_file2 = args.anchors_file2
+encoder_dir = args.encoder_dir
+
+# else:
+#     from zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu_stack_align import FeatureExtractor, Agent
+#     agent = Agent(encoder1, policy2).to(device)
+# return agent, encoder1, policy2
+
+"""
+Policy expects a discrete number of actions (int). For Gymnasium discrete spaces,
+use `action_space.n`. Passing the space object directly will break Linear init.
+"""
+num_actions = envs.single_action_space.n
+# controller = Policy(
+#     num_actions=num_actions,
+#     stack_n=4,
+# )
+encoder.load_state_dict(encoder_weights)
+policy2.load_state_dict(policy_weights)
+agent = Agent(
+    feature_extractor=encoder,
+    policy=policy2,
+    translation=None,
+    num_envs=num_envs,
+    num_stack=4,
+).to(device)
+# fit encoder activation to be same as encoder2
+use_resnet=False
+translation_layer = None
+if stitching_md == "translate":
+    from zeroshotrl.utils.translation import translate
+    agent, encoder1, policy2, translation_layer = translate(anchors_file1, anchors_file2, encoder_dir, encoder, encoder2, policy2, model_color_1, model_color_2, anchoring_method, use_resnet, num_envs, device)
+
 
 forced_render = False
 if env_id.startswith("MiniWorld") and render_md == "human":

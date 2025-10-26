@@ -567,6 +567,7 @@ if __name__ == "__main__":
     model_algo_1 = "ppo"
     model_algo_2 = "ppo"
     env_info = "rgb"
+    env_info2 = "states"
 
     stitching_md = args.stitching_mode
     image_path = ""
@@ -601,10 +602,88 @@ if __name__ == "__main__":
     )
 
 
-    agent, encoder1, policy2 = init_stuff(finetune_envs, env_info, model_algo_1, model_algo_2,
-               model_color_1, model_color_2, encoder_dir, policy_dir, anchors_file1, anchors_file2, use_resnet,
-               device, relative, anchoring_method, stitching_md, num_envs=num_finetune_envs, set_eval=False)
-    
+    envs2 = init_env(
+        "LunarLander",
+        "states",
+        background_color=args.background_color,
+        image_path=image_path,
+        zoom=args.zoom,
+        cust_seed=args.env_seed,
+        render_md=None,
+        num_envs=1,
+    )
+        # agent, encoder1, policy2 = init_stuff(finetune_envs, env_info, model_algo_1, model_algo_2,
+        #            model_color_1, model_color_2, encoder_dir, policy_dir, anchors_file1, anchors_file2, use_resnet,
+        #            device, relative, anchoring_method, stitching_md, num_envs=num_finetune_envs, set_eval=False)
+
+    state_dim = None
+
+    state_dim = finetune_envs.single_observation_space.shape[-1]
+    state_dim2 = envs2.single_observation_space.shape[-1]
+    print(state_dim)
+
+    encoder_path = args.encoder_dir
+    policy_path = args.policy_dir
+
+    encoder_weights = torch.load(os.path.join(encoder_path, "encoder.pt"), map_location=device)
+    policy_weights = torch.load(os.path.join(policy_path, "policy.pt"), map_location=device)
+
+    if env_info == "states":
+        from zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu_stack_align import StateExtractor as FeatureExtractor, Policy, Agent
+        encoder = FeatureExtractor(
+            state_dim=state_dim,
+            use_relative=relative,
+            pretrained=False,
+            anchors_alpha=None,
+        ).to(device)
+    if env_info == "rgb":
+        from zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu_stack_align import FeatureExtractor#, Policy, Agent
+        encoder = FeatureExtractor(
+            use_relative=False,
+            pretrained=False,
+            # device=device,
+        ).to(device)
+
+    if env_info2 == "states":
+        from zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu_stack_align import StateExtractor, Policy, Agent
+        encoder2 = StateExtractor(
+            state_dim=state_dim2,
+            use_relative=relative,
+            pretrained=False,
+            anchors_alpha=None,
+        ).to(device)
+
+        policy2 = Policy(
+            num_actions=envs2.single_action_space.n,
+            stack_n=4,
+        ).to(device)
+
+    anchors_file1 = args.anchors_file1
+    anchors_file2 = args.anchors_file2
+    encoder_dir = args.encoder_dir
+        
+    num_actions = finetune_envs.single_action_space.n
+    # controller = Policy(
+    #     num_actions=num_actions,
+    #     stack_n=4,
+    # )
+    encoder.load_state_dict(encoder_weights)
+    policy2.load_state_dict(policy_weights)
+    # agent = Agent(
+    #     feature_extractor=encoder,
+    #     policy=policy2,
+    #     translation=None,
+    #     num_envs=num_finetune_envs,
+    #     num_stack=4,
+    # ).to(device)
+    # fit encoder activation to be same as encoder2
+    use_resnet=False
+    translation_layer = None
+    if stitching_md == "translate":
+        from zeroshotrl.utils.translation import translate
+        agent, encoder1, policy2, translation_layer = translate(anchors_file1, anchors_file2, encoder_dir, encoder, encoder2, policy2, model_color_1, model_color_2, anchoring_method, use_resnet, num_finetune_envs, device)
+
+
     agent.policy.train()
     # agent.encoder.train()
     if stitching_md == "translate":
@@ -654,3 +733,6 @@ if __name__ == "__main__":
 
 """ LUNARLANDER -3 """
 # python src/zeroshotrl/finetune.py --track True --wandb-project-name finetuning --stitching-mode translate --env-id LunarLanderRGB-3 --env-seed 1 --background-color red --encoder-dir models/LunarLanderRGB/rgb/red/ppo/absolute/relu/seed_1 --policy-dir models/LunarLanderRGB-3/rgb/white/ppo/absolute/relu/seed_1 --anchors-file1 data/anchors/LunarLanderRGB/rgb_ppo_transitions_red_obs.pkl --anchors-file2 data/anchors/LunarLanderRGB/rgb_ppo_transitions_white_obs.pkl --total-timesteps 2500000 --learning-rate 0.00005 --num-eval-eps 250  --anchors-method random
+
+""" LUNARLANDER STATES -> RGB ENCODER"""
+# python src/zeroshotrl/finetune.py --track True --wandb-project-name finetuning --stitching-mode translate --env-id LunarLanderRGB --env-seed 1 --background-color white --encoder-dir models/LunarLanderRGB/rgb/white/ppo/absolute/relu/seed_1 --policy-dir models/LunarLander/states/standard/ppo/absolute/relu/seed_1 --anchors-file1 data/anchors/LunarLanderRGB/rgb_ppo_transitions_white_obs.pkl --anchors-file2 data/anchors/LunarLander/states_ppo_transitions_standard_obs.pkl --anchors-method random

@@ -189,9 +189,8 @@ class FeatureExtractor(nn.Module):
         alpha = torch.clamp(alpha, self.anchors_alpha_min, self.anchors_alpha_max)
         # print(f"Dynamic Alpha: {alpha.item()}")  # Logging the dynamic alpha
         return alpha
+    
 
-
-        
 
 class Policy(nn.Module):
     def __init__(self, num_actions, stack_n: int = 4) -> None:

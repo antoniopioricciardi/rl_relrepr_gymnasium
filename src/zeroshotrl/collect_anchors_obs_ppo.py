@@ -11,7 +11,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument(
     "--env-id", type=str, default="BreakoutNoFrameskip-v4", help="Environment id"
 )
-parser.add_argument("--seed", type=int, default=40, help="Random seed")
+parser.add_argument("--seed", type=int, default=0, help="Random seed")
 
 # parse arguments
 bg_colors_allowed = ["plain", "green", "red", "blue", "violet", "yellow", "white"]
@@ -49,7 +49,7 @@ from zeroshotrl.utils.env_initializer import init_env
 
 env = init_env(
     args.env_id,
-    "rgb",
+    "rgb", # "states", # "rgb",
     background_color=args.background,
     image_path="",
     cust_seed=args.seed,

@@ -1,7 +1,17 @@
-from zeroshotrl.envs.lunarlander.lunar_lander_rgb import LunarLanderRGB
+from zeroshotrl.envs.lunarlander.lunar_lander_orig import LunarLander
 import numpy as np
+import torch
 
-env = LunarLanderRGB(render_mode="rgb_array", color="red")
+env = LunarLander(render_mode="rgb_array", gravity=-10)
+
+# load thet agent from models/LunarLander/states/standard/ppo/relu/seed_1
+
+encoder_weights = torch.load("models/LunarLander/states/standard/ppo/relu/seed_1/encoder.pt")
+controller_weights = torch.load("models/LunarLander/states/standard/ppo/relu/seed_1/controller.pt")
+
+
+
+
 # env = ScreenObsWrapper(env)
 # env.reset()
 

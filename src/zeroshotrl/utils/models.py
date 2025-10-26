@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 
 
+
 def _build_path(
     env_id,
     env_info,
@@ -179,6 +180,7 @@ def load_model_from_path(
 
 
 def load_encoder_from_path(
+    env_info,
     encoder_path,
     FeatureExtractor: nn.Module,
     is_relative=False,
@@ -186,6 +188,7 @@ def load_encoder_from_path(
     anchors_alpha=None,
     encoder_eval=True,
     device="cpu",
+    state_dim=None,
 ):
     encoder_params = torch.load(
         encoder_path, map_location="cuda:0" if torch.cuda.is_available() else "cpu"
@@ -202,15 +205,26 @@ def load_encoder_from_path(
     #         map_location="cuda:0" if torch.cuda.is_available() else "cpu",
     #     )
     #     obs_anchors = torch.tensor(obs_anchors).to(device)
+    if env_info is None:
+        env_info = "rgb"
 
-    encoder = FeatureExtractor(
-        use_relative=is_relative,
-        pretrained=is_pretrained,
-        # obs_anchors=obs_anchors,
-        # obs_anchors_filename=anchors_filename,
-        anchors_alpha=anchors_alpha,
-    )
-
+    if env_info == "rgb":
+        encoder = FeatureExtractor(
+            use_relative=is_relative,
+            pretrained=is_pretrained,
+            # obs_anchors=obs_anchors,
+            # obs_anchors_filename=anchors_filename,
+            anchors_alpha=anchors_alpha,
+        )
+    elif env_info == "states":
+        encoder = FeatureExtractor(
+            state_dim=state_dim,
+            use_relative=is_relative,
+            pretrained=is_pretrained,
+            # obs_anchors=obs_anchors,
+            # obs_anchors_filename=anchors_filename,
+            anchors_alpha=anchors_alpha,
+        )
     # if is_relative:
     #     encoder.set_anchors(obs_anchors)
 
@@ -315,6 +329,17 @@ def get_algo_instance(encoder_algo, policy_algo, use_resnet):
         agent_instance = AgentDDQN
     return encoder_instance, policy_instance, agent_instance
 
+def get_algo_instance_states(encoder_algo, policy_algo):
+    if encoder_algo.startswith("ppo"):
+        from zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu_stack_align import StateExtractor
+        encoder_instance = StateExtractor
+    if policy_algo.startswith("ppo"):
+        from zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu_stack_align import Policy, Agent
+        policy_instance = Policy
+        agent_instance = Agent
+
+    return encoder_instance, policy_instance, agent_instance
+
 
 def get_algo_instance_bw(encoder_algo, policy_algo):
     if encoder_algo.startswith("ppo"):
@@ -369,13 +394,18 @@ def get_algo_instance_bw(encoder_algo, policy_algo):
 def init_stuff(envs, env_info, model_algo_1, model_algo_2,
                model_color_1, model_color_2, encoder_dir, policy_dir, anchors_file1, anchors_file2, use_resnet,
                device, relative, anchoring_method, stitching_md,
-               num_envs=1, set_eval=True):
+               num_envs=1, set_eval=True, state_dim=None):
     if stitching_md == "translate":
         assert anchors_file1 is not None and anchors_file2 is not None, "Anchors file is required for translation"
     from zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu_stack_align import FeatureExtractor
     if env_info == "rgb":
         encoder_instance, policy_instance, agent_instance = get_algo_instance(
             model_algo_1, model_algo_2, use_resnet=use_resnet
+        )
+    elif env_info == "states":
+        from zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu_stack_align import StateExtractor
+        encoder_instance, policy_instance, agent_instance = get_algo_instance_states(
+            model_algo_1, model_algo_2
         )
     else:
         encoder_instance, policy_instance, agent_instance = get_algo_instance_bw(
@@ -404,16 +434,30 @@ def init_stuff(envs, env_info, model_algo_1, model_algo_2,
 
         encoder1 = FeatureExtractorResNet().to(device)
     else:
-        print('enc1')
-        encoder1 = load_encoder_from_path(
-            path1_enc,
-            encoder_instance,
-            is_relative=relative,
-            is_pretrained=False,
-            anchors_alpha=None,
-            encoder_eval=set_eval,
-            device=device,
-        )
+        if env_info == "rgb":
+            print('enc1')
+            encoder1 = load_encoder_from_path(
+                path1_enc,
+                encoder_instance,
+                is_relative=relative,
+                is_pretrained=False,
+                anchors_alpha=None,
+                encoder_eval=set_eval,
+                device=device,
+            )
+        elif env_info == "states":
+            print('enc1 states')
+            encoder1 = load_encoder_from_path(
+                env_info,
+                path1_enc,
+                encoder_instance,
+                is_relative=relative,
+                is_pretrained=False,
+                anchors_alpha=None,
+                encoder_eval=set_eval,
+                device=device,
+                state_dim=state_dim,
+            )
     if use_resnet:
         policy2 = load_policy_from_path(
             path2_pol,

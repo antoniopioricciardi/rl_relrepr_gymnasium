@@ -1,5 +1,6 @@
 # docs and experiment results can be found at https://docs.cleanrl.dev/rl-algorithms/ppo/#ppo_ataripy
 import os
+import numpy as np
 
 import torch
 import torch.optim as optim
@@ -26,6 +27,7 @@ from zeroshotrl.train_ppo import PPOTrainer_vec
 
 # env setup
 def init_stuff_ppo(
+    agent_type,
     args,
     envs,
     eval_envs,
@@ -38,6 +40,8 @@ def init_stuff_ppo(
     eval_csv_file_path,
 ):
     obs_set = None
+    if agent_type==None:
+        agent_type="pixels"
     # if we're not using anchors need to obtain observations to use as anchors
     if args.use_relative:
         # anchor_obs = get_obs_anchors(args.anchors_path) # [:128]
@@ -63,14 +67,40 @@ def init_stuff_ppo(
             obs_anchors_filename=args.anchors_path,
         ).to(device)
     else:
-        encoder = FeatureExtractor(
-            use_relative=args.use_relative,
-            pretrained=args.pretrained,
-            # obs_anchors_filename=args.anchors_path,
-            # obs_anchors=obs_set,
-            anchors_alpha=args.anchors_alpha,
-        ).to(device)
-        # encoder.fit(obs_anchors=obs_set)
+        if agent_type=="states":
+            from zeroshotrl.rl_agents.ppo.ppo_end_to_end_relu_stack_align import (
+                StateExtractor
+            )
+            # Derive per-stack state dimension and stack count from single env obs shape
+            single_obs_shape = envs.single_observation_space.shape
+            if len(single_obs_shape) == 1:
+                state_dim = int(single_obs_shape[0])
+                stack_n = 1
+            elif len(single_obs_shape) == 2:
+                stack_n = int(single_obs_shape[0])
+                state_dim = int(single_obs_shape[1])
+            else:
+                # Fallback: flatten last dim as state dim
+                state_dim = int(single_obs_shape[-1])
+                stack_n = int(np.prod(single_obs_shape[:-1])) if len(single_obs_shape) > 1 else 1
+
+            encoder = StateExtractor(
+                state_dim=state_dim,
+                use_relative=args.use_relative,
+                pretrained=args.pretrained,
+                # obs_anchors_filename=args.anchors_path,
+                # obs_anchors=obs_set,
+                anchors_alpha=args.anchors_alpha,
+            ).to(device)
+        if agent_type=="pixels":
+            encoder = FeatureExtractor(
+                use_relative=args.use_relative,
+                pretrained=args.pretrained,
+                # obs_anchors_filename=args.anchors_path,
+                # obs_anchors=obs_set,
+                anchors_alpha=args.anchors_alpha,
+            ).to(device)
+            # encoder.fit(obs_anchors=obs_set)
 
     if args.use_relative:
         encoder.set_obs_anchors(obs_anchors=obs_set)
@@ -101,12 +131,24 @@ def init_stuff_ppo(
             repr_dim=3136,
         ).to(device)
     else:
-        policy = Policy(envs.single_action_space.n).to(device)
+        # Set policy stack_n based on observation shape (works for both states and pixels)
+        single_obs_shape = envs.single_observation_space.shape
+        if len(single_obs_shape) >= 2:
+            policy_stack_n = int(single_obs_shape[0])
+        else:
+            policy_stack_n = 1
+        policy = Policy(envs.single_action_space.n, stack_n=policy_stack_n).to(device)
 
     if args.use_resnet:
         agent = AgentResNet(encoder, policy).to(device)
     else:
-        agent = Agent(encoder, policy).to(device)
+        # Provide num_envs and num_stack for translation path reshaping and consistency
+        single_obs_shape = envs.single_observation_space.shape
+        if len(single_obs_shape) >= 2:
+            num_stack = int(single_obs_shape[0])
+        else:
+            num_stack = 1
+        agent = Agent(encoder, policy, num_envs=envs.num_envs, num_stack=num_stack).to(device)
 
     optimizer = optim.Adam(agent.parameters(), lr=args.learning_rate, eps=1e-5)
 

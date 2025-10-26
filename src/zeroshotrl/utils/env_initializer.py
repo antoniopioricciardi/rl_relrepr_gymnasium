@@ -47,6 +47,7 @@ from stable_baselines3.common.atari_wrappers import (  # isort:skip
 def make_env_atari(
     env,
     seed=0,
+    rgb_array=True,
     rgb=True,
     stack=0,
     no_op=0,
@@ -85,19 +86,20 @@ def make_env_atari(
             env = ClipRewardEnv(env)
         if filter_dict:
             env = FilterFromDict(env, filter_dict)
-        env = gym.wrappers.ResizeObservation(env, (84, 84))
-        if color_transform != "standard":
-            env = ColorTransformObservation(env, color=color_transform)
-        env = RescaleObservation(env, rescale_value=255.0)
-        if rgb:
-            #     env = PreprocessFrameRGB((84, 84, 3), env)  #
-            # env = ReshapeObservation(env, (3, 96, 96)) # replace with env.observation_space.shape[1],
-            
-            # env = ReshapeObservation(env, (shape[2], shape[0], shape[1]))
-            env = ReshapeObservation(env, (3, 84, 84))
-        if not rgb:
-            # env = gym.wrappers.ResizeObservation(env, (84, 84))
-            env = gym.wrappers.GrayScaleObservation(env)
+        if rgb_array:
+            env = gym.wrappers.ResizeObservation(env, (84, 84))
+            if color_transform != "standard":
+                env = ColorTransformObservation(env, color=color_transform)
+            env = RescaleObservation(env, rescale_value=255.0)
+            if rgb:
+                #     env = PreprocessFrameRGB((84, 84, 3), env)  #
+                # env = ReshapeObservation(env, (3, 96, 96)) # replace with env.observation_space.shape[1],
+                
+                # env = ReshapeObservation(env, (shape[2], shape[0], shape[1]))
+                env = ReshapeObservation(env, (3, 84, 84))
+            if not rgb:
+                # env = gym.wrappers.ResizeObservation(env, (84, 84))
+                env = gym.wrappers.GrayScaleObservation(env)
         # env = NormalizeFrames(env)
         # env = gym.wrappers.GrayScaleObservation(env)
         if stack > 1:
@@ -315,36 +317,69 @@ def init_env(
         gravity = -10
         if "-" in env_id:
             gravity = -int(env_id.split("-")[-1])
-        from zeroshotrl.envs.lunarlander.lunar_lander_rgb import LunarLanderRGB
-        print("Gravity:", gravity)
-        env = LunarLanderRGB(render_mode=render_md, color=background_color, gravity=gravity)
-        if sync_async == "sync":
-            env_fn = gym.vector.SyncVectorEnv
-        else:
-            env_fn = gym.vector.AsyncVectorEnv
-        # nv = gym.vector.SyncVectorEnv(
-        nv = env_fn(
-            [
-                make_env_atari(
-                    env,
-                    seed=cust_seed,
-                    rgb=True,
-                    stack=4,
-                    no_op=0,
-                    action_repeat=0,
-                    max_frames=False,
-                    episodic_life=False,
-                    clip_reward=False,
-                    check_fire=False,
-                    idx=i,
-                    capture_video=False,
-                    run_name="test",
-                )
-                for i in range(num_envs)
+        if "RGB" in env_id:
+            print("Using LunarLanderRGB")
+            from zeroshotrl.envs.lunarlander.lunar_lander_rgb import LunarLanderRGB
+            print("Gravity:", gravity)
+            env = LunarLanderRGB(render_mode=render_md, color=background_color, gravity=gravity)
+            if sync_async == "sync":
+                env_fn = gym.vector.SyncVectorEnv
+            else:
+                env_fn = gym.vector.AsyncVectorEnv
+            # nv = gym.vector.SyncVectorEnv(
+            nv = env_fn(
+                [
+                    make_env_atari(
+                        env,
+                        seed=cust_seed,
+                        rgb=True,
+                        stack=4,
+                        no_op=0,
+                        action_repeat=0,
+                        max_frames=False,
+                        episodic_life=False,
+                        clip_reward=False,
+                        check_fire=False,
+                        idx=i,
+                        capture_video=False,
+                        run_name="test",
+                    )
+                    for i in range(num_envs)
 
-                
-            ]
-        )
+                    
+                ]
+            )
+        else:
+            print("Using LunarLander")
+            from zeroshotrl.envs.lunarlander.lunar_lander_orig import LunarLander
+            print("Gravity:", gravity)
+            env = LunarLander(render_mode=render_md, gravity=gravity)
+            if sync_async == "sync":
+                env_fn = gym.vector.SyncVectorEnv
+            else:
+                env_fn = gym.vector.AsyncVectorEnv
+            # nv = gym.vector.SyncVectorEnv(
+            nv = env_fn(
+                [
+                    make_env_atari(
+                        env,
+                        seed=cust_seed,
+                        rgb_array=False,
+                        rgb=False,
+                        stack=4,
+                        no_op=0,
+                        action_repeat=0,
+                        max_frames=False,
+                        episodic_life=False,
+                        clip_reward=False,
+                        check_fire=False,
+                        idx=i,
+                        capture_video=False,
+                        run_name="test",
+                    )
+                    for i in range(num_envs)
+                ]
+            )
     elif env_id.startswith("MiniWorld"):
         # lvl = env_id.split("-")[-1]
         # import miniworld

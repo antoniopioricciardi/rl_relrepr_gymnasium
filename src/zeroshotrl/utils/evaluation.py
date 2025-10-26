@@ -74,6 +74,7 @@ def evaluate_vec_env(
         not isinstance(env, gym.vector.SyncVectorEnv)
     ):
         raise ValueError("envs must be an instance of AsyncVectorEnv or SyncVectorEnv")
+    # Track per-env completion and stats
     eval_dones = np.zeros(num_envs)
     eval_rewards = np.zeros(num_envs)
     eval_lengths = np.zeros(num_envs)
@@ -103,8 +104,15 @@ def evaluate_vec_env(
         e_next_obs, e_reward, terminated, truncated, e_info = env.step(
             action.cpu().numpy()
         )
-        # sss += e_reward
+        # accumulate rewards/lengths for envs that are not yet marked done
         e_dones = np.logical_or(terminated, truncated)
+        # Add step rewards only for envs not already finalized
+        if isinstance(e_reward, np.ndarray):
+            eval_rewards[dds == 0] += e_reward[dds == 0]
+        else:
+            # single env fallback
+            if not dds[0]:
+                eval_rewards[0] += e_reward
         eval_lengths[dds == 0] += 1
         e_obs = torch.Tensor(e_next_obs).to(device)
         score += e_reward
@@ -118,8 +126,17 @@ def evaluate_vec_env(
             if info is None:
                 continue
             if not dds[info_idx]:
-                eval_rewards[info_idx] = info["episode"]["r"]
+                # Mark env as done
                 dds[info_idx] = 1
+                # If RecordEpisodeStatistics is present, prefer its totals
+                if isinstance(info, dict) and "episode" in info:
+                    ep = info["episode"]
+                    # Use provided totals if available
+                    if isinstance(ep, dict):
+                        if "r" in ep:
+                            eval_rewards[info_idx] = ep["r"]
+                        if "l" in ep:
+                            eval_lengths[info_idx] = ep["l"]
         # check for the rare case an agent is stuck in an infinite loop
         if episode_length_limit > 0:
             dds[eval_lengths >= episode_length_limit] = 1
