@@ -80,8 +80,8 @@ class PPOFinetune:
         eval_run_name = run_name + "_eval"
         self.wandb = None
         if self.track:
-            import wandb as _wandb
-            _wandb.init(
+            import wandb
+            wandb.init(
                 project=wandb_project_name,
                 entity=wandb_entity,
                 sync_tensorboard=True,
@@ -90,8 +90,7 @@ class PPOFinetune:
                 monitor_gym=True,
                 save_code=True,
             )
-            # keep a reference to the wandb module when tracking is enabled
-            self.wandb = _wandb
+        self.wandb = wandb
         self.writer = SummaryWriter(f"runs/{run_name}")
         self.writer.add_text(
             "hyperparameters",
@@ -104,7 +103,6 @@ class PPOFinetune:
             log_path = os.path.join("runs", run_name)  # f"runs/{run_name}/"
         else:
             log_path = f"{self.wandb.run.dir}"
-        self.log_path = log_path
 
         # create logger
         # logger = Logger(work_dir, use_tb=cfg.use_tb, use_wandb=cfg.use_wandb)
@@ -149,9 +147,9 @@ class PPOFinetune:
         # else:
         num_updates = self.total_timesteps // self.batch_size  # 5000000 // 2048 = 2441
         # compute eval_freq so that we perform a total of num_eval_steps evaluations
-        # compute a safe evaluation frequency in steps; ensure it's at least one vectorized step
-        eval_every = max(self.num_envs, self.total_timesteps // max(1, self.num_eval_eps))
-        eval_freq = max(self.num_envs, (eval_every // self.num_envs) * self.num_envs)
+        eval_freq = (
+            self.total_timesteps // (self.num_envs * self.num_eval_eps)
+        ) * self.num_envs  # (5000000 // (16 * 1000)) * 16 = 4992
 
         # score = 0
         # scores_list = []
@@ -301,12 +299,12 @@ class PPOFinetune:
                             "charts/episodic_length", info["episode"]["l"], global_step
                         )
 
-                        if self.use_relative and self.track:
-                            # Log anchor embeddings histograms when tracking is enabled
+                        if self.use_relative:
+                            # curr_anchors = np.array([encoder.anchors[i].cpu().detach()  for i in range(10)])
                             self.wandb.log(
                                 {
                                     f"anchors_embeddings/{i}": self.wandb.Histogram(
-                                        self.agent.encoder.anchors[i].cpu().detach()
+                                        self.encoder.anchors[i].cpu().detach()
                                     )
                                     for i in range(10)
                                 },
@@ -538,12 +536,12 @@ if __name__ == "__main__":
     parser.add_argument("--total-timesteps", type=int, default=300000)
     parser.add_argument("--learning-rate", type=float, default=0.00005)
     parser.add_argument("--num-eval-eps", type=int, default=20)
-    parser.add_argument("--use-resnet", action="store_true")
+    parser.add_argument("--use-resnet", type=bool, default=False)
     parser.add_argument("--anchors-method", type=str, default="fps")
     parser.add_argument("--stitching-mode", type=str, default="relative")
-    parser.add_argument("--zoom", type=float, default=2.7)
+    parser.add_argument("--zoom", type=bool, default=2.7)
     parser.add_argument("--env-seed", type=int, default=1)
-    parser.add_argument("--track", action="store_true")
+    parser.add_argument("--track", type=bool, default=False)
     # parser.add_argument("--exp_name", type=str, default="finetune")
     parser.add_argument("--wandb-project-name", type=str, default="finetune")
 
@@ -713,7 +711,7 @@ if __name__ == "__main__":
     # for param in agent.translation.parameters():
     #     param.requires_grad = False
 
-    # PPOFinetune is defined above; avoid re-importing the same module
+    from zeroshotrl.finetune import PPOFinetune
     print("Starting finetuning...")
     # finetuner = PPOFinetune(agent, finetune_envs, eval_envs, seed=1, total_timesteps=200000, learning_rate=0.00005, device=device)
 
