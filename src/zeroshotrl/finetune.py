@@ -5,6 +5,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import os
+from torch.distributions import Categorical
 
 # from utils.relative import init_anchors, init_anchors_from_obs, get_obs_anchors, get_obs_anchors_totensor
 from zeroshotrl.utils.helputils import save_model, upload_csv_wandb
@@ -57,7 +58,52 @@ class PPOFinetune:
 
         self.update_epochs = 4
         self.learning_rate = learning_rate
-        optimizer = optim.Adam(agent.parameters(), lr=learning_rate, eps=1e-5)
+
+        # Per-module learning rates (fall back to base if not provided on args)
+        base_lr = self.learning_rate
+        try:
+            enc_lr = args.lr_encoder if getattr(args, "lr_encoder", None) not in (None, 0) else base_lr
+            trans_lr = args.lr_translation if getattr(args, "lr_translation", None) not in (None, 0) else base_lr * 2.0
+            critic_lr = args.lr_critic if getattr(args, "lr_critic", None) not in (None, 0) else base_lr * 2.0
+            actor_lr = args.lr_actor if getattr(args, "lr_actor", None) not in (None, 0) else base_lr
+        except Exception:
+            enc_lr, trans_lr, critic_lr, actor_lr = base_lr, base_lr * 2.0, base_lr * 2.0, base_lr
+
+        # Only optimize parameters that are marked trainable. Create param groups so we can
+        # control different lrs and preserve relative scales during annealing via lr_factor.
+        enc_params, trans_params, critic_params, actor_params, other_params = [], [], [], [], []
+        for n, p in self.agent.named_parameters():
+            if not p.requires_grad:
+                continue
+            if n.startswith("encoder."):
+                enc_params.append(p)
+            elif n.startswith("translation."):
+                trans_params.append(p)
+            elif n.startswith("policy.critic"):
+                critic_params.append(p)
+            elif n.startswith("policy.actor"):
+                actor_params.append(p)
+            else:
+                other_params.append(p)
+
+        param_groups = []
+        if enc_params:
+            param_groups.append({"params": enc_params, "lr": enc_lr, "lr_factor": enc_lr / max(base_lr, 1e-12)})
+        if trans_params:
+            param_groups.append({"params": trans_params, "lr": trans_lr, "lr_factor": trans_lr / max(base_lr, 1e-12)})
+        if critic_params:
+            param_groups.append({"params": critic_params, "lr": critic_lr, "lr_factor": critic_lr / max(base_lr, 1e-12)})
+        if actor_params:
+            param_groups.append({"params": actor_params, "lr": actor_lr, "lr_factor": actor_lr / max(base_lr, 1e-12)})
+        if other_params:
+            param_groups.append({"params": other_params, "lr": base_lr, "lr_factor": 1.0})
+
+        # Fallback in degenerate cases
+        if not param_groups:
+            trainable_params = [p for p in self.agent.parameters() if p.requires_grad]
+            param_groups = [{"params": trainable_params, "lr": base_lr, "lr_factor": 1.0}]
+
+        optimizer = optim.Adam(param_groups, lr=base_lr, eps=1e-5)
         self.optimizer = optimizer
         self.gamma = 0.99
         self.use_relative = False
@@ -72,6 +118,14 @@ class PPOFinetune:
         self.target_kl = None
 
         self.anneal_lr = True
+
+        # KL regularization to initial policy (helps when unfreezing actor)
+        self.kl_coef = getattr(args, "kl_coef", 0.0) or 0.0
+        import copy as _copy
+        self.ref_policy = _copy.deepcopy(agent.policy).to(device)
+        for p in self.ref_policy.parameters():
+            p.requires_grad = False
+        self.ref_policy.eval()
 
         self.track = args.track
         # self.log_path = log_path
@@ -181,18 +235,21 @@ class PPOFinetune:
             if self.anneal_lr:
                 frac = 1.0 - (update - 1.0) / num_updates
                 lrnow = frac * self.learning_rate
-                self.optimizer.param_groups[0]["lr"] = lrnow
+                # Anneal each group preserving its lr_factor
+                for g in self.optimizer.param_groups:
+                    factor = g.get("lr_factor", 1.0)
+                    g["lr"] = lrnow * factor
             for step in range(0, self.num_steps):
                 """ EVALUATION """
                 # eval and save model
                 if global_step % eval_freq == 0:
                     print("### EVALUATION ###")
-                    # self.agent.eval()
-                    # eval_agent.eval()
-                    self.eval_agent.load_state_dict(self.agent.state_dict())
-                    self.eval_agent.eval()
+                    # Evaluate the LIVE agent to ensure non-parameter state (e.g., translation transforms)
+                    # is reflected during evaluation. Using a separate eval_agent can miss non-state_dict state.
+                    was_training_encoder = self.agent.encoder.training
+                    self.agent.eval()
                     eval_rewards, eval_lengths, eval_avg_reward = evaluate_vec_env(
-                        agent=self.eval_agent,
+                        agent=self.agent,
                         num_envs=self.num_eval_envs,
                         env=self.eval_envs,
                         global_step=global_step,
@@ -201,6 +258,9 @@ class PPOFinetune:
                         writer=self.writer,
                         logger=self.logger,
                     )
+                    # Restore encoder train mode if it was training before eval
+                    if was_training_encoder:
+                        self.agent.encoder.train()
                     # self.agent.train()
                     # decay best_score to ensure saving a model with converging anchors
                     eval_best_score *= 0.99
@@ -410,11 +470,31 @@ class PPOFinetune:
                         pg_loss - self.ent_coef * entropy_loss + v_loss * self.vf_coef
                     )
 
+                    # Optional KL penalty to the initial policy to prevent drifting too far
+                    if self.kl_coef and self.kl_coef > 0:
+                        with torch.no_grad():
+                            hid = self.agent.get_encoded_obs(b_obs[mb_inds])
+                        # Current policy logits
+                        new_logits = self.agent.policy.actor(self.agent.policy.network_linear(hid))
+                        # Reference (frozen) policy logits
+                        with torch.no_grad():
+                            ref_logits = self.ref_policy.actor(self.ref_policy.network_linear(hid))
+                        new_dist = Categorical(logits=new_logits)
+                        ref_dist = Categorical(logits=ref_logits)
+                        kl_pen = torch.distributions.kl.kl_divergence(new_dist, ref_dist).mean()
+                        loss = loss + self.kl_coef * kl_pen
+
                     self.optimizer.zero_grad()
                     loss.backward()
                     nn.utils.clip_grad_norm_(
                         self.agent.parameters(), self.max_grad_norm
                     )
+                    # print layer name and trainable status, and whether it collects gradients
+                    # for name, param in self.agent.named_parameters():
+                    #     print(
+                    #         f"Layer: {name} | Requires grad: {param.requires_grad} | Gradients: {param.grad is not None} | Norm: {param.grad.norm() if param.grad is not None else 'N/A'}"
+                    #     )
+                    # print('--- End of gradients info ---')
                     self.optimizer.step()
 
                 if self.target_kl is not None and approx_kl > self.target_kl:
@@ -459,12 +539,11 @@ class PPOFinetune:
         # eval and save model
         # if global_step % eval_freq == 0:
         print("### EVALUATION ###")
-        # self.agent.eval()
-
-        self.eval_agent.load_state_dict(self.agent.state_dict())
-        self.eval_agent.eval()
+        # Final evaluation on the live agent to include any non-state_dict state.
+        was_training_encoder = self.agent.encoder.training
+        self.agent.eval()
         eval_rewards, eval_lengths, eval_avg_reward = evaluate_vec_env(
-            agent=self.eval_agent,# self.agent,
+            agent=self.agent,
             num_envs=self.num_eval_envs,
             env=self.eval_envs,
             global_step=global_step,
@@ -473,6 +552,8 @@ class PPOFinetune:
             writer=self.writer,
             logger=self.logger,
         )
+        if was_training_encoder:
+            self.agent.encoder.train()
         # self.agent.train()
         # decay best_score to ensure saving a model with converging anchors
         eval_best_score *= 0.99
@@ -528,6 +609,7 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("--env-id", type=str, default="CarRacing-v2")
+    parser.add_argument("--env-id2", type=str, default="CarRacing-v2-slow")
     parser.add_argument("--background-color", type=str, default="green")
     parser.add_argument("--encoder-dir", type=str, default="models/encoder")
     parser.add_argument("--policy-dir", type=str, default="models/policy")
@@ -535,6 +617,11 @@ if __name__ == "__main__":
     parser.add_argument("--anchors-file2", type=str, default="data/obs_set_2.pt")
     parser.add_argument("--total-timesteps", type=int, default=300000)
     parser.add_argument("--learning-rate", type=float, default=0.00005)
+    # Optional per-module learning rates
+    parser.add_argument("--lr-encoder", type=float, default=None)
+    parser.add_argument("--lr-translation", type=float, default=None)
+    parser.add_argument("--lr-critic", type=float, default=None)
+    parser.add_argument("--lr-actor", type=float, default=None)
     parser.add_argument("--num-eval-eps", type=int, default=20)
     parser.add_argument("--use-resnet", type=bool, default=False)
     parser.add_argument("--anchors-method", type=str, default="fps")
@@ -542,14 +629,18 @@ if __name__ == "__main__":
     parser.add_argument("--zoom", type=bool, default=2.7)
     parser.add_argument("--env-seed", type=int, default=1)
     parser.add_argument("--track", type=bool, default=False)
+    parser.add_argument("--unfreeze-actor", type=bool, default=False)
+    parser.add_argument("--freeze-encoder", type=bool, default=False)
     # parser.add_argument("--exp_name", type=str, default="finetune")
     parser.add_argument("--wandb-project-name", type=str, default="finetune")
+    parser.add_argument("--kl-coef", type=float, default=0.0)
 
     args = parser.parse_args()
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     """ Parameters to change for single test """
     env_id = args.env_id 
+    env_id2 = args.env_id2
     model_color_1 = args.background_color
     encoder_dir = args.encoder_dir
     policy_dir = args.policy_dir
@@ -567,7 +658,7 @@ if __name__ == "__main__":
     model_algo_1 = "ppo"
     model_algo_2 = "ppo"
     env_info = "rgb"
-    env_info2 = "rgb"
+    env_info2 = "states"
 
     stitching_md = args.stitching_mode
     image_path = ""
@@ -605,8 +696,8 @@ if __name__ == "__main__":
     envs2 = init_env(
         # "LunarLanderRGB",
         # "states",
-        env_id,
-        env_info,
+        env_id2,
+        env_info2,
         background_color=args.background_color,
         image_path=image_path,
         zoom=args.zoom,
@@ -698,18 +789,31 @@ if __name__ == "__main__":
         agent, encoder1, policy2, translation_layer = translate(anchors_file1, anchors_file2, encoder_dir, encoder, encoder2, policy2, model_color_1, model_color_2, anchoring_method, use_resnet, num_finetune_envs, device)
 
 
-    agent.policy.train()
-    # agent.encoder.train()
-    if stitching_md == "translate":
+    # agent.policy.train()
+    # Freeze policy; train encoder (and translation if present)
+    agent.encoder.train()
+    if stitching_md == "translate" and hasattr(agent, "translation") and agent.translation is not None:
         agent.translation.train()
-    agent.encoder.eval()
-    # agent.translation.eval()
+    # Keep policy actor frozen and in eval mode; we'll allow critic head to adapt.
+    agent.policy.eval()
+
+    # Require gradients only for encoder and translation; freeze policy
     for param in agent.encoder.parameters():
-        param.requires_grad = False # False
+        param.requires_grad = False
+    # Freeze entire policy by default
     for param in agent.policy.parameters():
         param.requires_grad = True
-    # for param in agent.translation.parameters():
-    #     param.requires_grad = False
+    # Unfreeze only the critic head so value estimates can adapt to the target environment
+    if hasattr(agent.policy, "critic"):
+        for p in agent.policy.critic.parameters():
+            p.requires_grad = True
+    # Optionally unfreeze actor if requested
+    if getattr(args, "unfreeze_actor", False) and hasattr(agent.policy, "actor"):
+        for p in agent.policy.actor.parameters():
+            p.requires_grad = True
+    if stitching_md == "translate" and hasattr(agent, "translation") and agent.translation is not None:
+        for param in agent.translation.parameters():
+            param.requires_grad = True
 
     from zeroshotrl.finetune import PPOFinetune
     print("Starting finetuning...")
@@ -749,4 +853,4 @@ if __name__ == "__main__":
 # python src/zeroshotrl/finetune.py --track True --wandb-project-name finetuning --stitching-mode translate --env-id LunarLanderRGB-3 --env-seed 1 --background-color red --encoder-dir models/LunarLanderRGB/rgb/red/ppo/absolute/relu/seed_1 --policy-dir models/LunarLanderRGB-3/rgb/white/ppo/absolute/relu/seed_1 --anchors-file1 data/anchors/LunarLanderRGB/rgb_ppo_transitions_red_obs.pkl --anchors-file2 data/anchors/LunarLanderRGB/rgb_ppo_transitions_white_obs.pkl --total-timesteps 2500000 --learning-rate 0.00005 --num-eval-eps 250  --anchors-method random
 
 """ LUNARLANDER STATES -> RGB ENCODER"""
-# python src/zeroshotrl/finetune.py --track True --wandb-project-name finetuning --stitching-mode translate --env-id LunarLanderRGB --env-seed 1 --background-color white --encoder-dir models/LunarLanderRGB/rgb/white/ppo/absolute/relu/seed_1 --policy-dir models/LunarLander/states/standard/ppo/absolute/relu/seed_1 --anchors-file1 data/anchors/LunarLanderRGB/rgb_ppo_transitions_white_obs.pkl --anchors-file2 data/anchors/LunarLander/states_ppo_transitions_standard_obs.pkl --anchors-method random
+# python src/zeroshotrl/finetune.py --track True --wandb-project-name finetuning --stitching-mode translate --env-id LunarLanderRGB --env-id2 LunarLander --env-seed 1 --background-color white --encoder-dir models/LunarLanderRGB/rgb/white/ppo/absolute/relu/seed_1 --policy-dir models/LunarLander/states/standard/ppo/absolute/relu/seed_1 --anchors-file1 data/anchors/LunarLanderRGB/rgb_ppo_transitions_white_obs.pkl --anchors-file2 data/anchors/LunarLander/states_ppo_transitions_standard_obs.pkl --total-timesteps 2500000 --learning-rate 0.00005 --num-eval-eps 250  --anchors-method random
